@@ -63,7 +63,7 @@ def get_article_content(title, data):
     # Combine the title and the paragraphs into a single text string
     return title + '\n' + ' '.join(paragraphs)
 
-def generate_prompt(user_query, relevance, top_articles, lawcontent_dict):
+def generate_prompt(user_query, relevance, top_articles, law_data):
 
     prompt = f"Beantworte folgende Frage: \"{user_query}\"\n\n"
     prompt += "Beantworte die Frage nur gestützt auf einen oder mehrere der folgenden §. Prüfe zuerst, ob der § überhaupt auf die Frage anwendbar ist. Wenn er nicht anwendbar ist, vergiss den §.\n"
@@ -110,7 +110,7 @@ def main():
             top_articles = sorted_articles[:5]
 
             # Generate and display the prompt
-            prompt = generate_prompt(user_query, relevance, top_articles, lawcontent_dict)
+            prompt = generate_prompt(user_query, relevance, top_articles, law_data)
             st.text_area("Generated Prompt:", prompt, height=300)
         else:
             st.warning("Please enter a query.")
