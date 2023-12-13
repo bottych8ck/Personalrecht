@@ -5,6 +5,11 @@ from dotenv import load_dotenv
 import streamlit as st
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+relevance_mapping = {
+    "assembly": "Die Frage bezieht sich auf Gemeindeversammlungen.",
+    "mail voting": "Die Frage bezieht sich auf Wahlen an der Urne.",
+    "none": "Die Frage ist allgemein und nicht spezifisch relevant für die Gemeindeversammlung oder Urnenwahl."
+}
 
 
 # Load the data
@@ -59,11 +64,6 @@ def get_article_content(title, data):
     return title + '\n' + ' '.join(paragraphs)
 
 def generate_prompt(user_query, relevance, top_articles, lawcontent_dict):
-    relevance_mapping = {
-        "assembly": "Die Frage bezieht sich auf Gemeindeversammlungen.",
-        "mail voting": "Die Frage bezieht sich auf Wahlen an der Urne.",
-        "none": "Die Frage ist allgemein und nicht spezifisch relevant für die Gemeindeversammlung oder Urnenwahl."
-    }
 
     prompt = f"Beantworte folgende Frage: \"{user_query}\"\n\n"
     prompt += "Beantworte die Frage nur gestützt auf einen oder mehrere der folgenden §. Prüfe zuerst, ob der § überhaupt auf die Frage anwendbar ist. Wenn er nicht anwendbar ist, vergiss den §.\n"
@@ -71,7 +71,7 @@ def generate_prompt(user_query, relevance, top_articles, lawcontent_dict):
     article_number = 1
 
     for title, _ in top_articles:
-        article = lawcontent_dict.get(title, {})
+        article = law_data.get(title, {})
         name = article.get("Name", "Unbekanntes Gesetz")
         content = ' '.join(article.get("Inhalt", []))
 
@@ -104,7 +104,7 @@ def main():
             # Process the query
             enhanced_user_query = user_query + " " + relevance_mapping.get(relevance, "")
             query_vector = get_embeddings(enhanced_user_query)
-            relevant_lawcontent_dict = get_relevant_articles(lawcontent_dict, relevance)
+            relevant_lawcontent_dict = get_relevant_articles(law_data, relevance)
             similarities = calculate_similarities(query_vector, {title: embeddings_dict[title] for title in relevant_lawcontent_dict if title in embeddings_dict})
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
             top_articles = sorted_articles[:5]
