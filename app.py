@@ -102,7 +102,7 @@ def main():
     if st.button("Generate Prompt"):
         if user_query:
             # Process the query
-            enhanced_user_query = user_query + " " + relevance_phrases.get(relevance, "")
+            enhanced_user_query = user_query + " " + relevance_mapping.get(relevance, "")
             query_vector = get_embeddings(enhanced_user_query)
             relevant_lawcontent_dict = get_relevant_articles(lawcontent_dict, relevance)
             similarities = calculate_similarities(query_vector, {title: embeddings_dict[title] for title in relevant_lawcontent_dict if title in embeddings_dict})
