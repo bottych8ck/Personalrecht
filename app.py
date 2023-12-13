@@ -105,7 +105,7 @@ def main():
             enhanced_user_query = user_query + " " + relevance_mapping.get(relevance, "")
             query_vector = get_embeddings(enhanced_user_query)
             relevant_lawcontent_dict = get_relevant_articles(law_data, relevance)
-            similarities = calculate_similarities(query_vector, {title: embeddings_dict[title] for title in relevant_lawcontent_dict if title in embeddings_dict})
+            similarities = calculate_similarities(query_vector, {title: article_embeddings[title] for title in relevant_lawcontent_dict if title in article_embeddings})
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
             top_articles = sorted_articles[:5]
 
