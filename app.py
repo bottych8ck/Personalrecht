@@ -128,7 +128,6 @@ def main():
         else:
             st.warning("Bitte geben Sie eine Anfrage ein.")
 
-    # "Generate Prompt" button
     if st.button("Generate Prompt"):
         if user_query and top_articles:
             # Generate and display the prompt
@@ -142,7 +141,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 
 
