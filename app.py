@@ -6,9 +6,9 @@ import streamlit as st
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 relevance_mapping = {
-    "assembly": "Die Frage bezieht sich auf Gemeindeversammlungen.",
-    "mail voting": "Die Frage bezieht sich auf Wahlen an der Urne.",
-    "none": "Die Frage ist allgemein und nicht spezifisch relevant für die Gemeindeversammlung oder Urnenwahl."
+    "Gemeindeversammlung": "Die Frage bezieht sich auf Gemeindeversammlungen.",
+    "Urnenwahl": "Die Frage bezieht sich auf Wahlen an der Urne.",
+    "nicht relevant": "Die Frage ist allgemein und nicht spezifisch relevant für die Gemeindeversammlung oder Urnenwahl."
 }
 
 
@@ -30,9 +30,9 @@ def get_embeddings(text):
 
 def is_relevant_article(section_data, relevance):
     tags = section_data.get("tags", [])
-    if relevance == 'assembly':
+    if relevance == 'Gemeindeversammlung':
         return any("Assembly" in tag for tag in tags)
-    elif relevance == 'mail voting':
+    elif relevance == 'Urnenwahl':
         return any("Mail Voting" in tag for tag in tags)
     else:  # If relevance is 'none' or any other value, consider all articles
         return True
@@ -76,9 +76,9 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
         content = ' '.join(article.get("Inhalt", []))
 
         # Check direct applicability based on user's choice
-        if relevance == "assembly":
+        if relevance == "Gemeindeversammlung":
             applicability = "Dieser § ist direkt auf Gemeindeversammlungen anwendbar." if "Directly Applicable: Assembly" in article.get("tags", []) else "Dieser § ist nur sinngemäss auf Gemeindeversammlungen anwendbar. Es könnte direkt anwendbare § geben, oder Vorschriften in der Gemeindeordnung zu beachten sein, die nicht bekannt sind."
-        elif relevance == "mail voting":
+        elif relevance == "Urnenwahl":
             applicability = "Dieser § ist direkt auf Urnenwahl anwendbar." if "Directly Applicable: Mail Voting" in article.get("tags", []) else "Dieser § ist nur sinngemäss auf Urnenwahlen anwendbar. Es könnte direkt anwendbare § geben, oder Vorschriften in der Gemeindeordnung zu beachten sein, die nicht bekannt sind."
         else:
             applicability = "Überprüfung der direkten Anwendbarkeit ist nicht erforderlich."
@@ -95,8 +95,8 @@ def main():
 
     # User inputs
     user_query = st.text_input("Hier Ihre Frage eingeben:")
-    relevance_options = ["assembly", "mail voting", "none"]
-    relevance = st.selectbox("Select relevance:", relevance_options)
+    relevance_options = ["Gemeindeversammlung", "Urnenwahl", "nicht relevant"]
+    relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Gemeindeversammlungen oder Urnenwahlen bezieht, oder ob dies nicht relevant ist:", relevance_options)
 
     # Generate prompt button
     if st.button("Generate Prompt"):
