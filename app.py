@@ -81,12 +81,15 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
         elif relevance == "Urnenwahl":
             applicability = "Dieser § ist direkt auf Urnenwahl anwendbar." if "Directly Applicable: Mail Voting" in article.get("tags", []) else "Dieser § ist nur sinngemäss auf Urnenwahlen anwendbar. Es könnte direkt anwendbare § geben, oder Vorschriften in der Gemeindeordnung zu beachten sein, die nicht bekannt sind."
         else:
-            applicability = "Überprüfung der direkten Anwendbarkeit ist nicht erforderlich."
+            applicability = ""
 
-        prompt += f"\n{article_number}. §: {title} von folgemden Gesetz:{name}\n   - Anwendbarkeit: {applicability}\n   - **Inhalt:** {content}\n"
+        prompt += f"\n{article_number}. §: {title} von folgemden Gesetz:{name}\n"
+        if applicability:
+            prompt += f"   - Anwendbarkeit: {applicability}\n"
+        prompt += f"   - **Inhalt:** {content}\n"
         article_number += 1
 
-    prompt += "\n\n**Anfrage basierend auf den obigen Informationen beantworten:**\n"
+    prompt += "\n\nAnfrage auf Deutsch beantworten:\n"
 
     return prompt
 
