@@ -108,7 +108,9 @@ def main():
             similarities = calculate_similarities(query_vector, {title: article_embeddings[title] for title in relevant_lawcontent_dict if title in article_embeddings})
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
             top_articles = sorted_articles[:5]
-
+            st.subheader("Top Matching Articles")
+            for title, score in top_articles:
+                st.write(f"{title}: {round(score, 2)}")
             # Generate and display the prompt
             prompt = generate_prompt(user_query, relevance, top_articles, law_data)
             st.text_area("Generated Prompt:", prompt, height=300)
