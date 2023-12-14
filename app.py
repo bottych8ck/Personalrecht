@@ -83,7 +83,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
         else:
             applicability = ""
 
-        prompt += f"\n{article_number}. §: {title} von folgemden Gesetz:{name}\n"
+        prompt += f"\n{article_number}. §: {title} von folgendem Erass: {name}\n"
         if applicability:
             prompt += f"   - Anwendbarkeit: {applicability}\n"
         prompt += f"   - **Inhalt:** {content}\n"
@@ -111,7 +111,7 @@ def main():
             similarities = calculate_similarities(query_vector, {title: article_embeddings[title] for title in relevant_lawcontent_dict if title in article_embeddings})
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
             top_articles = sorted_articles[:5]
-            st.subheader("Top Matching Articles")
+            st.subheader("Am besten auf die Anfrage passende Artikel")
             for title, score in top_articles:
                 st.write(f"{title}: {round(score, 2)}")
             # Generate and display the prompt
