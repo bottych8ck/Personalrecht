@@ -58,10 +58,11 @@ def calculate_similarities(query_vector, article_embeddings):
 
 def get_article_content(title, data):
     # Retrieve the list of paragraphs for the given title, default to an empty list if the title is not found
-    paragraphs = data.get(title, [])
+    paragraphs = data.get('inhalt', [])
 
-    # Combine the title and the paragraphs into a single text string
-    return title + '\n' + ' '.join(paragraphs)
+    # Return paragraphs as a list
+    return paragraphs
+
 
 def generate_prompt(user_query, relevance, top_articles, law_data):
 
@@ -114,22 +115,19 @@ def main():
 
             st.subheader("Am besten auf die Anfrage passende Artikel")
             for title, score in top_articles:
-                article_content = get_article_content(title, law_data[title]['content'])  # Assuming 'content' holds the paragraphs
-                st.write(f"{title} (Score: {round(score, 2)}):\n{article_content}\n\n")
+                article_content = get_article_content(title, law_data[title])  # Fetching content for each article
+                st.write(f"{title} (Score: {round(score, 2)}):")
+                for paragraph in article_content:
+                    st.write(paragraph)
+                st.write("")  # Add a space after each article
         else:
             st.warning("Please enter a query.")
 
-    # "Generate Prompt" button to create and display the prompt
-    if st.button("Generate Prompt"):
-        if user_query and top_articles:
-            # Generate and display the prompt
-            prompt = generate_prompt(user_query, relevance, top_articles, law_data)
-            st.text_area("Generated Prompt:", prompt, height=300)
-        else:
-            st.warning("Please enter a query or find matching articles first.")
+    # Rest of your main function, including the "Generate Prompt" button ...
 
 if __name__ == "__main__":
     main()
+
 
 
 
