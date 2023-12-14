@@ -101,25 +101,34 @@ def main():
     relevance_options = ["Gemeindeversammlung", "Urnenwahl", "nicht relevant"]
     relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Gemeindeversammlungen oder Urnenwahlen bezieht, oder ob dies nicht relevant ist:", relevance_options)
 
-    # Generate prompt button
-    if st.button("Generate Prompt"):
+    # "Abschicken" button to display top matching articles
+    if st.button("Abschicken"):
         if user_query:
-            # Process the query
+            # Process the query for top articles
             enhanced_user_query = user_query + " " + relevance_mapping.get(relevance, "")
             query_vector = get_embeddings(enhanced_user_query)
             relevant_lawcontent_dict = get_relevant_articles(law_data, relevance)
             similarities = calculate_similarities(query_vector, {title: article_embeddings[title] for title in relevant_lawcontent_dict if title in article_embeddings})
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
             top_articles = sorted_articles[:5]
+
             st.subheader("Am besten auf die Anfrage passende Artikel")
             for title, score in top_articles:
-                st.write(f"{title}: {round(score, 2)}")
+                article_content = get_article_content(title, law_data[title]['content'])  # Assuming 'content' holds the paragraphs
+                st.write(f"{title} (Score: {round(score, 2)}):\n{article_content}\n\n")
+        else:
+            st.warning("Please enter a query.")
+
+    # "Generate Prompt" button to create and display the prompt
+    if st.button("Generate Prompt"):
+        if user_query and top_articles:
             # Generate and display the prompt
             prompt = generate_prompt(user_query, relevance, top_articles, law_data)
             st.text_area("Generated Prompt:", prompt, height=300)
         else:
-            st.warning("Please enter a query.")
+            st.warning("Please enter a query or find matching articles first.")
 
 if __name__ == "__main__":
     main()
+
 
