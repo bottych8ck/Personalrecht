@@ -138,6 +138,18 @@ def main():
                 # Generate and display the prompt
                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data)
                 st.text_area("Generated Prompt:", prompt, height=300)
+                            # Button to copy the prompt to clipboard
+                copy_button = st.button('Copy Prompt to Clipboard')
+                if copy_button:
+                    st.markdown(f"<textarea id='text_area' style='height: 1px; width: 1px; position: absolute; left: -9999px;'>{prompt}</textarea>", unsafe_allow_html=True)
+                    st.markdown("""
+                        <script>
+                        var textArea = document.getElementById('text_area');
+                        textArea.select();
+                        document.execCommand('copy');
+                        </script>
+                        """, unsafe_allow_html=True)
+                    st.success("Copied to clipboard!")
             else:
                 if not user_query:
                     st.warning("Bitte geben Sie eine Anfrage ein.")
