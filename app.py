@@ -104,11 +104,15 @@ def main():
     relevance_options = ["Gemeindeversammlung", "Urnenwahl", "nicht relevant"]
     relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Gemeindeversammlungen oder Urnenwahlen bezieht, oder ob dies nicht relevant ist:", relevance_options)
 
-    # Initialize an empty list for top_articles
-    top_articles = []
+    # Initialize session state variables if they don't exist
+    if 'top_articles' not in st.session_state:
+        st.session_state.top_articles = []
+    if 'submitted' not in st.session_state:
+        st.session_state.submitted = False
 
     # "Abschicken" button to display top matching articles
     if st.button("Abschicken"):
+        st.session_state.submitted = True  # Set the flag to True when clicked
         if user_query:
             # Process the query for top articles
             enhanced_user_query = user_query + " " + relevance_mapping.get(relevance, "")
@@ -116,10 +120,10 @@ def main():
             relevant_lawcontent_dict = get_relevant_articles(law_data, relevance)
             similarities = calculate_similarities(query_vector, {title: article_embeddings[title] for title in relevant_lawcontent_dict if title in article_embeddings})
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-            top_articles = sorted_articles[:5]
+            st.session_state.top_articles = sorted_articles[:5]  # Update session state
 
             st.subheader("Am besten auf die Anfrage passende Artikel")
-            for title, score in top_articles:
+            for title, score in st.session_state.top_articles:
                 article_content = get_article_content(title, law_data[title])  # Correctly accessing the 'inhalt' key inside get_article_content
                 st.write(f"{title} (Score: {round(score, 2)}):")
                 for paragraph in article_content:
@@ -128,16 +132,17 @@ def main():
         else:
             st.warning("Bitte geben Sie eine Anfrage ein.")
 
-    if st.button("Generate Prompt"):
-        if user_query and top_articles:
-            # Generate and display the prompt
-            prompt = generate_prompt(user_query, relevance, top_articles, law_data)
-            st.text_area("Generated Prompt:", prompt, height=300)
-        else:
-            if not user_query:
-                st.warning("Bitte geben Sie eine Anfrage ein.")
-            if not top_articles:
-                st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
+    if st.session_state.submitted:
+        if st.button("Generate Prompt"):
+            if user_query and st.session_state.top_articles:
+                # Generate and display the prompt
+                prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data)
+                st.text_area("Generated Prompt:", prompt, height=300)
+            else:
+                if not user_query:
+                    st.warning("Bitte geben Sie eine Anfrage ein.")
+                if not st.session_state.top_articles:
+                    st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
 
 if __name__ == "__main__":
     main()
