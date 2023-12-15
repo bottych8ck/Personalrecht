@@ -115,30 +115,30 @@ def main():
 
     # "Abschicken" button to display top matching articles
     if st.button("Abschicken"):
-    st.session_state.submitted = True  # Set the flag to True when clicked
-    if user_query:
-        # Process the query for top articles
-        enhanced_user_query = user_query + " " + relevance_mapping.get(relevance, "")
-        query_vector = get_embeddings(enhanced_user_query)
-        relevant_lawcontent_dict = get_relevant_articles(law_data, relevance)
-        similarities = calculate_similarities(query_vector, {title: article_embeddings[title] for title in relevant_lawcontent_dict if title in article_embeddings})
-        sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)[:5]  # Get only top 5 articles
-        st.session_state.top_articles = sorted_articles  # Update session state
-
-        st.subheader("Am besten auf die Anfrage passende Artikel")
-        for title, score in st.session_state.top_articles:
-            # Retrieve the content of the article using the get_article_content function
-            article_content = get_article_content(title, law_data)  # Correctly passing the title and law_data
-            if article_content:  # Check if there is content available for the article
-                st.write(f"§ {title}:")  # Display the article title
-                for paragraph in article_content:  # Display each paragraph of the article
-                    st.write(paragraph)
-            else:
-                st.write(f"§ {title}: Kein Inhalt verfügbar.")  # Indicate if no content is available for the article
-            st.write("")  # Add a space after each article
-    else:
-        st.warning("Bitte geben Sie eine Anfrage ein.")
-        
+        st.session_state.submitted = True  # Set the flag to True when clicked
+        if user_query:
+            # Process the query for top articles
+            enhanced_user_query = user_query + " " + relevance_mapping.get(relevance, "")
+            query_vector = get_embeddings(enhanced_user_query)
+            relevant_lawcontent_dict = get_relevant_articles(law_data, relevance)
+            similarities = calculate_similarities(query_vector, {title: article_embeddings[title] for title in relevant_lawcontent_dict if title in article_embeddings})
+            sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)[:5]  # Get only top 5 articles
+            st.session_state.top_articles = sorted_articles  # Update session state
+    
+            st.subheader("Am besten auf die Anfrage passende Artikel")
+            for title, score in st.session_state.top_articles:
+                # Retrieve the content of the article using the get_article_content function
+                article_content = get_article_content(title, law_data)  # Correctly passing the title and law_data
+                if article_content:  # Check if there is content available for the article
+                    st.write(f"§ {title}:")  # Display the article title
+                    for paragraph in article_content:  # Display each paragraph of the article
+                        st.write(paragraph)
+                else:
+                    st.write(f"§ {title}: Kein Inhalt verfügbar.")  # Indicate if no content is available for the article
+                st.write("")  # Add a space after each article
+        else:
+            st.warning("Bitte geben Sie eine Anfrage ein.")
+            
     if st.session_state.submitted:
         if st.button("Generate Prompt"):
             if user_query and st.session_state.top_articles:
