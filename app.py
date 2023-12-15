@@ -119,15 +119,19 @@ def main():
             query_vector = get_embeddings(enhanced_user_query)
             relevant_lawcontent_dict = get_relevant_articles(law_data, relevance)
             similarities = calculate_similarities(query_vector, {title: article_embeddings[title] for title in relevant_lawcontent_dict if title in article_embeddings})
-            sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-            st.session_state.top_articles = sorted_articles[:5]  # Update session state
+            sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)[:5]  # Get only top 5 articles
+            st.session_state.top_articles = sorted_articles  # Update session state
 
             st.subheader("Am besten auf die Anfrage passende Artikel")
             for title, score in st.session_state.top_articles:
-                article_content = get_article_content(title, law_data[title])  # Correctly accessing the 'inhalt' key inside get_article_content
-                st.write(f"{title} (Score: {round(score, 2)}):")
-                for paragraph in article_content:
-                    st.write(paragraph)
+                # Retrieve the content of the article using the get_article_content function
+                article_content = get_article_content(title, law_data)  # Correctly passing the title and law_data
+                if article_content:  # Check if there is content available for the article
+                    st.write(f"§ {title}:")  # Display the article title
+                    for paragraph in article_content:  # Display each paragraph of the article
+                        st.write(paragraph)
+                else:
+                    st.write(f"§ {title}: Kein Inhalt verfügbar.")  # Indicate if no content is available for the article
                 st.write("")  # Add a space after each article
         else:
             st.warning("Bitte geben Sie eine Anfrage ein.")
@@ -138,7 +142,7 @@ def main():
                 # Generate and display the prompt
                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data)
                 st.text_area("Generated Prompt:", prompt, height=300)
-                            # Button to copy the prompt to clipboard
+                # Button to copy the prompt to clipboard
                 copy_button = st.button('Copy Prompt to Clipboard')
                 if copy_button:
                     st.markdown(f"<textarea id='text_area' style='height: 1px; width: 1px; position: absolute; left: -9999px;'>{prompt}</textarea>", unsafe_allow_html=True)
@@ -158,6 +162,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
