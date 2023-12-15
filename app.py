@@ -57,8 +57,11 @@ def calculate_similarities(query_vector, article_embeddings):
 
 
 def get_article_content(title, data):
-    # Retrieve the list of paragraphs for the given title, default to an empty list if the title is not found
-    paragraphs = law_data.get('inhalt', [])
+    # Retrieve the section data for the given title
+    section_data = data.get(title, {})
+
+    # Retrieve the list of paragraphs from the section data
+    paragraphs = section_data.get('Inhalt', [])
 
     # Return paragraphs as a list
     return paragraphs
