@@ -124,10 +124,12 @@ def main():
             similarities = calculate_similarities(query_vector, {title: article_embeddings[title] for title in relevant_lawcontent_dict if title in article_embeddings})
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)[:5]  # Get only top 5 articles
             st.session_state.top_articles = sorted_articles  # Update session state
-
             st.subheader("Am besten auf die Anfrage passende Artikel")
             for title, score in st.session_state.top_articles:
-                # Retrieve the content of the article using the get_article_content function
+                # Debug: Print the title being passed
+                st.write(f"Title being passed: {title}") 
+
+                #Retrieve the content of the article using the get_article_content function
                 article_content = get_article_content(title, law_data)  # Correctly passing the title and law_data
                 if article_content:  # Check if there is content available for the article
                     st.write(f"§ {title}:")  # Display the article title
@@ -136,7 +138,8 @@ def main():
                 else:
                     st.write(f"§ {title}: Kein Inhalt verfügbar.")  # Indicate if no content is available for the article
                 st.write("")  # Add a space after each article
-        else:
+
+            else:
             st.warning("Bitte geben Sie eine Anfrage ein.")
 
     if st.session_state.submitted:
