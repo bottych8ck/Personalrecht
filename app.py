@@ -157,13 +157,14 @@ def main():
                     var copyText = document.getElementById('text_area');
                     copyText.style.opacity = 1; // Make the textarea visible to enable selection
                     copyText.select();
-                    document.execCommand('copy');
+                    document.execCommand('copy');    
                     copyText.style.opacity = 0; // Hide the textarea again
                     alert('Copied to clipboard!');
                 }}
                 </script>
-            """
-               
+                """
+                st.markdown(copy_button_html, unsafe_allow_html=True)
+
             else:
                 if not user_query:
                     st.warning("Bitte geben Sie eine Anfrage ein.")
