@@ -3,8 +3,10 @@ import os
 import json
 from dotenv import load_dotenv
 import streamlit as st
+import streamlit.components.v1 as components
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+
 relevance_mapping = {
     "Gemeindeversammlung": "Die Frage bezieht sich auf Gemeindeversammlungen.",
     "Urnenwahl": "Die Frage bezieht sich auf Wahlen an der Urne.",
@@ -93,7 +95,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
         prompt += f"   - **Inhalt:** {content}\n"
         article_number += 1
 
-    prompt += "\n\nAnfrage auf Deutsch beantworten:\n"
+    prompt += "\n\nAnfrage auf Deutsch beantworten\n"
 
     return prompt
 
@@ -145,18 +147,21 @@ def main():
                 # Generate and display the prompt
                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data)
                 st.text_area("Generated Prompt:", prompt, height=300)
+                
                 # Button to copy the prompt to clipboard
                 copy_button = st.button('Copy Prompt to Clipboard')
                 if copy_button:
-                    st.markdown(f"<textarea id='text_area' style='height: 1px; width: 1px; position: absolute; left: -9999px;'>{prompt}</textarea>", unsafe_allow_html=True)
-                    st.markdown("""
+                    # Create a hidden textarea and a script to copy its content
+                    components.html(f"""
+                        <textarea id='text_area' style='opacity: 0; position: absolute; left: -9999px;'>{prompt}</textarea>
                         <script>
-                        var textArea = document.getElementById('text_area');
-                        textArea.select();
+                        var copyText = document.getElementById('text_area');
+                        copyText.select();
                         document.execCommand('copy');
                         </script>
-                        """, unsafe_allow_html=True)
+                        """, height=0)
                     st.success("Copied to clipboard!")
+
             else:
                 if not user_query:
                     st.warning("Bitte geben Sie eine Anfrage ein.")
