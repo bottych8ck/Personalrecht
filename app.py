@@ -149,19 +149,21 @@ def main():
                 st.text_area("Generated Prompt:", prompt, height=300)
                 
                 # Button to copy the prompt to clipboard
-                copy_button = st.button('Copy Prompt to Clipboard')
-                if copy_button:
-                    # Create a hidden textarea and a script to copy its content
-                    components.html(f"""
-                        <textarea id='text_area' style='opacity: 0; position: absolute; left: -9999px;'>{prompt}</textarea>
-                        <script>
-                        var copyText = document.getElementById('text_area');
-                        copyText.select();
-                        document.execCommand('copy');
-                        </script>
-                        """, height=0)
-                    st.success("Copied to clipboard!")
-
+                copy_button_html = f"""
+                <button onclick='copyToClipboard()'>Copy Prompt to Clipboard</button>
+                <textarea id='text_area' style='opacity: 0; position: absolute; left: -9999px;'>{prompt}</textarea>
+                <script>
+                function copyToClipboard() {{
+                    var copyText = document.getElementById('text_area');
+                    copyText.style.opacity = 1; // Make the textarea visible to enable selection
+                    copyText.select();
+                    document.execCommand('copy');
+                    copyText.style.opacity = 0; // Hide the textarea again
+                    alert('Copied to clipboard!');
+                }}
+                </script>
+            """
+               
             else:
                 if not user_query:
                     st.warning("Bitte geben Sie eine Anfrage ein.")
