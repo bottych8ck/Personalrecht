@@ -169,9 +169,9 @@ def main_app():
             similarities = calculate_similarities(query_vector, {title: article_embeddings[title] for title in relevant_lawcontent_dict if title in article_embeddings})
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)[:5]  # Get only top 5 articles
             st.session_state.top_articles = sorted_articles  # Update session state
-    
+            st.write("Die folgenden Artikel werden angezeigt, nachdem Ihre Anfrage analysiert und mit den relevanten Gesetzesdaten abgeglichen wurde. Dieser Prozess funktioniert ähnlich wie eine intelligente Suche, bei der die Bedeutung Ihrer Worte erkannt und die passendsten Inhalte aus den Gesetzestexten ausgewählt werden. Ihre Anwendbarkeit hin überprüft werden. Diese Überprüfung kann durch ein LLM (Large Language Model) erfolgen, das die Anwendbarkeit prüft und eine Antwort auf die Anfrage formuliert.")
+
             with st.expander("Am besten auf die Anfrage passende Artikel", expanded=False):
-                st.write("Die folgenden Artikel sind das Ergebnis des Abgleichs zwischen der vektorisierten Anfrage und den vektorisierten Gesetzesdaten. Sie sind daher nicht unbedingt anwendbar, sondern müssen auf ihre Anwendbarkeit hin überprüft werden. Diese Überprüfung kann durch ein LLM (Language Learning Model) erfolgen, das die Anwendbarkeit prüft und eine Antwort auf die Anfrage formuliert.")
                 for title, score in st.session_state.top_articles:
                     # Retrieve the content of the article using the get_article_content function
                     article_content = get_article_content(title, law_data)  # Correctly passing the title and law_data
