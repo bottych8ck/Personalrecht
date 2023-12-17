@@ -24,21 +24,29 @@ with open('law_data.json', 'r') as file:
 load_dotenv()  # This line loads the variables from .env
 
 def welcome_page():
-    st.title("Willkommen zur Gesetzesabfrage-App")
+    st.title("Willkommen zu ChatG-TG für Gemeinderecht")
 
     # Explanation of what the app does
-    st.header("Was macht diese App?")
+    st.header("Was macht die Applikation?")
     st.write("""
-        Diese App ermöglicht es Ihnen, Anfragen zum Gesetz über das Stimm- und Wahlrecht des Kantons Thurgau zu stellen. 
-        Sie verarbeitet Ihre Eingaben und zeigt die relevantesten Artikel basierend auf Ihrer Anfrage an. 
-        Das Ergebnis ist ein Prompt, das in ein Sprachlernmodell (LLM) eingespeist werden kann, um eine detailliertere Analyse oder Antwort zu erhalten.
+        Diese App dient dazu, Anfragen zum Thurgauer Gesetz über das Stimm- und Wahlrecht des Kantons Thurgau zu bearbeiten:
+    """)
+    st.markdown("""
+    - 
+    - Basierend auf einer User-Anfrage berechnet und zeigt die Applikation die am besten zur Anfrage passenden Bestimmungen des Gesetzes über das Stimm- und Wahlrecht.
+    - Auf der Grundlage der am besten passenden Bestimmungen wird anschliessend ein Prompt erzeugt, der einem Sprachlernmodell (LLM, z.B. ChatGTP) vorgelegt werden kann. 
+    - Die Applikation verzichtet aus Kostengründen auf eine automatische Anfrage eines LLM via PAI (Kosten einer Abfrage von GTP-T-Turbo: ca. 2 bis 5 Rappen pro Anfrage). 
+    - Der Prompt kann aber durch die User in die Zwischenablage kopiert und selbst in ein LLM eingespeist werden. Das LLM kann basierend auf dem Prompt eine deutlich bessere Antwort generieren, als wenn ihm die Anfrage direkt gestellt würde.     
+    - Diese Technik wird auch RAG (Retrieval Augmented Generation) genannt. Dabei wird einem LLM bei einer Anfrage passende Informationen vorgelegt, die für die Beantwortung der Anfrage genutzt werden können.
+    
     """)
 
     # Data privacy notice
     st.header("Nutzungshinweis")
-    st.write("""
-        Der Datenschutz kann gegenwärtig nicht garantiert werden. 
-        Verwenden Sie daher in Ihrer Frage keine Personendaten.
+    st.write("Bitte beachten Sie folgende Hinweise zum Datenschutz:")
+    st.markdown("""
+    - Datenschutz:** Der Datenschutz kann gegenwärtig nicht garantiert werden. Verwenden Sie daher keine Personendaten in Ihrer Anfrage.
+    - Die Applikation liefert eine Übersicht der semantisch und kontextuell besten auf die Anfrage passenden Artikel und generiert daraus einen Prompt. Die tatsächliche Anwendbarkeit der ausgewählten Artikel wird nicht garantiert. Noch weniger kann die Richtigkeiten der Antwort von ChatGTP oder eines anderen LLM auf den  generierten Prompts zugesichert werden.    
     """)
 
     # Agree button to proceed to the main app
