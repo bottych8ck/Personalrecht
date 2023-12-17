@@ -24,15 +24,13 @@ with open('law_data.json', 'r') as file:
 load_dotenv()  # This line loads the variables from .env
 
 def welcome_page():
-    st.title("Willkommen zu ChatG-TG für Gemeinderecht")
+    st.title("ChatG-TG für Gemeinderecht")
 
     # Explanation of what the app does
-    st.header("Was macht die Applikation?")
     st.write("""
-        Diese App dient dazu, Anfragen zum Thurgauer Gesetz über das Stimm- und Wahlrecht des Kantons Thurgau zu bearbeiten:
+        Diese App dient dazu, Anfragen zum Thurgauer Gesetz über das Stimm- und Wahlrecht zu bearbeiten:
     """)
     st.markdown("""
-    - 
     - Basierend auf einer User-Anfrage berechnet und zeigt die Applikation die am besten zur Anfrage passenden Bestimmungen des Gesetzes über das Stimm- und Wahlrecht.
     - Auf der Grundlage der am besten passenden Bestimmungen wird anschliessend ein Prompt erzeugt, der einem Sprachlernmodell (LLM, z.B. ChatGTP) vorgelegt werden kann. 
     - Die Applikation verzichtet aus Kostengründen auf eine automatische Anfrage eines LLM via PAI (Kosten einer Abfrage von GTP-T-Turbo: ca. 2 bis 5 Rappen pro Anfrage). 
