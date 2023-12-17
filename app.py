@@ -28,14 +28,15 @@ def welcome_page():
 
     # Explanation of what the app does
     st.write("""
-        Diese App dient dazu, Anfragen zum Thurgauer Gesetz über das Stimm- und Wahlrecht zu bearbeiten:
+        Diese Applikation dient dazu, Anfragen zum Thurgauer Gesetz über das Stimm- und Wahlrecht zu bearbeiten. So funktionierts:
     """)
     st.markdown("""
-    - Basierend auf einer User-Anfrage berechnet und zeigt die Applikation die am besten zur Anfrage passenden Bestimmungen des Gesetzes über das Stimm- und Wahlrecht.
-    - Auf der Grundlage der am besten passenden Bestimmungen wird anschliessend ein Prompt erzeugt, der einem Sprachlernmodell (LLM, z.B. ChatGTP) vorgelegt werden kann. 
-    - Die Applikation verzichtet aus Kostengründen auf eine automatische Anfrage eines LLM via PAI (Kosten einer Abfrage von GTP-T-Turbo: ca. 2 bis 5 Rappen pro Anfrage). 
-    - Der Prompt kann aber durch die User in die Zwischenablage kopiert und selbst in ein LLM eingespeist werden. Das LLM kann basierend auf dem Prompt eine deutlich bessere Antwort generieren, als wenn ihm die Anfrage direkt gestellt würde.     
-    - Diese Technik wird auch RAG (Retrieval Augmented Generation) genannt. Dabei wird einem LLM bei einer Anfrage passende Informationen vorgelegt, die für die Beantwortung der Anfrage genutzt werden können.
+    - Die User stellen eine Anfrage zum Thurgauer Gemeinderecht. 
+    - Die Applikation berechnet und zeigt die am besten zur Anfrage passenden Bestimmungen des Gesetzes über das Stimm- und Wahlrecht.
+    - Auf der Grundlage der fünf am besten passenden Bestimmungen wird anschliessend ein Prompt für ein sog. Large Language Model (LLM, z.B. ChatGTP) erzeugt. Dieser Prompt beinhaltet wichtige Informationen, die das LLM für die Beantwortung nutzen kann.  
+    - Die User können den Prompt in die Zwischenablage kopieren und beispielsweise in ihrer Version von ChatGTP nutzen.      
+    - Die Applikation basiert auf der sog. RAG-Technik (Retrieval Augmented Generation) genannt. Dabei wird einem LLM bei einer Anfrage passende Informationen vorgelegt, die für die Beantwortung der Anfrage genutzt werden können.
+    - Aus Kostengründen erfolgt keine direkte Beantwortung der Frage in der Applikation, weshalb die User den Umweg den 
     
     """)
 
