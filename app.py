@@ -72,7 +72,7 @@ def get_article_content(title, data):
 def generate_html_with_js(prompt):
     return f"""
     <textarea id='text_area' style='opacity: 0; position: absolute; left: -9999px;'>{prompt}</textarea>
-    <button onclick='copyToClipboard()'>Copy Prompt to Clipboard</button>
+    <button onclick='copyToClipboard()'>Text in die Zwischenablage kopieren</button>
     <script>
     function copyToClipboard() {{
         var copyText = document.getElementById('text_area');
@@ -143,16 +143,17 @@ def main():
             st.session_state.top_articles = sorted_articles  # Update session state
     
             st.subheader("Am besten auf die Anfrage passende Artikel")
-            for title, score in st.session_state.top_articles:
-                # Retrieve the content of the article using the get_article_content function
-                article_content = get_article_content(title, law_data)  # Correctly passing the title and law_data
-                if article_content:  # Check if there is content available for the article
-                    st.write(f"§ {title}:")  # Display the article title
-                    for paragraph in article_content:  # Display each paragraph of the article
-                        st.write(paragraph)
-                else:
-                    st.write(f"§ {title}: Kein Inhalt verfügbar.")  # Indicate if no content is available for the article
-                st.write("")  # Add a space after each article
+            with st.expander("Am besten auf die Anfrage passende Artikel", expanded=False):
+                for title, score in st.session_state.top_articles:
+                    # Retrieve the content of the article using the get_article_content function
+                    article_content = get_article_content(title, law_data)  # Correctly passing the title and law_data
+                    if article_content:  # Check if there is content available for the article
+                        st.write(f" {title}:")  # Display the article title
+                        for paragraph in article_content:  # Display each paragraph of the article
+                            st.write(paragraph)
+                    else:
+                        st.write(f"§ {title}: Kein Inhalt verfügbar.")  # Indicate if no content is available for the article
+                    st.write("")  # Add a space after each article
         else:
             st.warning("Bitte geben Sie eine Anfrage ein.")
             
