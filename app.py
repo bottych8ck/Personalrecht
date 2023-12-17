@@ -35,18 +35,16 @@ def welcome_page():
     - Die User stellen eine Anfrage zum Thurgauer Gemeinderecht. 
     - Die Applikation berechnet und zeigt die am besten zur Anfrage passenden Bestimmungen des Gesetzes über das Stimm- und Wahlrecht.
     - Auf der Grundlage der fünf am besten passenden Bestimmungen wird anschliessend ein Prompt für ein sog. Large Language Model (LLM, z.B. ChatGTP) erzeugt. Dieser Prompt beinhaltet wichtige Informationen, die das LLM für die Beantwortung nutzen kann.  
-    - Die User können den Prompt in die Zwischenablage kopieren und beispielsweise in ihrer Version von ChatGTP nutzen.      
+    - Die User können den Prompt in die Zwischenablage kopieren und dem von ihnen genutzten LLM (beispielsweise ChatGTP) vorlegen.      
     """)
-    st.header("Hinweise")
+    st.header("Nutzungshinweise")
     st.markdown("""
-    - Die Applikation basiert auf der sog. RAG-Technik (Retrieval Augmented Generation) genannt. Dabei wird einem LLM bei einer Anfrage passende Informationen vorgelegt, die für die Beantwortung der Anfrage genutzt werden können.
-    - Aus Kostengründen erfolgt keine direkte Beantwortung der Frage in der Applikation, weshalb die User den Prompt lediglich kopieren können, um ihm  selbst einem LLM vorlzuegen.   
-    """)
-    st.header("Haftung")
-    st.markdown("""
+    - Die Applikation basiert auf der sog. RAG-Technik (Retrieval Augmented Generation) genannt. Dabei werden einem LLM bei einer Anfrage passende Informationen vorgelegt, die für die Beantwortung genutzt werden können.
+    - Aus Kostengründen erfolgt keine direkte Beantwortung der Frage in der Applikation, weshalb die User den Prompt lediglich kopieren und ihn danach selbst einem LLM vorlegen können.   
     - Der Datenschutz kann gegenwärtig nicht garantiert werden. Verwenden Sie daher keine Personendaten in Ihrer Anfrage.
-    - Die Applikation liefert eine Übersicht der semantisch und kontextuell besten auf die Anfrage passenden Artikel und generiert daraus einen Prompt. Die tatsächliche Anwendbarkeit der ausgewählten Artikel wird nicht garantiert. Noch weniger kann die Richtigkeiten der Antwort von ChatGTP oder eines anderen LLM auf den  generierten Prompts zugesichert werden.    
+    - Die Applikation liefert eine Übersicht der semantisch und kontextuell besten auf die Anfrage passenden Artikel und generiert daraus einen Prompt. Die tatsächliche Anwendbarkeit der ausgewählten Artikel wird nicht garantiert. Noch weniger kann die Richtigkeiten der Antwort des LLM zugesichert werden.    
     """)
+   
 
     # Agree button to proceed to the main app
     if st.button("Einverstanden"):
