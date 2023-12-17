@@ -142,7 +142,6 @@ def main():
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)[:5]  # Get only top 5 articles
             st.session_state.top_articles = sorted_articles  # Update session state
     
-            st.subheader("Am besten auf die Anfrage passende Artikel")
             with st.expander("Am besten auf die Anfrage passende Artikel", expanded=False):
                 for title, score in st.session_state.top_articles:
                     # Retrieve the content of the article using the get_article_content function
