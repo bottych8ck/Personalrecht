@@ -23,6 +23,28 @@ with open('law_data.json', 'r') as file:
     law_data = json.load(file)
 load_dotenv()  # This line loads the variables from .env
 
+def welcome_page():
+    st.title("Willkommen zur Gesetzesabfrage-App")
+
+    # Explanation of what the app does
+    st.header("Was macht diese App?")
+    st.write("""
+        Diese App ermöglicht es Ihnen, Anfragen zum Gesetz über das Stimm- und Wahlrecht des Kantons Thurgau zu stellen. 
+        Sie verarbeitet Ihre Eingaben und zeigt die relevantesten Artikel basierend auf Ihrer Anfrage an. 
+        Das Ergebnis ist ein Prompt, das in ein Sprachlernmodell (LLM) eingespeist werden kann, um eine detailliertere Analyse oder Antwort zu erhalten.
+    """)
+
+    # Data privacy notice
+    st.header("Nutzungshinweis")
+    st.write("""
+        Der Datenschutz kann gegenwärtig nicht garantiert werden. 
+        Verwenden Sie daher in Ihrer Frage keine Personendaten.
+    """)
+
+    # Agree button to proceed to the main app
+    if st.button("Einverstanden"):
+        st.session_state.agreed_to_terms = True
+
 api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=api_key)
 
@@ -116,7 +138,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
 
 
 
-def main():
+def main_app():
     st.title("Abfrage des Gesetzes über das Stimm- und Wahlrecht des Kantons Thurgau")
 
     # User inputs
@@ -174,9 +196,18 @@ def main():
                 if not st.session_state.top_articles:
                     st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
 
+
+def main():
+    if 'agreed_to_terms' not in st.session_state:
+        st.session_state.agreed_to_terms = False
+
+    if not st.session_state.agreed_to_terms:
+        welcome_page()
+    else:
+        main_app()
+
 if __name__ == "__main__":
     main()
-
 
 
 
