@@ -143,6 +143,8 @@ def main():
             st.session_state.top_articles = sorted_articles  # Update session state
     
             with st.expander("Am besten auf die Anfrage passende Artikel", expanded=False):
+                st.write("Die folgenden Artikel sind das Ergebnis des Abgleichs zwischen der vektorisierten Anfrage und den vektorisierten Gesetzesdaten. Sie sind daher nicht unbedingt anwendbar, sondern müssen auf ihre Anwendbarkeit hin überprüft werden. Diese Überprüfung kann durch ein LLM (Language Learning Model) erfolgen, das die Anwendbarkeit prüft und eine Antwort auf die Anfrage formuliert.")
+                for title, score in st.session_state.top_articles:
                 for title, score in st.session_state.top_articles:
                     # Retrieve the content of the article using the get_article_content function
                     article_content = get_article_content(title, law_data)  # Correctly passing the title and law_data
