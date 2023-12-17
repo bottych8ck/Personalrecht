@@ -39,7 +39,7 @@ def welcome_page():
     """)
     st.header("Nutzungshinweise")
     st.markdown("""
-    - Die Applikation basiert auf der sog. RAG-Technik (Retrieval Augmented Generation) genannt. Dabei werden einem LLM bei einer Anfrage passende Informationen vorgelegt, die für die Beantwortung genutzt werden können.
+    - Die Applikation basiert auf der sog. RAG-Technik (Retrieval Augmented Generation). Dabei werden einem LLM bei einer Anfrage passende Informationen vorgelegt, die für die Beantwortung genutzt werden können.
     - Aus Kostengründen erfolgt keine direkte Beantwortung der Frage in der Applikation, weshalb die User den Prompt lediglich kopieren und ihn danach selbst einem LLM vorlegen können.   
     - Der Datenschutz kann gegenwärtig nicht garantiert werden. Verwenden Sie daher keine Personendaten in Ihrer Anfrage.
     - Die Applikation liefert eine Übersicht der semantisch und kontextuell am besten auf die Anfrage passenden Artikel und generiert daraus einen Prompt. Weder die tatsächliche Anwendbarkeit der ausgewählten Artikel noch die Richtigkeiten der Antwort des LLM kann garantiert werden.    
