@@ -28,23 +28,23 @@ def welcome_page():
 
     # Explanation of what the app does
     st.write("""
-        Diese Applikation dient dazu, Anfragen zum Thurgauer Gesetz über das Stimm- und Wahlrecht zu bearbeiten. So funktionierts:
+        Diese Applikation dient dazu, Anfragen zum Thurgauer Gesetz über das Stimm- und Wahlrecht zu bearbeiten. 
     """)
+    st.header("So funktionierts:")
     st.markdown("""
     - Die User stellen eine Anfrage zum Thurgauer Gemeinderecht. 
     - Die Applikation berechnet und zeigt die am besten zur Anfrage passenden Bestimmungen des Gesetzes über das Stimm- und Wahlrecht.
     - Auf der Grundlage der fünf am besten passenden Bestimmungen wird anschliessend ein Prompt für ein sog. Large Language Model (LLM, z.B. ChatGTP) erzeugt. Dieser Prompt beinhaltet wichtige Informationen, die das LLM für die Beantwortung nutzen kann.  
     - Die User können den Prompt in die Zwischenablage kopieren und beispielsweise in ihrer Version von ChatGTP nutzen.      
-    - Die Applikation basiert auf der sog. RAG-Technik (Retrieval Augmented Generation) genannt. Dabei wird einem LLM bei einer Anfrage passende Informationen vorgelegt, die für die Beantwortung der Anfrage genutzt werden können.
-    - Aus Kostengründen erfolgt keine direkte Beantwortung der Frage in der Applikation, weshalb die User den Umweg den 
-    
     """)
-
-    # Data privacy notice
-    st.header("Nutzungshinweis")
-    st.write("Bitte beachten Sie folgende Hinweise zum Datenschutz:")
+    st.header("Hinweise")
     st.markdown("""
-    - Datenschutz:** Der Datenschutz kann gegenwärtig nicht garantiert werden. Verwenden Sie daher keine Personendaten in Ihrer Anfrage.
+    - Die Applikation basiert auf der sog. RAG-Technik (Retrieval Augmented Generation) genannt. Dabei wird einem LLM bei einer Anfrage passende Informationen vorgelegt, die für die Beantwortung der Anfrage genutzt werden können.
+    - Aus Kostengründen erfolgt keine direkte Beantwortung der Frage in der Applikation, weshalb die User den Prompt lediglich kopieren können, um ihm  selbst einem LLM vorlzuegen.   
+    """)
+    st.header("Haftung")
+    st.markdown("""
+    - Der Datenschutz kann gegenwärtig nicht garantiert werden. Verwenden Sie daher keine Personendaten in Ihrer Anfrage.
     - Die Applikation liefert eine Übersicht der semantisch und kontextuell besten auf die Anfrage passenden Artikel und generiert daraus einen Prompt. Die tatsächliche Anwendbarkeit der ausgewählten Artikel wird nicht garantiert. Noch weniger kann die Richtigkeiten der Antwort von ChatGTP oder eines anderen LLM auf den  generierten Prompts zugesichert werden.    
     """)
 
