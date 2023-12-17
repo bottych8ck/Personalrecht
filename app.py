@@ -4,6 +4,7 @@ import json
 from dotenv import load_dotenv
 import streamlit as st
 import streamlit.components.v1 as components
+from streamlit.components.v1 import html
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -68,7 +69,21 @@ def get_article_content(title, data):
     # Return paragraphs as a list
     return paragraphs
 
-
+def generate_html_with_js(prompt):
+    return f"""
+    <textarea id='text_area' style='opacity: 0; position: absolute; left: -9999px;'>{prompt}</textarea>
+    <button onclick='copyToClipboard()'>Copy Prompt to Clipboard</button>
+    <script>
+    function copyToClipboard() {{
+        var copyText = document.getElementById('text_area');
+        copyText.style.opacity = 1; // Make the textarea visible to enable selection
+        copyText.select();
+        document.execCommand('copy');
+        copyText.style.opacity = 0; // Hide the textarea again
+        alert('Copied to clipboard!');
+    }}
+    </script>
+    """
 def generate_prompt(user_query, relevance, top_articles, law_data):
 
     prompt = f"Beantworte folgende Frage: \"{user_query}\"\n\n"
@@ -149,21 +164,8 @@ def main():
                 st.text_area("Generated Prompt:", prompt, height=300)
                 
                 # Button to copy the prompt to clipboard
-                copy_button_html = f"""
-                <button onclick='copyToClipboard()'>Copy Prompt to Clipboard</button>
-                <textarea id='text_area' style='opacity: 0; position: absolute; left: -9999px;'>{prompt}</textarea>
-                <script>
-                function copyToClipboard() {{
-                    var copyText = document.getElementById('text_area');
-                    copyText.style.opacity = 1; // Make the textarea visible to enable selection
-                    copyText.select();
-                    document.execCommand('copy');    
-                    copyText.style.opacity = 0; // Hide the textarea again
-                    alert('Copied to clipboard!');
-                }}
-                </script>
-                """
-                st.markdown(copy_button_html, unsafe_allow_html=True)
+                html_with_js = generate_html_with_js(prompt)
+                html(html_with_js)
 
             else:
                 if not user_query:
