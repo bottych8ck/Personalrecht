@@ -195,6 +195,17 @@ def main_app():
                 # Button to copy the prompt to clipboard
                 html_with_js = generate_html_with_js(prompt)
                 html(html_with_js)
+                response = client.chat.completions.create(
+                    model="gpt-4-1106-preview",
+                    messages=[
+                        {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+
+                if response and response.choices:
+                    ai_message = response.choices[0].message.content
+                    st.write(f"Antwort: {ai_message}")
 
             else:
                 if not user_query:
