@@ -195,6 +195,14 @@ def main_app():
                 # Button to copy the prompt to clipboard
                 html_with_js = generate_html_with_js(prompt)
                 html(html_with_js)
+            
+            else:
+                if not user_query:
+                    st.warning("Bitte geben Sie eine Anfrage ein.")
+                if not st.session_state.top_articles:
+                    st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
+        if st.button("Antwort anzeigen"):
+            if prompt:  # Ensure prompt is not empty
                 response = client.chat.completions.create(
                     model="gpt-4-1106-preview",
                     messages=[
@@ -205,14 +213,9 @@ def main_app():
 
                 if response and response.choices:
                     ai_message = response.choices[0].message.content
-                    st.write(f"Antwort: {ai_message}")
-
+                    st.write(f"Antwort basierend auf der Rechtsstellungsverordnung: {ai_message}")
             else:
-                if not user_query:
-                    st.warning("Bitte geben Sie eine Anfrage ein.")
-                if not st.session_state.top_articles:
-                    st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
-
+                st.warning("Bitte generieren Sie zuerst den Prompt.")
 
 def main():
     if 'agreed_to_terms' not in st.session_state:
