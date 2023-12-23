@@ -193,7 +193,7 @@ def main_app():
                 # Generate and display the prompt
                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data)
                 st.text_area("Prompt:", prompt, height=300)
-                
+                st.session_state['prompt'] = prompt
                 # Button to copy the prompt to clipboard
                 html_with_js = generate_html_with_js(prompt)
                 html(html_with_js)
