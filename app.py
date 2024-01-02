@@ -126,7 +126,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
 
         # Check direct applicability based on user's choice
         if relevance == "Gemeindeversammlung":
-            applicability = "Dieser § ist direkt auf Gemeindeversammlungen anwendbar." if "Directly Applicable: Assembly" in article.get("tags", []) else "Dieser § ist nur sinngemäss auf Gemeindeversammlungen anwendbar. Es könnte direkt anwendbare § geben, oder Vorschriften in der Gemeindeordnung zu beachten sein, die nicht bekannt sind. Exisiteren weder direkt anwendebare § noch Vorschriften in der Gemeindeordnung gilt dieser § abber."
+            applicability = "Dieser § ist direkt auf Gemeindeversammlungen anwendbar." if "Directly Applicable: Assembly" in article.get("tags", []) else "Dieser § ist nur sinngemäss auf Gemeindeversammlungen anwendbar. Es könnte direkt anwendbare § geben, oder Vorschriften in der Gemeindeordnung zu beachten sein, die nicht bekannt sind. Existieren weder direkt anwendbare § noch Vorschriften in der Gemeindeordnung gilt dieser § aber."
         elif relevance == "Urnenwahl":
             applicability = "Dieser § ist direkt auf Urnenwahl anwendbar." if "Directly Applicable: Mail Voting" in article.get("tags", []) else "Dieser § ist nur sinngemäss auf Urnenwahlen anwendbar. Es könnte direkt anwendbare § geben, oder Vorschriften in der Gemeindeordnung zu beachten sein, die nicht bekannt sind."
         else:
