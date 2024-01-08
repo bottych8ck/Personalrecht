@@ -138,7 +138,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
         prompt += f"   - **Inhalt:** {content}\n"
         article_number += 1
 
-    prompt += "\n\nAnfrage auf Deutsch beantworten\n"
+    prompt += "\n\nAnfrage auf Deutsch beantworten. Versuche, eine kurze Antwort zu schreiben, prüfe aber die Anwendbarkeit genau. Wenn ein Artikel keine materiellen Aussagen zur Fragen enthält, erwähne ihn in der Antwort nicht\n"
 
     return prompt
 
