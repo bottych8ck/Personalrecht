@@ -215,7 +215,7 @@ def main_app():
     
             if response and response.choices:
                 ai_message = response.choices[0].message.content
-                st.write(f"Antwort basierend auf der Rechtsstellungsverordnung: {ai_message}")
+                st.write(f"{ai_message}")
         else:
             st.warning("Bitte generieren Sie zuerst den Prompt.")
 
