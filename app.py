@@ -138,8 +138,8 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
         prompt += f"   - **Inhalt:** {content}\n"
         article_number += 1
 
-        prompt += "\nAnswer in German. If a § doesn't say anything relevant to the question don't mention it in your answer. 
-        Anfrage auf Deutsch beantworten. Versuche, eine kurze Antwort zu schreiben, prüfe aber die Anwendbarkeit der § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, erwähne ihn in der Antwort nicht\n"
+    prompt += "\nAnswer in German. If a § doesn't say anything relevant to the question don't mention it in your answer.\n"
+    prompt += "Anfrage auf Deutsch beantworten. Versuche, eine kurze Antwort zu schreiben, prüfe aber die Anwendbarkeit der § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, erwähne ihn in der Antwort nicht\n"
 
     return prompt
 
