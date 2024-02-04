@@ -60,13 +60,21 @@ def get_embeddings(text):
     return res.data[0].embedding
 
 def is_relevant_article(section_data, relevance):
-    tags = section_data.get("tags", [])
+    # Check if section_data is a grouped article and adjust the logic accordingly
+    tags = []
+    if isinstance(section_data, dict) and any(isinstance(v, dict) for v in section_data.values()):
+        for subsection, data in section_data.items():
+            tags.extend(data.get("tags", []))
+    else:
+        tags = section_data.get("tags", [])
+
     if relevance == 'Gemeindeversammlung':
         return any("Assembly" in tag for tag in tags)
     elif relevance == 'Urnenwahl':
         return any("Mail Voting" in tag for tag in tags)
     else:  # If relevance is 'none' or any other value, consider all articles
         return True
+
 
 def get_relevant_articles(law_data, relevance):
     relevant_articles = {}
@@ -87,15 +95,26 @@ def calculate_similarities(query_vector, article_embeddings):
     return similarities
 
 
-def get_article_content(title, data):
+def get_article_content(title, law_data):
     # Retrieve the section data for the given title
-    section_data = data.get(title, {})
+    section_data = law_data.get(title, {})
 
-    # Retrieve the list of paragraphs from the section data
-    paragraphs = section_data.get('Inhalt', [])
+    # Initialize a list to hold all paragraphs
+    all_paragraphs = []
 
-    # Return paragraphs as a list
-    return paragraphs
+    # Check if the section is a grouped article
+    if isinstance(section_data, dict) and any(isinstance(v, dict) for v in section_data.values()):
+        # Iterate through nested sections
+        for subsection, data in section_data.items():
+            paragraphs = data.get('Inhalt', [])
+            all_paragraphs.extend(paragraphs)
+    else:
+        # Retrieve the list of paragraphs from the section data for standalone articles
+        all_paragraphs = section_data.get('Inhalt', [])
+
+    # Return all paragraphs as a list
+    return all_paragraphs
+
 
 def generate_html_with_js(prompt):
     return f"""
@@ -112,37 +131,56 @@ def generate_html_with_js(prompt):
     }}
     </script>
     """
-def generate_prompt(user_query, relevance, top_articles, law_data):
 
+    
+def generate_prompt(user_query, relevance, top_articles, law_data):
     prompt = f"Beantworte folgende Frage: \"{user_query}\"\n\n"
     prompt += "Beantworte die Frage nur gestützt auf einen oder mehrere der folgenden §. Prüfe zuerst, ob der § überhaupt auf die Frage anwendbar ist. Wenn er nicht anwendbar ist, vergiss den §.\n"
     prompt += f"{relevance_mapping.get(relevance, 'Die Frage ist allgemein.')} \n\n"
     article_number = 1
 
     for title, _ in top_articles:
-        article = law_data.get(title, {})
-        name = article.get("Name", "Unbekanntes Gesetz")
-        content = ' '.join(article.get("Inhalt", []))
-
-        # Check direct applicability based on user's choice
-        if relevance == "Gemeindeversammlung":
-            applicability = "Dieser § ist direkt auf Gemeindeversammlungen anwendbar." if "Directly Applicable: Assembly" in article.get("tags", []) else "Dieser § ist nur sinngemäss auf Gemeindeversammlungen anwendbar. Es könnte direkt anwendbare § geben, oder Vorschriften in der Gemeindeordnung zu beachten sein, die nicht bekannt sind. Existieren weder direkt anwendbare § noch Vorschriften in der Gemeindeordnung gilt dieser § aber."
-        elif relevance == "Urnenwahl":
-            applicability = "Dieser § ist direkt auf Urnenwahl anwendbar." if "Directly Applicable: Mail Voting" in article.get("tags", []) else "Dieser § ist nur sinngemäss auf Urnenwahlen anwendbar. Es könnte direkt anwendbare § geben, oder Vorschriften in der Gemeindeordnung zu beachten sein, die nicht bekannt sind."
+        section_data = law_data.get(title, {})
+        
+        # Initialize variables to hold combined content and tags
+        content = ""
+        combined_tags = []
+        name = "Unbekanntes Gesetz"  # Default value
+        
+        if isinstance(section_data, dict):
+            # Check if we're dealing with a grouped article
+            if any(isinstance(v, dict) for v in section_data.values()):
+                for subsection, data in section_data.items():
+                    if isinstance(data, dict):
+                        if "Inhalt" in data:
+                            content += ' '.join(data.get("Inhalt", [])) + " "
+                        combined_tags.extend(data.get("tags", []))
+                        # Attempt to fetch the law name if not already set
+                        if name == "Unbekanntes Gesetz":
+                            name = data.get("Name", name)
+            else:
+                # For standalone articles
+                content = ' '.join(section_data.get("Inhalt", []))
+                combined_tags = section_data.get("tags", [])
+                name = section_data.get("Name", name)
+        
+        # Determine applicability based on combined tags
+        directly_applicable = any("Directly Applicable: Assembly" in tag for tag in combined_tags) or any("Directly Applicable: Mail Voting" in tag for tag in combined_tags)
+        if relevance == "Gemeindeversammlung" and directly_applicable:
+            applicability = "Dieser § ist direkt auf Gemeindeversammlungen anwendbar."
+        elif relevance == "Urnenwahl" and directly_applicable:
+            applicability = "Dieser § ist direkt auf Urnenwahl anwendbar."
         else:
-            applicability = ""
+            applicability = "Dieser § ist nur sinngemäss anwendbar."
 
         prompt += f"\n{article_number}. §: {title} von folgendem Erass: {name}\n"
-        if applicability:
-            prompt += f"   - Anwendbarkeit: {applicability}\n"
-        prompt += f"   - **Inhalt:** {content}\n"
+        prompt += f"   - Anwendbarkeit: {applicability}\n"
+        prompt += f"   - **Inhalt:** {content.strip()}\n"
         article_number += 1
 
     prompt += "\nAnswer in German. If a § doesn't say anything relevant to the question don't mention it in your answer.If a directly applicable article says something contrary to an indirectly applicable article, always follow the directly applicable article.\n"
     prompt += "Anfrage auf Deutsch beantworten. Versuche, eine kurze Antwort zu schreiben, prüfe aber die Anwendbarkeit der § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, erwähne ihn in der Antwort nicht\n"
-
     return prompt
-
 
 
 def main_app():
