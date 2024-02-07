@@ -187,7 +187,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
 
 
 def main_app():
-    st.title("Abfrage des Thurgauer Gemeinderechts (KV, StWG, StWV und Gemeindegesetz")
+    st.title("Abfrage des Thurgauer Gemeinderechts (KV, StWG, StWV und Gemeindegesetz)")
     if 'prompt' not in st.session_state:
         st.session_state['prompt'] = ""
 
