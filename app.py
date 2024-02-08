@@ -144,46 +144,57 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
 
     for title, _ in top_articles:
         section_data = law_data.get(title, {})
-        
-        # Initialize variables to hold combined content and tags
-        content = ""
-        combined_tags = []
-        name = "Unbekanntes Gesetz"  # Default value
-        
-        if isinstance(section_data, dict):
-            # Check if we're dealing with a grouped article
-            if any(isinstance(v, dict) for v in section_data.values()):
-                for subsection, data in section_data.items():
-                    if isinstance(data, dict):
-                        if "Inhalt" in data:
-                            content += ' '.join(data.get("Inhalt", [])) + " "
-                        combined_tags.extend(data.get("tags", []))
-                        # Attempt to fetch the law name if not already set
-                        if name == "Unbekanntes Gesetz":
-                            name = data.get("Name", name)
-            else:
-                # For standalone articles
-                content = ' '.join(section_data.get("Inhalt", []))
-                combined_tags = section_data.get("tags", [])
-                name = section_data.get("Name", name)
-        
-        # Determine applicability based on combined tags
-        directly_applicable = any("Directly Applicable: Assembly" in tag for tag in combined_tags) or any("Directly Applicable: Mail Voting" in tag for tag in combined_tags)
-        if relevance == "Gemeindeversammlung" and directly_applicable:
-            applicability = "Dieser § ist direkt auf Gemeindeversammlungen anwendbar."
-        elif relevance == "Urnenwahl" and directly_applicable:
-            applicability = "Dieser § ist direkt auf Urnenwahl anwendbar."
-        else:
-            applicability = "Dieser § ist nur sinngemäss anwendbar."
+        name = "Unbekanntes Gesetz"
+        aggregated_content = []
+        aggregated_tags = set()
+
+        if isinstance(next(iter(section_data.values())), dict):  # Grouped article
+            for subsection, data in section_data.items():
+                aggregated_content.extend(data.get("Inhalt", []))
+                aggregated_tags.update(data.get("tags", []))
+                if name == "Unbekanntes Gesetz":
+                    name = data.get("Name", name)
+        else:  # Standalone article
+            aggregated_content = section_data.get("Inhalt", [])
+            aggregated_tags = set(section_data.get("tags", []))
+            name = section_data.get("Name", "Unbekanntes Gesetz")
+
+        content = " ".join(aggregated_content)
+        tags = list(aggregated_tags)
+
+        # Mixed applicability logic
+        directly_applicable_assembly = "Directly Applicable: Assembly" in tags
+        directly_applicable_mail_voting = "Directly Applicable: Mail Voting" in tags
+        indirectly_applicable_assembly = "Indirectly Applicable: Assembly" in tags
+        indirectly_applicable_mail_voting = "Indirectly Applicable: Mail Voting" in tags
+
+        # Adjusting applicability message based on mixed applicability
+        applicability_messages = []
+        if relevance == "Gemeindeversammlung":
+            if directly_applicable_assembly:
+                applicability_messages.append("Dieser § ist direkt auf Gemeindeversammlungen anwendbar.")
+            elif indirectly_applicable_assembly:
+                applicability_messages.append("Dieser § ist nur sinngemäss auf Gemeindeversammlungen anwendbar.")
+        if relevance == "Urnenwahl":
+            if directly_applicable_mail_voting:
+                applicability_messages.append("Dieser § ist direkt auf Urnenwahl anwendbar.")
+            elif indirectly_applicable_mail_voting:
+                applicability_messages.append("Dieser § ist nur sinngemäss auf Urnenwahl anwendbar.")
+
+        if not applicability_messages:  # If no specific applicability was determined
+            applicability_messages.append("Die Anwendbarkeit dieses § muss noch geprüft werden.")
+
+        applicability = " ".join(applicability_messages)
 
         prompt += f"\n{article_number}. §: {title} von folgendem Erass: {name}\n"
         prompt += f"   - Anwendbarkeit: {applicability}\n"
         prompt += f"   - **Inhalt:** {content.strip()}\n"
         article_number += 1
 
-    prompt += "\nAnswer in German. If a § doesn't say anything relevant to the question don't mention it in your answer.If a directly applicable article says something contrary to an indirectly applicable article, always follow the directly applicable article.\n"
+    prompt += "\nAnswer in German. If a § doesn't say anything relevant to the question don't mention it in your answer. If a directly applicable article says something contrary to an indirectly applicable article, always follow the directly applicable article.\n"
     prompt += "Anfrage auf Deutsch beantworten. Versuche, eine kurze Antwort zu schreiben, prüfe aber die Anwendbarkeit der § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, erwähne ihn in der Antwort nicht\n"
     return prompt
+
 
 
 def main_app():
