@@ -186,7 +186,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
 
         applicability = " ".join(applicability_messages)
 
-        prompt += f"\n{article_number}. §: {title} von folgendem Erass: {name}\n"
+        prompt += f"\n{article_number}. §: {title} von folgendem Erlass: {name}\n"
         prompt += f"   - Anwendbarkeit: {applicability}\n"
         prompt += f"   - **Inhalt:** {content.strip()}\n"
         article_number += 1
