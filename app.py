@@ -219,13 +219,28 @@ def main_app():
         if user_query:
             # Process the query for top articles
             enhanced_user_query = user_query + " " + relevance_mapping.get(relevance, "")
+            st.text(f"Enhanced User Query: {enhanced_user_query}")
+
             query_vector = get_embeddings(enhanced_user_query)
+            
             similarities = calculate_similarities(query_vector, article_embeddings)
+            st.text("Similarities (Preview):")
+            for title, sim in list(similarities.items())[:5]:  # Show top 5 for brevity
+            st.text(f"{title}: {sim}")
+            
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+            st.text("Sorted Articles (Preview):")
+            for title, sim in sorted_articles[:5]:  # Show top 5 for brevity
+            st.text(f"{title}: {sim}")
+            
             filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
+            st.text("Filtered Articles:")
+            for title, score in filtered_articles[:5]:  # Show top 5 for brevity
+            st.text(f"{title}: {score}")
+
+            
             st.session_state.top_articles = filtered_articles[:5] 
             st.write("Die folgenden Artikel werden angezeigt, nachdem Ihre Anfrage analysiert und mit den relevanten Gesetzesdaten abgeglichen wurde. Dieser Prozess funktioniert ähnlich wie eine intelligente Suche, bei der die Bedeutung Ihrer Worte erkannt und die passendsten Inhalte aus den Gesetzestexten ausgewählt werden. Die Bestimmungen müssen aber genau auf ihre tatächliche Anwendbarkeit hin überprüft werden. Diese Überprüfung kann durch ein LLM (Large Language Model) unterstützt werden. Im generierten Prompt sind entsprechende Anweisungen enthalten.")
-
             with st.expander("Am besten auf die Anfrage passende Artikel", expanded=False):
                 for title, score in st.session_state.top_articles:
                     # Retrieve the content of the article and the law name using the get_article_content function
