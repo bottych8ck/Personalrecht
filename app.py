@@ -229,7 +229,7 @@ def main_app():
             
             filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
             st.text("Filtered Articles:")
-            for title, score in filtered_articles[:1']:  # Show top 5 for brevity
+            for title, score in filtered_articles[:10]:  # Show top 5 for brevity
                 st.text(f"{title}: {score}")
 
             
