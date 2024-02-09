@@ -98,24 +98,41 @@ def calculate_similarities(query_vector, article_embeddings):
 def get_article_content(title, law_data):
     # Retrieve the section data for the given title
     section_data = law_data.get(title, {})
-    law_name = section_data.get("Name", "Unbekanntes Gesetz")
-    law_url = section_data.get("URL", "")  # Default to an empty string if no URL is available
-
-    # Initialize a list to hold all paragraphs
-    all_paragraphs = []
+    
+    grouped_content = []  # To store content for grouped articles
+    law_name = "Unbekanntes Gesetz"  # Default law name
+    law_url = ""  # Default to an empty string if no URL is available
 
     # Check if the section is a grouped article
     if isinstance(section_data, dict) and any(isinstance(v, dict) for v in section_data.values()):
-        # Iterate through nested sections
+        # It's a grouped article
         for subsection, data in section_data.items():
-            paragraphs = data.get('Inhalt', [])
-            all_paragraphs.extend(paragraphs)
+            if isinstance(data, dict):
+                # For each sub-article, collect its content, law name, and URL
+                sub_content = data.get('Inhalt', [])
+                sub_law_name = data.get("Name", law_name)
+                sub_law_url = data.get("URL", "")
+                
+                # Append a tuple with the sub-article's title, its content, law name, and URL
+                grouped_content.append((subsection, sub_content, sub_law_name, sub_law_url))
+                
+        return grouped_content  # Return a list of tuples for grouped articles
     else:
-        # Retrieve the list of paragraphs from the section data for standalone articles
+        # It's a standalone article
         all_paragraphs = section_data.get('Inhalt', [])
+        law_name = section_data.get("Name", law_name)
+        law_url = section_data.get("URL", law_url)
+        
+        # Return content, law name, and law URL in a tuple for standalone articles
+        return [(title, all_paragraphs, law_name, law_url)]
 
-    # Return all paragraphs, law name, and law URL as a tuple
-    return all_paragraphs, law_name, law_url
+# Usage
+# Assuming 'law_data' is your dictionary and 'title' is the title of the article or grouped article you're interested in
+articles_content = get_article_content(title, law_data)
+for article_title, content, name, url in articles_content:
+    # Now you have the title, content, law name, and URL for each (sub-)article
+    # You can process them as needed, e.g., display them in your Streamlit app
+
 
 
 
