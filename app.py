@@ -226,7 +226,7 @@ def main_app():
             similarities = calculate_similarities(query_vector, article_embeddings)
             st.text("Similarities (Preview):")
             for title, sim in list(similarities.items())[:5]:  # Show top 5 for brevity
-            st.text(f"{title}: {sim}")
+                st.text(f"{title}: {sim}")
             
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
             st.text("Sorted Articles (Preview):")
