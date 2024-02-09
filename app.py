@@ -217,25 +217,19 @@ def main_app():
     if st.button("Abschicken"):
         st.session_state.submitted = True  # Set the flag to True when clicked
         if user_query:
-            # Process the query for top articles
-            enhanced_user_query = user_query + " " + relevance_mapping.get(relevance, "")
-            st.text(f"Enhanced User Query: {enhanced_user_query}")
-
-            query_vector = get_embeddings(enhanced_user_query)
+            
+            query_vector = get_embeddings(user_query)
             
             similarities = calculate_similarities(query_vector, article_embeddings)
-            st.text("Similarities (Preview):")
-            for title, sim in list(similarities.items())[:5]:  # Show top 5 for brevity
-                st.text(f"{title}: {sim}")
             
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
             st.text("Sorted Articles (Preview):")
-            for title, sim in sorted_articles[:5]:  # Show top 5 for brevity
+            for title, sim in sorted_articles[:10]:  # Show top 5 for brevity
                 st.text(f"{title}: {sim}")
             
             filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
             st.text("Filtered Articles:")
-            for title, score in filtered_articles[:5]:  # Show top 5 for brevity
+            for title, score in filtered_articles[:1']:  # Show top 5 for brevity
                 st.text(f"{title}: {score}")
 
             
