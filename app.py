@@ -261,7 +261,6 @@ def main_app():
                     else:
                         st.write("Kein Inhalt verfügbar.")  # Indicate if no content is available for the article
                     st.write("")  # Add a space after each article
-
         else:
             st.warning("Bitte geben Sie eine Anfrage ein.")
             
