@@ -220,10 +220,10 @@ def main_app():
             # Process the query for top articles
             enhanced_user_query = user_query + " " + relevance_mapping.get(relevance, "")
             query_vector = get_embeddings(enhanced_user_query)
-            relevant_lawcontent_dict = get_relevant_articles(law_data, relevance)
-            similarities = calculate_similarities(query_vector, {title: article_embeddings[title] for title in relevant_lawcontent_dict if title in article_embeddings})
-            sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)[:5]  # Get only top 5 articles
-            st.session_state.top_articles = sorted_articles  # Update session state
+            similarities = calculate_similarities(query_vector, article_embeddings)
+            sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+            filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
+            st.session_state.top_articles = filtered_articles[:5] 
             st.write("Die folgenden Artikel werden angezeigt, nachdem Ihre Anfrage analysiert und mit den relevanten Gesetzesdaten abgeglichen wurde. Dieser Prozess funktioniert ähnlich wie eine intelligente Suche, bei der die Bedeutung Ihrer Worte erkannt und die passendsten Inhalte aus den Gesetzestexten ausgewählt werden. Die Bestimmungen müssen aber genau auf ihre tatächliche Anwendbarkeit hin überprüft werden. Diese Überprüfung kann durch ein LLM (Large Language Model) unterstützt werden. Im generierten Prompt sind entsprechende Anweisungen enthalten.")
 
             with st.expander("Am besten auf die Anfrage passende Artikel", expanded=False):
