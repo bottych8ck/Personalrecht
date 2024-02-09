@@ -247,20 +247,35 @@ def main_app():
             with st.expander("Am besten auf die Anfrage passende Artikel", expanded=False):
                 for title, score in st.session_state.top_articles:
                     # Retrieve the content of the article and the law name using the get_article_content function
-                    article_content, law_name, law_url = get_article_content(title, law_data)  # Adjusted to return law name and URL
-                    
-                    law_name_display = law_name if law_name else "Unbekanntes Gesetz"
-                    if law_url:  # Check if a URL is available
-                        law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
-                    
-                    st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)  # Display the article title with law name as hyperlink
-                    
-                    if article_content:  # Check if there is content available for the article
-                        for paragraph in article_content:  # Display each paragraph of the article
-                            st.write(paragraph)
-                    else:
-                        st.write("Kein Inhalt verfügbar.")  # Indicate if no content is available for the article
-                    st.write("")  # Add a space after each article
+                    result = get_article_content(title, law_data)  # Adjusted to handle both standalone and grouped articles
+                    if isinstance(result, list):  # This indicates a grouped article
+                        for sub_title, article_content, law_name, law_url in result:
+                            law_name_display = law_name if law_name else "Unbekanntes Gesetz"
+                            if law_url:  # Check if a URL is available
+                                law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
+                            
+                            st.markdown(f"**{sub_title} - {law_name_display}**", unsafe_allow_html=True)
+                            
+                            if article_content:  # Check if there is content available for the article
+                                for paragraph in article_content:
+                                    st.write(paragraph)
+                            else:
+                                st.write("Kein Inhalt verfügbar.")
+                            st.write("")  # Add a space after each article
+                    elif isinstance(result, tuple):  # This indicates a standalone article
+                        article_content, law_name, law_url = result
+                        law_name_display = law_name if law_name else "Unbekanntes Gesetz"
+                        if law_url:
+                            law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
+                        
+                        st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
+                        
+                        if article_content:
+                            for paragraph in article_content:
+                                st.write(paragraph)
+                        else:
+                            st.write("Kein Inhalt verfügbar.")
+                        st.write("")
         else:
             st.warning("Bitte geben Sie eine Anfrage ein.")
             
