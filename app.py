@@ -288,21 +288,21 @@ def main_app():
                     st.warning("Bitte geben Sie eine Anfrage ein.")
                 if not st.session_state.top_articles:
                     st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
-    if st.button("Antwort anzeigen"):
-        if st.session_state['prompt']:
-            response = client.chat.completions.create(
-                model="gpt-4-1106-preview",
-                messages=[
-                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                    {"role": "user", "content": st.session_state['prompt']}  # Use the prompt from session state
-                ]
-            )
-    
-            if response and response.choices:
-                ai_message = response.choices[0].message.content
-                st.write(f"{ai_message}")
-        else:
-            st.warning("Bitte generieren Sie zuerst den Prompt.")
+    # if st.button("Antwort anzeigen"):
+    #     if st.session_state['prompt']:
+     #        response = client.chat.completions.create(
+     #            model="gpt-4-1106-preview",
+     #            messages=[
+     #                {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+    #                 {"role": "user", "content": st.session_state['prompt']}  # Use the prompt from session state
+    #             ]
+    #         )
+     #
+     #        if response and response.choices:
+     #            ai_message = response.choices[0].message.content
+    #             st.write(f"{ai_message}")
+   #      else:
+   #          st.warning("Bitte generieren Sie zuerst den Prompt.")
 
 def main():
      #if 'agreed_to_terms' not in st.session_state:
