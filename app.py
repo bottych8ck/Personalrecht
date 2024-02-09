@@ -231,12 +231,12 @@ def main_app():
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
             st.text("Sorted Articles (Preview):")
             for title, sim in sorted_articles[:5]:  # Show top 5 for brevity
-            st.text(f"{title}: {sim}")
+                st.text(f"{title}: {sim}")
             
             filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
             st.text("Filtered Articles:")
             for title, score in filtered_articles[:5]:  # Show top 5 for brevity
-            st.text(f"{title}: {score}")
+                st.text(f"{title}: {score}")
 
             
             st.session_state.top_articles = filtered_articles[:5] 
