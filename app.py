@@ -126,14 +126,6 @@ def get_article_content(title, law_data):
         # Return content, law name, and law URL in a tuple for standalone articles
         return [(title, all_paragraphs, law_name, law_url)]
 
-# Usage
-# Assuming 'law_data' is your dictionary and 'title' is the title of the article or grouped article you're interested in
-articles_content = get_article_content(title, law_data)
-for article_title, content, name, url in articles_content:
-    # Now you have the title, content, law name, and URL for each (sub-)article
-    # You can process them as needed, e.g., display them in your Streamlit app
-
-
 
 
 def generate_html_with_js(prompt):
