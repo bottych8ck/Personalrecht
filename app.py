@@ -9,9 +9,9 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
 relevance_mapping = {
-    "Gemeindeversammlung": "Die Frage bezieht sich auf Gemeindeversammlungen.",
-    "Urnenwahl": "Die Frage bezieht sich auf Wahlen an der Urne.",
-    "nicht relevant": "Die Frage ist allgemein und nicht spezifisch relevant für die Gemeindeversammlung oder Urnenwahl."
+    "Staatspersonal": "Die Frage bezieht sich auf Staatspersonal.",
+    "Lehrperson VS": "Die Frage bezieht sich auf Wahlen an der Urne.",
+    "Lehrperson BfS": "Die Frage ist allgemein und nicht spezifisch relevant für die Gemeindeversammlung oder Urnenwahl."
 }
 
 
@@ -68,8 +68,8 @@ def is_relevant_article(section_data, relevance):
     else:
         tags = section_data.get("tags", [])
 
-    if relevance == 'Gemeindeversammlung':
-        return any("Assembly" in tag for tag in tags)
+    if relevance == 'Staatspersonal':
+        return any("Staatspersonal" in tag for tag in tags)
     elif relevance == 'Urnenwahl':
         return any("Mail Voting" in tag for tag in tags)
     else:  # If relevance is 'none' or any other value, consider all articles
@@ -172,16 +172,16 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
         tags = list(aggregated_tags)
 
         # Mixed applicability logic
-        directly_applicable_assembly = "Directly Applicable: Assembly" in tags
+        directly_applicable_staatsp = "directly applicable: Staatspersonal" in tags
         directly_applicable_mail_voting = "Directly Applicable: Mail Voting" in tags
         indirectly_applicable_assembly = "Indirectly Applicable: Assembly" in tags
         indirectly_applicable_mail_voting = "Indirectly Applicable: Mail Voting" in tags
 
         # Adjusting applicability message based on mixed applicability
         applicability_messages = []
-        if relevance == "Gemeindeversammlung":
+        if relevance == "Personalrecht":
             if directly_applicable_assembly:
-                applicability_messages.append("Dieser § ist direkt auf Gemeindeversammlungen anwendbar.")
+                applicability_messages.append("Dieser § ist direkt auf Staatspersonal anwendbar.")
             elif indirectly_applicable_assembly:
                 applicability_messages.append("Dieser § ist nur sinngemäss auf Gemeindeversammlungen anwendbar.")
         if relevance == "Urnenwahl":
@@ -207,13 +207,14 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
 
 
 def main_app():
-    st.title("Abfrage des Thurgauer Gemeinderechts (KV, StWG, StWV und Gemeindegesetz)")
+    st.title("Chat_TG Personalrecht")
+    st.subtitle("Abfrage des Thurgauer Personalrechts")
     if 'prompt' not in st.session_state:
         st.session_state['prompt'] = ""
 
     # User inputs
     user_query = st.text_input("Hier Ihre Frage eingeben:")
-    relevance_options = ["Gemeindeversammlung", "Urnenwahl", "nicht relevant"]
+    relevance_options = ["Personalrecht", "Lehrperson VS", "Lehrperson Sek II"]
     relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Gemeindeversammlungen oder Urnenwahlen bezieht, oder ob dies nicht relevant ist:", relevance_options)
 
     # Initialize session state variables if they don't exist
