@@ -229,6 +229,10 @@ def main_app():
         if user_query:
             
             query_vector = np.array(get_embeddings(user_query)).reshape(1, -1)
+            print("query_vector type:", type(query_vector))  # Should show <class 'numpy.ndarray'>
+            print("query_vector shape:", query_vector.shape)  # Should show something like (1, embedding_size)
+            
+            
             
             similarities = calculate_similarities(query_vector, article_embeddings)
             
