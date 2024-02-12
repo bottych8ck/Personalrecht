@@ -186,8 +186,8 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
 
         # Adjusting applicability message based on mixed applicability
         applicability_messages = []
-        if relevance == "Personalrecht":
-            if directly_applicable_assembly:
+        if relevance == "Staatspersonal":
+            if directly_applicable_staatsp:
                 applicability_messages.append("Dieser § ist direkt auf Staatspersonal anwendbar.")
             elif indirectly_applicable_assembly:
                 applicability_messages.append("Dieser § ist nur sinngemäss auf Gemeindeversammlungen anwendbar.")
