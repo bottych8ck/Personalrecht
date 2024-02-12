@@ -228,7 +228,7 @@ def main_app():
         st.session_state.submitted = True  # Set the flag to True when clicked
         if user_query:
             
-            query_vector = get_embeddings(user_query)
+            query_vector = np.array(get_embeddings(user_query)).reshape(1, -1))
             
             similarities = calculate_similarities(query_vector, article_embeddings)
             
