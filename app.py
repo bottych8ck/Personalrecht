@@ -85,10 +85,12 @@ def get_relevant_articles(law_data, relevance):
 
 def calculate_similarities(query_vector, article_embeddings):
     query_vector = np.array(query_vector).reshape(1, -1)
+    print("Debug: query_vector shape", query_vector.shape)  # Debug print
     similarities = {}
 
     for title, article_vector in article_embeddings.items():
         article_vector = np.array(article_vector).reshape(1, -1)
+        print(f"Debug: Processing article {title} with shape {article_vector.shape}")  # Debug print
         similarity = cosine_similarity(query_vector, article_vector)[0][0]
         similarities[title] = similarity
 
