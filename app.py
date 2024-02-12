@@ -208,7 +208,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
 
 def main_app():
     st.title("Chat_TG Personalrecht")
-    st.subtitle("Abfrage des Thurgauer Personalrechts")
+    st.subheader("Abfrage des Thurgauer Personalrechts")
     if 'prompt' not in st.session_state:
         st.session_state['prompt'] = ""
 
