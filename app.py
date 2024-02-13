@@ -221,7 +221,7 @@ def main_app():
 
     # User inputs
     user_query = st.text_input("Hier Ihre Frage eingeben:")
-    relevance_options = ["Personalrecht", "Lehrperson VS", "Lehrperson Sek II"]
+    relevance_options = ["Staatspersonal", "Lehrperson VS", "Lehrperson Sek II"]
     relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Gemeindeversammlungen oder Urnenwahlen bezieht, oder ob dies nicht relevant ist:", relevance_options)
 
     # Initialize session state variables if they don't exist
