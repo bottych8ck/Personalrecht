@@ -40,12 +40,16 @@ def is_relevant_article(section_data, relevance):
     normalized_tags = [tag.lower().replace("sek ii", "SEK II") for tag in tags]
     
     # Define normalized relevance criteria for comparison
+    relevance_criteria = ""
     if normalized_relevance == 'staatspersonal':
         relevance_criteria = "staatspersonal"
     elif normalized_relevance == 'lehrperson vs':
         relevance_criteria = "lehrperson vs"
-    else:
+    elif normalized_relevance == 'lehrperson sek ii':
         relevance_criteria = "lehrperson sek ii"
+
+    # Check if any of the normalized tags match the normalized relevance criteria
+    return any(relevance_criteria in tag for tag in normalized_tags)
 
 
 def get_relevant_articles(law_data, relevance):
