@@ -78,7 +78,6 @@ def get_article_content(title, law_data):
     # Retrieve the section data for the given title
     section_data = law_data.get(title, {})
     
-    grouped_content = []  # To store content for grouped articles
     law_name = "Unbekanntes Gesetz"  # Default law name
     law_url = ""  # Default to an empty string if no URL is available
 
@@ -158,12 +157,7 @@ def main_app():
         st.session_state.submitted = True  # Set the flag to True when clicked
         if user_query:
             
-            query_vector = np.array(get_embeddings(user_query)).reshape(1, -1)
-            print("query_vector type:", type(query_vector))  # Should show <class 'numpy.ndarray'>
-            print("query_vector shape:", query_vector.shape)  # Should show something like (1, embedding_size)
-            
-            
-            
+            query_vector = np.array(get_embeddings(user_query)).reshape(1, -1)            
             similarities = calculate_similarities(query_vector, article_embeddings)
             
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
@@ -176,34 +170,19 @@ def main_app():
                 for title, score in st.session_state.top_articles:
                     # Retrieve the content of the article and the law name using the get_article_content function
                     result = get_article_content(title, law_data)  # Adjusted to handle both standalone and grouped articles
-                    if isinstance(result, list):  # This indicates a grouped article
-                        for sub_title, article_content, law_name, law_url in result:
-                            law_name_display = law_name if law_name else "Unbekanntes Gesetz"
-                            if law_url:  # Check if a URL is available
-                                law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
-                            
-                            st.markdown(f"**{sub_title} - {law_name_display}**", unsafe_allow_html=True)
-                            
-                            if article_content:  # Check if there is content available for the article
-                                for paragraph in article_content:
-                                    st.write(paragraph)
-                            else:
-                                st.write("Kein Inhalt verfügbar.")
-                            st.write("")  # Add a space after each article
-                    elif isinstance(result, tuple):  # This indicates a standalone article
-                        article_content, law_name, law_url = result
-                        law_name_display = law_name if law_name else "Unbekanntes Gesetz"
-                        if law_url:
-                            law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
+                    article_content, law_name, law_url = result
+                    law_name_display = law_name if law_name else "Unbekanntes Gesetz"
+                    if law_url:
+                        law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
                         
-                        st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
-                        
-                        if article_content:
-                            for paragraph in article_content:
-                                st.write(paragraph)
-                        else:
-                            st.write("Kein Inhalt verfügbar.")
-                        st.write("")
+                    st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
+                     
+                    if article_content:
+                        for paragraph in article_content:
+                            st.write(paragraph)
+                    else:
+                         st.write("Kein Inhalt verfügbar.")
+                    st.write("")
         else:
             st.warning("Bitte geben Sie eine Anfrage ein.")
             
