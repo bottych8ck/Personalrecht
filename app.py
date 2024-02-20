@@ -178,7 +178,7 @@ def main_app():
                 for title, score in st.session_state.top_articles:
                     # Retrieve the content of the article and the law name using the get_article_content function
                     result = get_article_content(title, law_data)  # Adjusted to handle both standalone and grouped articles
-                    article_content, law_name, law_url = result
+                    _, article_content, law_name, law_url = result
                     law_name_display = law_name if law_name else "Unbekanntes Gesetz"
                     if law_url:
                         law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
