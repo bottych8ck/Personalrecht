@@ -82,13 +82,17 @@ def get_article_content(title, law_data):
     # Retrieve the section data for the given title
     section_data = law_data.get(title, {})
     
-    law_name = "Unbekanntes Gesetz"  # Default law name
-    law_url = ""  # Default to an empty string if no URL is available
+    law_name = section_data.get("Name", "Unbekanntes Gesetz")  # Default law name
+    law_url = section_data.get("URL", "")  # Default to an empty string if no URL is available
+    all_paragraphs = section_data.get('Inhalt', [])  # Get the main content paragraphs
 
-    all_paragraphs = section_data.get('Inhalt', [])
-    law_name = section_data.get("Name", law_name)
-    law_url = section_data.get("URL", law_url)    
-    return [(title, all_paragraphs, law_name, law_url)]
+    # Check if "Im § erwähnter Artikel des EOG" list exists and append it to the content
+    eog_articles = section_data.get("Im § erwähnter Artikel des EOG", [])
+    if eog_articles:  # If the list is not empty
+        all_paragraphs += ["Im § erwähnter Artikel des EOG:"] + eog_articles  # Append the list as part of the content
+
+    return (title, all_paragraphs, law_name, law_url)
+
 
 
 
