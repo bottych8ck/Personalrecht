@@ -23,34 +23,6 @@ with open('law_data.json', 'r') as file:
     law_data = json.load(file)
 load_dotenv()  # This line loads the variables from .env
 
-def welcome_page():
-    st.title("ChatG-TG für Gemeinderecht")
-
-    # Explanation of what the app does
-    st.write("""
-        Diese Applikation dient dazu, Anfragen zum Thurgauer Gesetz über das Stimm- und Wahlrecht zu bearbeiten. 
-    """)
-    st.header("So funktionierts:")
-    st.markdown("""
-    - Die User stellen eine Anfrage zum Thurgauer Gemeinderecht. 
-    - Die Applikation berechnet und zeigt die am besten zur Anfrage passenden Bestimmungen des Gesetzes über das Stimm- und Wahlrecht.
-    - Auf der Grundlage der fünf am besten passenden Bestimmungen wird anschliessend ein Prompt für ein sog. Large Language Model (LLM, z.B. ChatGTP) erzeugt. Dieser Prompt beinhaltet wichtige Informationen, die das LLM für die Beantwortung nutzen kann.  
-    - Die User können den Prompt in die Zwischenablage kopieren und dem von ihnen genutzten LLM vorlegen.      
-    """)
-    st.header("Nutzungshinweise")
-    st.markdown("""
-    - Die Applikation basiert auf der sog. RAG-Technik (Retrieval Augmented Generation). Dabei werden einem LLM bei einer Anfrage passende Informationen vorgelegt, die für die Beantwortung genutzt werden können.
-    - Aus Kostengründen erfolgt keine direkte Beantwortung der Frage in der Applikation, weshalb die User den Prompt lediglich kopieren und ihn danach selbst einem LLM vorlegen können.   
-    - Der Datenschutz kann gegenwärtig nicht garantiert werden. Verwenden Sie daher keine Personendaten in Ihrer Anfrage.
-    - Die Applikation liefert eine Übersicht der semantisch und kontextuell am besten auf die Anfrage passenden Bestimmungen und generiert daraus einen Prompt. Weder die tatsächliche Anwendbarkeit der ausgewählten Bestimmungen noch die Richtigkeiten der Antwort des LLM kann garantiert werden.    
-    - Selbst bei Fragen, die nicht direkt das Gemeinderecht des Kantons Thurgau betreffen, sucht das System nach den am besten übereinstimmenden Bestimmungen innerhalb dieses Rechtsbereichs. Beachten Sie jedoch, dass in solchen Fällen die ausgewählten Bestimmungen möglicherweise nicht zutreffend oder relevant sind.
-    """)
-   
-
-    # Agree button to proceed to the main app
-    if st.button("Einverstanden"):
-        st.session_state.agreed_to_terms = True
-
 api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=api_key)
 
@@ -60,20 +32,20 @@ def get_embeddings(text):
     return res.data[0].embedding
 
 def is_relevant_article(section_data, relevance):
-    # Check if section_data is a grouped article and adjust the logic accordingly
-    tags = []
-    if isinstance(section_data, dict) and any(isinstance(v, dict) for v in section_data.values()):
-        for subsection, data in section_data.items():
-            tags.extend(data.get("tags", []))
+    # Normalize the relevance criteria to ensure consistent case comparison
+    normalized_relevance = relevance.lower().replace("sek ii", "SEK II")
+    
+    # Extract and normalize tags from the article data
+    tags = section_data.get("tags", [])
+    normalized_tags = [tag.lower().replace("sek ii", "SEK II") for tag in tags]
+    
+    # Define normalized relevance criteria for comparison
+    if normalized_relevance == 'staatspersonal':
+        relevance_criteria = "staatspersonal"
+    elif normalized_relevance == 'lehrperson vs':
+        relevance_criteria = "lehrperson vs"
     else:
-        tags = section_data.get("tags", [])
-
-    if relevance == 'Staatspersonal':
-        return any("Staatspersonal" in tag for tag in tags)
-    elif relevance == 'Urnenwahl':
-        return any("Mail Voting" in tag for tag in tags)
-    else:  # If relevance is 'none' or any other value, consider all articles
-        return True
+        relevance_criteria = "lehrperson sek ii"
 
 
 def get_relevant_articles(law_data, relevance):
@@ -110,28 +82,10 @@ def get_article_content(title, law_data):
     law_name = "Unbekanntes Gesetz"  # Default law name
     law_url = ""  # Default to an empty string if no URL is available
 
-    # Check if the section is a grouped article
-    if isinstance(section_data, dict) and any(isinstance(v, dict) for v in section_data.values()):
-        # It's a grouped article
-        for subsection, data in section_data.items():
-            if isinstance(data, dict):
-                # For each sub-article, collect its content, law name, and URL
-                sub_content = data.get('Inhalt', [])
-                sub_law_name = data.get("Name", law_name)
-                sub_law_url = data.get("URL", "")
-                
-                # Append a tuple with the sub-article's title, its content, law name, and URL
-                grouped_content.append((subsection, sub_content, sub_law_name, sub_law_url))
-                
-        return grouped_content  # Return a list of tuples for grouped articles
-    else:
-        # It's a standalone article
-        all_paragraphs = section_data.get('Inhalt', [])
-        law_name = section_data.get("Name", law_name)
-        law_url = section_data.get("URL", law_url)
-        
-        # Return content, law name, and law URL in a tuple for standalone articles
-        return [(title, all_paragraphs, law_name, law_url)]
+    all_paragraphs = section_data.get('Inhalt', [])
+    law_name = section_data.get("Name", law_name)
+    law_url = section_data.get("URL", law_url)    
+    return [(title, all_paragraphs, law_name, law_url)]
 
 
 
@@ -164,43 +118,12 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
         aggregated_content = []
         aggregated_tags = set()
 
-        if isinstance(next(iter(section_data.values())), dict):  # Grouped article
-            for subsection, data in section_data.items():
-                aggregated_content.extend(data.get("Inhalt", []))
-                aggregated_tags.update(data.get("tags", []))
-                if name == "Unbekanntes Gesetz":
-                    name = data.get("Name", name)
-        else:  # Standalone article
-            aggregated_content = section_data.get("Inhalt", [])
-            aggregated_tags = set(section_data.get("tags", []))
-            name = section_data.get("Name", "Unbekanntes Gesetz")
+        aggregated_content = section_data.get("Inhalt", [])
+        aggregated_tags = set(section_data.get("tags", []))
+        name = section_data.get("Name", "Unbekanntes Gesetz")
 
         content = " ".join(aggregated_content)
         tags = list(aggregated_tags)
-
-        # Mixed applicability logic
-        directly_applicable_staatsp = "directly applicable: Staatspersonal" in tags
-        directly_applicable_mail_voting = "Directly Applicable: Mail Voting" in tags
-        indirectly_applicable_assembly = "Indirectly Applicable: Assembly" in tags
-        indirectly_applicable_mail_voting = "Indirectly Applicable: Mail Voting" in tags
-
-        # Adjusting applicability message based on mixed applicability
-        applicability_messages = []
-        if relevance == "Staatspersonal":
-            if directly_applicable_staatsp:
-                applicability_messages.append("Dieser § ist direkt auf Staatspersonal anwendbar.")
-            elif indirectly_applicable_assembly:
-                applicability_messages.append("Dieser § ist nur sinngemäss auf Gemeindeversammlungen anwendbar.")
-        if relevance == "Urnenwahl":
-            if directly_applicable_mail_voting:
-                applicability_messages.append("Dieser § ist direkt auf Urnenwahl anwendbar.")
-            elif indirectly_applicable_mail_voting:
-                applicability_messages.append("Dieser § ist nur sinngemäss auf Urnenwahl anwendbar.")
-
-        if not applicability_messages:  # If no specific applicability was determined
-            applicability_messages.append("Die Anwendbarkeit dieses § muss noch geprüft werden.")
-
-        applicability = " ".join(applicability_messages)
 
         prompt += f"\n{article_number}. §: {title} von folgendem Erlass: {name}\n"
         prompt += f"   - Anwendbarkeit: {applicability}\n"
@@ -222,7 +145,7 @@ def main_app():
     # User inputs
     user_query = st.text_input("Hier Ihre Frage eingeben:")
     relevance_options = ["Staatspersonal", "Lehrperson VS", "Lehrperson Sek II"]
-    relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Gemeindeversammlungen oder Urnenwahlen bezieht, oder ob dies nicht relevant ist:", relevance_options)
+    relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Staatspersonal, Lehrpersonen der Volksschule oder Lehrpersonen der Berufsfach- und Mittelschulen bezieht:", relevance_options)
 
     # Initialize session state variables if they don't exist
     if 'top_articles' not in st.session_state:
