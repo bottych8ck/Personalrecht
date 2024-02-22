@@ -107,7 +107,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
     prompt += "Anfrage auf Deutsch beantworten. Versuche, eine kurze Antwort zu schreiben, prüfe aber die Anwendbarkeit der § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, erwähne ihn in der Antwort nicht.\n"
     return prompt
 
-ef main_app():
+def main_app():
     st.title("Chat_TG Personalrecht")
     st.subheader("Abfrage des Thurgauer Personalrechts")
     
