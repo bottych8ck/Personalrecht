@@ -29,7 +29,7 @@ client = openai.OpenAI(api_key=api_key)
 
 def get_embeddings(text):
     res = client.embeddings.create(input=[text], model="text-embedding-ada-002")
-    return res['data'][0]['embedding']
+    return res.data[0].embedding
 
 def is_relevant_article(section_data, relevance):
     normalized_relevance = relevance.lower().replace("sek ii", "SEK II")
