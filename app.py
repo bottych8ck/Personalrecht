@@ -126,7 +126,7 @@ def main_app():
     if st.button("Abschicken"):
         st.session_state.submitted = True
         if user_query:
-            query_vector = np.array(get_embeddings(user_query)).reshape(1, -1)
+            query_vector = get_embeddings(user_query)
             similarities = calculate_similarities(query_vector, article_embeddings)
             
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
