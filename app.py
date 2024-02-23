@@ -68,7 +68,13 @@ def get_article_content(title, law_data):
     all_paragraphs = section_data.get('Inhalt', [])
     law_name = section_data.get("Name", "Unbekanntes Gesetz")
     law_url = section_data.get("URL", "")
-    return [(title, all_paragraphs, law_name, law_url)]
+
+    # Check if "Im § erwähnter Artikel des EOG" exists and append its content to all_paragraphs
+    mentioned_articles = section_data.get("Im § erwähnter Artikel des EOG", [])
+    if mentioned_articles:
+        all_paragraphs += ["Im § erwähnter Artikel des EOG:"] + mentioned_articles
+
+    return (title, all_paragraphs, law_name, law_url)
 
 def generate_html_with_js(prompt):
     return f"""
@@ -136,15 +142,14 @@ def main_app():
             st.write("Die folgenden Artikel werden angezeigt, nachdem Ihre Anfrage analysiert und mit den relevanten Gesetzesdaten abgeglichen wurde.")
             with st.expander("Am besten auf die Anfrage passende Artikel", expanded=False):
                 for title, score in st.session_state.top_articles:
-                    result = get_article_content(title, law_data)
-                    article_content, law_name, law_url = result
+                    title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
                     law_name_display = law_name if law_name else "Unbekanntes Gesetz"
                     if law_url:
                         law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
                         
                     st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
-                    if article_content:
-                        for paragraph in article_content:
+                    if all_paragraphs:
+                        for paragraph in all_paragraphs:
                             st.write(paragraph)
                     else:
                         st.write("Kein Inhalt verfügbar.")
