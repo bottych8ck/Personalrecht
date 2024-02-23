@@ -151,7 +151,7 @@ def main_app():
     
             # Display the response from OpenAI
             if response.choices:
-                ai_message = response.choices[0].content  # Corrected attribute access
+                ai_message = response.choices[0].text  # Corrected attribute access
                 st.subheader("Antwort Chat-TG:")
                 st.write(ai_message)
         else:
