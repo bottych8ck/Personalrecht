@@ -158,7 +158,7 @@ def main_app():
             st.warning("Bitte geben Sie eine Anfrage ein.")
 
             
-    if st.button("Hinweise")
+    if st.button("Hinweise"):
         st.write("Die folgenden Artikel bilden die Grundlage der obigen Antwort. Sie wurden aufgrund einer Analyse der Anfrage und einem Vergleich und mit den relevanten Gesetzesdaten berechnet.")
         with st.expander("Am besten auf die Anfrage passende Artikel", expanded=False):
             for title, score in st.session_state.top_articles:
