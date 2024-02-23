@@ -116,7 +116,10 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
 def main_app():
     st.title("Chat_TG Personalrecht")
     st.subheader("Abfrage des Thurgauer Personalrechts")
-    
+    if 'last_question' not in st.session_state:
+        st.session_state['last_question'] = ""
+    if 'last_answer' not in st.session_state:
+        st.session_state['last_answer'] = None
     if 'prompt' not in st.session_state:
         st.session_state['prompt'] = ""
 
@@ -129,9 +132,9 @@ def main_app():
     if 'submitted' not in st.session_state:
         st.session_state.submitted = False
 
-    if st.button("Abschicken"):
-        st.session_state.submitted = True
-        if user_query:
+    if st.button("Abschicken") and user_query:
+        
+        if user_query != st.session_state['last_question']:
             query_vector = get_embeddings(user_query)
             similarities = calculate_similarities(query_vector, article_embeddings)
             
@@ -152,10 +155,16 @@ def main_app():
             # Display the response from OpenAI
             if response.choices:
                 ai_message = response.choices[0].message.content  # Corrected attribute access
-                st.subheader("Antwort Chat-TG:")
-                st.write(ai_message)
+                st.session_state['last_question'] = user_query
+                st.session_state['last_answer'] = ai_message
         else:
-            st.warning("Bitte geben Sie eine Anfrage ein.")
+            ai_message = st.session_state['last_answer']
+
+    if st.session_state['last_answer']:
+        st.subheader("Antwort Chat-TG:")
+        st.write(st.session_state['last_answer'])
+    else:
+        st.warning("Bitte geben Sie eine Anfrage ein.")
 
             
     if st.button("Hinweise"):
