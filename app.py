@@ -129,33 +129,33 @@ def main_app():
     if 'submitted' not in st.session_state:
         st.session_state.submitted = False
 
-if st.button("Abschicken"):
-    st.session_state.submitted = True
-    if user_query:
-        query_vector = get_embeddings(user_query)
-        similarities = calculate_similarities(query_vector, article_embeddings)
-        
-        sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-        filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-        
-        st.session_state.top_articles = filtered_articles[:10]
-              
-        prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data)
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-
-        # Display the response from OpenAI
-        if response.choices:
-            ai_message = response.choices[0].content  # Corrected attribute access
-            st.subheader("Antwort Chat-TG:")
-            st.write(ai_message)
-    else:
-        st.warning("Bitte geben Sie eine Anfrage ein.")
+    if st.button("Abschicken"):
+        st.session_state.submitted = True
+        if user_query:
+            query_vector = get_embeddings(user_query)
+            similarities = calculate_similarities(query_vector, article_embeddings)
+            
+            sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+            filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
+            
+            st.session_state.top_articles = filtered_articles[:10]
+                  
+            prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data)
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+    
+            # Display the response from OpenAI
+            if response.choices:
+                ai_message = response.choices[0].content  # Corrected attribute access
+                st.subheader("Antwort Chat-TG:")
+                st.write(ai_message)
+        else:
+            st.warning("Bitte geben Sie eine Anfrage ein.")
 
             
     if st.session_state.submitted:
