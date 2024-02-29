@@ -132,7 +132,7 @@ def main_app():
     if 'submitted' not in st.session_state:
         st.session_state.submitted = False
 
-    if st.button("Mit GPT 3.5 beantworten (.05 Fr. pro Aufruf :)") and user_query:
+    if st.button("Mit GPT 3.5 beantworten (.05 Fr. pro Anfrage :-) )") and user_query:
         
         if user_query != st.session_state['last_question']:
             query_vector = get_embeddings(user_query)
