@@ -132,7 +132,7 @@ def main_app():
     if 'submitted' not in st.session_state:
         st.session_state.submitted = False
 
-    if st.button("Mit GPT 3.5 beantworten (.05 Fr. pro Anfrage :-) )") and user_query:
+    if st.button("Mit GPT 4 beantworten (.08 Fr. pro Anfrage :-) )") and user_query:
         
         if user_query != st.session_state['last_question']:
             query_vector = get_embeddings(user_query)
@@ -145,7 +145,7 @@ def main_app():
                   
             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data)
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4-0125-preview",
                 messages=[
                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
                     {"role": "user", "content": prompt}
