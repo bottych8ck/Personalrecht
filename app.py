@@ -168,6 +168,7 @@ def main_app():
 
             
     if st.button("Hinweise"):
+        st.session_state.submitted = True
         st.write("Die folgenden Artikel bilden die Grundlage der obigen Antwort. Sie wurden aufgrund einer Analyse der Anfrage und einem Vergleich und mit den relevanten Gesetzesdaten berechnet.")
         with st.expander("Am besten auf die Anfrage passende Artikel", expanded=False):
             for title, score in st.session_state.top_articles:
@@ -182,6 +183,22 @@ def main_app():
                         st.write(paragraph)
                 else:
                     st.write("Kein Inhalt verfügbar.")
+
+    if st.session_state.submitted:
+        if st.button("Prompt generieren"):
+            if user_query and st.session_state.top_articles:
+                prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data)
+                html_with_js = generate_html_with_js(prompt)
+                html(html_with_js)
+                st.text_area("Prompt:", prompt, height=300)
+                st.session_state['prompt'] = prompt
+                         
+            else:
+                if not user_query:
+                    st.warning("Bitte geben Sie eine Anfrage ein.")
+                if not st.session_state.top_articles:
+                    st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
+
 
 def main():
     main_app()
