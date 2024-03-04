@@ -8,12 +8,6 @@ from streamlit.components.v1 import html
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
-# Mapping for relevance criteria
-relevance_mapping = {
-    "Staatspersonal": "Die Frage bezieht sich auf Staatspersonal.",
-    "Lehrperson VS": "Die Frage bezieht sich auf Wahlen an der Urne.",
-    "Lehrperson BfS": "Die Frage ist allgemein und nicht spezifisch relevant für die Gemeindeversammlung oder Urnenwahl."
-}
 
 # Load the data
 with open('article_embeddings.json', 'r') as file:
@@ -92,10 +86,9 @@ def generate_html_with_js(prompt):
     </script>
     """
 
-def generate_prompt(user_query, relevance, top_articles, law_data):
+def generate_prompt(user_query, top_articles, law_data):
     prompt = f"Beantworte folgende Frage: \"{user_query}\"\n\n"
     prompt += "Beantworte die Frage nur gestützt auf einen oder mehrere der folgenden §. Prüfe zuerst, ob der § überhaupt auf die Frage anwendbar ist. Wenn er nicht anwendbar ist, vergiss den §.\n"
-    prompt += f"{relevance_mapping.get(relevance, 'Die Frage ist allgemein.')} \n\n"
     article_number = 1
     
     for title, _ in top_articles:
@@ -114,8 +107,8 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
     return prompt
 
 def main_app():
-    st.title("Chat_TG Personalrecht")
-    st.subheader("Abfrage des Thurgauer Personalrechts")
+    st.title("Chat_TG Schulrecht")
+    st.subheader("Abfrage des Thurgauer Schulrechts")
     if 'last_question' not in st.session_state:
         st.session_state['last_question'] = ""
     if 'last_answer' not in st.session_state:
@@ -124,8 +117,6 @@ def main_app():
         st.session_state['prompt'] = ""
 
     user_query = st.text_input("Hier Ihre Frage eingeben:")
-    relevance_options = ["Staatspersonal", "Lehrperson VS", "Lehrperson Sek II"]
-    relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Staatspersonal, Lehrpersonen der Volksschule oder Lehrpersonen der Berufsfach- und Mittelschulen bezieht:", relevance_options)
 
     if 'top_articles' not in st.session_state:
         st.session_state.top_articles = []
@@ -138,12 +129,11 @@ def main_app():
             query_vector = get_embeddings(user_query)
             similarities = calculate_similarities(query_vector, article_embeddings)
             
-            sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-            filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-            
-            st.session_state.top_articles = filtered_articles[:10]
+            top_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+                        
+            st.session_state.top_articles = top_articles[:10]
                   
-            prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data)
+            prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
@@ -187,7 +177,7 @@ def main_app():
     if st.session_state.submitted:
         if st.button("Prompt generieren"):
             if user_query and st.session_state.top_articles:
-                prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data)
+                prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
                 html_with_js = generate_html_with_js(prompt)
                 html(html_with_js)
                 st.text_area("Prompt:", prompt, height=300)
