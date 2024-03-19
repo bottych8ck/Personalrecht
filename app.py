@@ -20,10 +20,10 @@ with open('article_embeddings.json', 'r') as file:
     article_embeddings = json.load(file)
 
 with open('law_data.json', 'r') as file:
-    knowledge_base_embeddings = json.load(file)
+    law_data = json.load(file)
 
 with open('knowledge_base_embeddings.json', 'r') as file:
-    article_embeddings = json.load(file)
+    knowledge_base_embeddings = json.load(file)
 
 with open('knowledge_base.json', 'r') as file:
     knowledge_base = json.load(file)
@@ -142,6 +142,8 @@ def main_app():
         st.session_state['last_answer'] = None
     if 'prompt' not in st.session_state:
         st.session_state['prompt'] = ""
+    if 'top_knowledge_items' not in st.session_state:
+        st.session_state.top_knowledge_items = [] 
 
     user_query = st.text_input("Hier Ihre Frage eingeben:")
     relevance_options = ["Staatspersonal", "Lehrperson VS", "Lehrperson Sek II"]
