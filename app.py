@@ -189,8 +189,8 @@ def main_app():
         st.warning("Bitte geben Sie eine Anfrage ein.")
 
     if st.button("Show session state for debugging"):
-    st.write("Session State: `top_knowledge_items`")
-    st.write(st.session_state.top_knowledge_items)
+        st.write("Session State: `top_knowledge_items`")
+        st.write(st.session_state.top_knowledge_items)
         
     if st.button("Hinweise"):
         st.session_state.submitted = True
