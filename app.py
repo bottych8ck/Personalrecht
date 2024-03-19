@@ -188,7 +188,10 @@ def main_app():
     else:
         st.warning("Bitte geben Sie eine Anfrage ein.")
 
-            
+    if st.button("Show session state for debugging"):
+    st.write("Session State: `top_knowledge_items`")
+    st.write(st.session_state.top_knowledge_items)
+        
     if st.button("Hinweise"):
         st.session_state.submitted = True
         st.write("Die folgenden Artikel und Hinweise passen am Besten auf die Anfrage. Sie wurde aufgrund einer Analyse der Anfrage und einem Vergleich und dem Gesetz und einer Wissensdatenbank berechnet.")
@@ -214,6 +217,7 @@ def main_app():
                     item = knowledge_base.get(item_id, {})
                     title = item.get("Title", "Unbekannt")
                     content = ' '.join(item.get("Content", []))
+                    st.markdown(f"**{title}**")
                     st.markdown(f"**{title}**")
                     st.write(content)
                     
