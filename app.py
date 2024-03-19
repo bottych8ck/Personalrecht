@@ -97,7 +97,7 @@ def generate_html_with_js(prompt):
     </script>
     """
 
-def generate_prompt(user_query, relevance, top_articles, law_data):
+def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
     prompt = f"Beantworte folgende Frage: \"{user_query}\"\n\n"
     prompt += "Beantworte die Frage nur gestützt auf einen oder mehrere der folgenden §. Prüfe zuerst, ob der § überhaupt auf die Frage anwendbar ist. Wenn er nicht anwendbar ist, vergiss den §.\n"
     prompt += f"{relevance_mapping.get(relevance, 'Die Frage ist allgemein.')} \n\n"
@@ -160,8 +160,7 @@ def main_app():
             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
             filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
             knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-            top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
-
+            st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
             st.session_state.top_articles = filtered_articles[:10]
                   
             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data)
