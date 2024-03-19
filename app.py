@@ -115,9 +115,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
         article_number += 1
 
     prompt += "\n"
-    knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-    top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
-
+    
     prompt += "\nZusätzlich berücksichtige folgende allgemeine Grundsätze und Prinzipien:\n"
     for item_id, _ in top_knowledge_items:
         item = knowledge_base.get(item_id, {})
@@ -125,8 +123,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
         content = ' '.join(item.get("Content", []))
         prompt += f"- {title}: {content}\n"
 
-    prompt += "\nAnfrage auf Deutsch beantworten. Prüfe die Anwendbarkeit der einzelnen § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, vergiss ihn.\n"
- 
+   
     prompt += "Anfrage auf Deutsch beantworten. Prüfe die  Anwendbarkeit der einzelnen § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, vergiss ihn.\n"
     return prompt
 
