@@ -20,8 +20,13 @@ with open('article_embeddings.json', 'r') as file:
     article_embeddings = json.load(file)
 
 with open('law_data.json', 'r') as file:
-    law_data = json.load(file)
+    knowledge_base_embeddings = json.load(file)
 
+with open('knowledge_base_embeddings.json', 'r') as file:
+    article_embeddings = json.load(file)
+
+with open('knowledge_base.json', 'r') as file:
+    knowledge_base = json.load(file)
 load_dotenv()  # This line loads the variables from .env
 
 api_key = os.getenv('OPENAI_API_KEY')
@@ -110,8 +115,23 @@ def generate_prompt(user_query, relevance, top_articles, law_data):
         article_number += 1
 
     prompt += "\n"
+    knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
+    top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
+
+    prompt += "\nZusätzlich berücksichtige folgende allgemeine Grundsätze und Prinzipien:\n"
+    for item_id, _ in top_knowledge_items:
+        item = knowledge_base.get(item_id, {})
+        title = item.get("Title", "Unbekannt")
+        content = ' '.join(item.get("Content", []))
+        prompt += f"- {title}: {content}\n"
+
+    prompt += "\nAnfrage auf Deutsch beantworten. Prüfe die Anwendbarkeit der einzelnen § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, vergiss ihn.\n"
+ 
     prompt += "Anfrage auf Deutsch beantworten. Prüfe die  Anwendbarkeit der einzelnen § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, vergiss ihn.\n"
     return prompt
+
+
+
 
 def main_app():
     st.title("Chat_TG Personalrecht")
@@ -169,21 +189,32 @@ def main_app():
             
     if st.button("Hinweise"):
         st.session_state.submitted = True
-        st.write("Die folgenden Artikel bilden die Grundlage der obigen Antwort. Sie wurden aufgrund einer Analyse der Anfrage und einem Vergleich und mit den relevanten Gesetzesdaten berechnet.")
+        st.write("Die folgenden Artikel und Hinweise passen am Besten auf die Anfrage. Sie wurde aufgrund einer Analyse der Anfrage und einem Vergleich und dem Gesetz und einer Wissensdatenbank berechnet.")
         with st.expander("Am besten auf die Anfrage passende Artikel", expanded=False):
-            for title, score in st.session_state.top_articles:
-                title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
-                law_name_display = law_name if law_name else "Unbekanntes Gesetz"
-                if law_url:
-                    law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("#### Artikel")
+                for title, score in st.session_state.top_articles:
+                    title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
+                    law_name_display = law_name if law_name else "Unbekanntes Gesetz"
+                    if law_url:
+                        law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
+                        
+                    st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
+                    if all_paragraphs:
+                        for paragraph in all_paragraphs:
+                            st.write(paragraph)
+                    else:
+                        st.write("Kein Inhalt verfügbar.")
+            with col2:
+                st.markdown("#### Wissenselemente")
+                for item_id, _ in st.session_state.top_knowledge_items:  # Adjust based on how you're storing these
+                    item = knowledge_base.get(item_id, {})
+                    title = item.get("Title", "Unbekannt")
+                    content = ' '.join(item.get("Content", []))
+                    st.markdown(f"**{title}**")
+                    st.write(content)
                     
-                st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
-                if all_paragraphs:
-                    for paragraph in all_paragraphs:
-                        st.write(paragraph)
-                else:
-                    st.write("Kein Inhalt verfügbar.")
-
     if st.session_state.submitted:
         if st.button("Prompt generieren"):
             if user_query and st.session_state.top_articles:
