@@ -161,6 +161,8 @@ def main_app():
             filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
             knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
             st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
+            print(st.session_state.top_knowledge_items)
+
             st.session_state.top_articles = filtered_articles[:10]
                   
             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
@@ -218,7 +220,7 @@ def main_app():
     if st.session_state.submitted:
         if st.button("Prompt generieren"):
             if user_query and st.session_state.top_articles:
-                prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data)
+                prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
                 html_with_js = generate_html_with_js(prompt)
                 html(html_with_js)
                 st.text_area("Prompt:", prompt, height=300)
