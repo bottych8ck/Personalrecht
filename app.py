@@ -163,7 +163,7 @@ def main_app():
             st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
             st.session_state.top_articles = filtered_articles[:10]
                   
-            prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data)
+            prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
