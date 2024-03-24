@@ -159,21 +159,20 @@ def main_app():
         st.session_state.top_articles = []
     if 'submitted' not in st.session_state:
         st.session_state.submitted = False
+    if user_query != st.session_state['last_question']:
+        query_vector = get_embeddings(user_query)
+        similarities = calculate_similarities(query_vector, article_embeddings)
+        
+        sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+        filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
+        st.session_state.top_articles = filtered_articles[:10]
+        knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
+        st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
 
     if st.button("Mit GPT 3.5 beantworten (.05 Fr. pro Anfrage :-) )") and user_query:
         
         if user_query != st.session_state['last_question']:
             query_vector = get_embeddings(user_query)
-            similarities = calculate_similarities(query_vector, article_embeddings)
-            
-            sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-            filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-            knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-            st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
-            print(st.session_state.top_knowledge_items)
-
-            st.session_state.top_articles = filtered_articles[:10]
-                  
             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
@@ -222,7 +221,6 @@ def main_app():
                     item = knowledge_base.get(item_id, {})
                     title = item.get("Title", "Unbekannt")
                     content = ' '.join(item.get("Content", []))
-                    st.markdown(f"**{title}**")
                     st.markdown(f"**{title}**")
                     st.write(content)
                     
