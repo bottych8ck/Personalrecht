@@ -18,6 +18,7 @@ relevance_mapping = {
 # Load the data
 with open('article_embeddings.json', 'r') as file:
     article_embeddings = json.load(file)
+    print("Article embeddings loaded:", len(article_embeddings), "entries.")
 
 with open('law_data.json', 'r') as file:
     law_data = json.load(file)
@@ -28,6 +29,14 @@ with open('knowledge_base_embeddings.json', 'r') as file:
 with open('knowledge_base.json', 'r') as file:
     knowledge_base = json.load(file)
 load_dotenv()  # This line loads the variables from .env
+
+# After loading law_data
+
+# After loading knowledge_base_embeddings
+print("Knowledge base embeddings loaded:", len(knowledge_base_embeddings), "entries")
+
+# After loading knowledge_base
+print("Knowledge base loaded:", len(knowledge_base), "entries")
 
 api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=api_key)
@@ -58,6 +67,8 @@ def get_relevant_articles(law_data, relevance):
     for section, section_data in law_data.items():
         if is_relevant_article(section_data, relevance):
             relevant_articles[section] = section_data
+    def get_relevant_articles(law_data, relevance):
+    print(f"Found {len(relevant_articles)} relevant articles for relevance: {relevance}")
     return relevant_articles
 
 def calculate_similarities(query_vector, article_embeddings):
@@ -71,6 +82,7 @@ def calculate_similarities(query_vector, article_embeddings):
             similarities[title] = similarity
         except TypeError as e:
             print(f"Error processing article '{title}': {e}")
+    print("Calculated similarities for", len(similarities), "articles.")    
     return similarities
 
 def get_article_content(title, law_data):
