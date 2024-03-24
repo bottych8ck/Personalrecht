@@ -67,7 +67,6 @@ def get_relevant_articles(law_data, relevance):
     for section, section_data in law_data.items():
         if is_relevant_article(section_data, relevance):
             relevant_articles[section] = section_data
-    def get_relevant_articles(law_data, relevance):
     print(f"Found {len(relevant_articles)} relevant articles for relevance: {relevance}")
     return relevant_articles
 
