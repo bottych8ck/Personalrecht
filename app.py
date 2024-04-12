@@ -169,7 +169,7 @@ def main_app():
         knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
         st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
 
-    if st.button("Mit GPT 3.5 beantworten (.05 Fr. pro Anfrage :-) )") and user_query:
+    if st.button("Mit GPT 3.5 beantworten (.05 Fr. pro Anfrage)") and user_query:
         
         if user_query != st.session_state['last_question']:
             query_vector = get_embeddings(user_query)
@@ -198,11 +198,11 @@ def main_app():
         
     if st.button("Hinweise"):
         st.session_state.submitted = True
-        st.write("Die folgenden Artikel und Hinweise passen am Besten auf die Anfrage. Sie wurde aufgrund einer Analyse der Anfrage und einem Vergleich und dem Gesetz und einer Wissensdatenbank berechnet.")
+        st.write("Die folgenden Bestimmungen und Hinweise passen am Besten auf die Anfrage. Sie wurden aufgrund einer Analyse der Anfrage und einem Vergleich mit dem Gesetz und einer Wissensdatenbank berechnet.")
         with st.expander("Am besten auf die Anfrage passende Artikel", expanded=False):
             col1, col2 = st.columns(2)
             with col1:
-                st.markdown("#### Artikel")
+                st.markdown("#### Bestimmungen")
                 for title, score in st.session_state.top_articles:
                     title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
                     law_name_display = law_name if law_name else "Unbekanntes Gesetz"
