@@ -52,7 +52,6 @@ def is_relevant_article(section_data, relevance):
     return is_relevant
 
     
-    return is_relevant
 
 def get_relevant_articles(law_data, relevance):
     relevant_articles = {}
@@ -75,14 +74,18 @@ def calculate_similarities(query_vector, article_embeddings):
     print("Calculated similarities for", len(similarities), "articles.")    
     return similarities
 
-def get_article_content(title, law_data):
-    section_data = law_data.get(title, {})
-    all_paragraphs = section_data.get('Inhalt', [])
-    law_name = section_data.get("Name", "Unbekanntes Gesetz")
-    law_url = section_data.get("URL", "")
+def get_article_content(uid, law_data):
+    # Fetch the article information using the UID
+    article_info = law_data.get(uid, {})
+
+    # Extract necessary information from the article
+    title = article_info.get('Title', 'Unknown Title')
+    all_paragraphs = article_info.get('Inhalt', [])
+    law_name = article_info.get("Name", "Unbekanntes Gesetz")
+    law_url = article_info.get("URL", "")
 
     # Check if "Im § erwähnter Artikel des EOG" exists and append its content to all_paragraphs
-    mentioned_articles = section_data.get("Im § erwähnter Artikel des EOG", [])
+    mentioned_articles = article_info.get("Im § erwähnter Artikel des EOG", [])
     if mentioned_articles:
         all_paragraphs += ["Im § erwähnter Artikel des EOG:"] + mentioned_articles
 
@@ -203,8 +206,8 @@ def main_app():
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown("#### Bestimmungen")
-                for title, score in st.session_state.top_articles:
-                    title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
+                for uid, score in st.session_state.top_articles:  # Assuming top_articles stores (uid, score)
+                    title, all_paragraphs, law_name, law_url = get_article_content(uid, law_data)
                     law_name_display = law_name if law_name else "Unbekanntes Gesetz"
                     if law_url:
                         law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
@@ -215,6 +218,7 @@ def main_app():
                             st.write(paragraph)
                     else:
                         st.write("Kein Inhalt verfügbar.")
+
             with col2:
                 st.markdown("#### Wissenselemente")
                 for item_id, _ in st.session_state.top_knowledge_items:  # Adjust based on how you're storing these
