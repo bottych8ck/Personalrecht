@@ -172,13 +172,13 @@ def main_app():
         knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
         st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
 
-    if st.button("Mit GPT 3.5 beantworten (.05 Fr. pro Anfrage)") and user_query:
+    if st.button("Mit GPT 4 beantworten (0.10 Fr. pro Anfrage)") and user_query:
         
         if user_query != st.session_state['last_question']:
             query_vector = get_embeddings(user_query)
             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4-turbo",
                 messages=[
                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
                     {"role": "user", "content": prompt}
