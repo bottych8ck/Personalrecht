@@ -270,7 +270,7 @@ def main_app():
                     title = item.get("Title", "Unbekannt")
                     content = ' '.join(item.get("Content", []))
                     st.markdown(f"**{title}**")
-                        st.write(content)
+                    st.write(content)
                     
     if st.button("Mit GPT 4 beantworten (0.15 Fr. pro Anfrage)") and user_query:
         
