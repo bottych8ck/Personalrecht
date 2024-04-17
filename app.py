@@ -33,6 +33,38 @@ load_dotenv()  # This line loads the variables from .env
 api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=api_key)
 
+def update_gist_with_query_and_response(query, response):
+    url = f"https://api.github.com/gists/{st.secrets['gist_id']}"
+    headers = {
+        "Authorization": f"token {st.secrets['github_token']}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    
+    # Fetch the existing content of the Gist
+    gist_content = requests.get(url, headers=headers).json()
+    file_name = list(gist_content['files'])[0]  # Assumes there's only one file in the Gist
+    current_content = gist_content['files'][file_name]['content']
+    
+    # Load the current content as JSON and append the new data
+    data = json.loads(current_content)
+    data.append({
+        "timestamp": datetime.now().isoformat(),
+        "query": query,
+        "response": response
+    })
+    
+    # Prepare the updated content
+    updated_content = json.dumps(data, indent=4)
+    payload = {
+        "files": {
+            file_name: {
+                "content": updated_content
+            }
+        }
+    }
+    
+    # Update the Gist
+
 def get_embeddings(text):
     res = client.embeddings.create(input=[text], model="text-embedding-ada-002")
     return res.data[0].embedding
@@ -190,6 +222,7 @@ def main_app():
                 ai_message = response.choices[0].message.content  # Corrected attribute access
                 st.session_state['last_question'] = user_query
                 st.session_state['last_answer'] = ai_message
+                update_gist_with_query_and_response(user_query, ai_message)
         else:
             ai_message = st.session_state['last_answer']
 
