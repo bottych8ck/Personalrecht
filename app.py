@@ -81,7 +81,10 @@ def update_gist_with_query_and_response(query, response):
     current_content = gist_content['files'][file_name]['content']
     
     # Load the current content as JSON and append the new data
-    data = json.loads(current_content)
+    if current_content:
+        data = json.loads(current_content)
+    else:
+        data = []  # Initialize as empty list if the content is empty
     data.append({
         "timestamp": datetime.now().isoformat(),
         "query": query,
