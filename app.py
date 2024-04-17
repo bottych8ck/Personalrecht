@@ -45,10 +45,8 @@ def welcome_page():
     st.header("So funktionierts:")
     st.markdown("""
     - Die User stellen eine Anfrage zum Thurgauer Personalrecht. 
-    - Die Applikation berechnet die am Besten zur Anfrage passenden Bestimmungen und Wissenselemente (sog. Retrieval).
-    -  Klicken die User auf "Hinweise" werden die am besten zur Anfrage passenden Bestimmungen und Wissenselemente angezeigt.
-    - Auf der Grundlage dieser Bestimmungen und Wissenselemente wird anschliessend eine Anweisung (sog. Prompt) für ein Sprachmodell (vorliegend wird auf das Sprachmodell von OpenAI (ChatGTP) verwendet) erzeugt. Dieser Prompt beinhaltet wichtige Informationen, die das Sprachmodell für die Beantwortung nutzen kann.  
-    - Klicken die User auf "Mit GTP 4 beantworten" wird der Prompt  einem LLM vorgelegt und die Antwort angezeigt.
+    - Klicken die User auf "Hinweise", werden die am Besten zur Anfrage passenden Bestimmungen und Wissenselemente berechnet (sog. Retriaval) und angezeigt.
+    - Klicken die User auf "Mit GTP 4 beantworten" wird auf der Grundlage dieser Bestimmungen und Wissenselemente eine Anweisung (sog. Prompt) für ein Sprachmodell (vorliegend das Sprachmodell von OpenAI (ChatGTP)) erzeugt. Die Antwort des Sprachmodells wird dem User angezeigt.
     
     """)
     st.header("Nutzungshinweise")
@@ -60,9 +58,9 @@ def welcome_page():
     
     st.header("Hinweise für die Testphase mit dem VTGS")
     st.markdown("""
-    - Die Testphase dauert von Mai bis und mit August 2024. Alle Anfragenwerden archiviert.
-    - Aktu
-    - Während der Testphase wird Chat_TG kontinuierlich weiterentwickelt. Mit dem vorliegenden Test sollen primär Hinweise für die Weiterentwicklung von Chat_TG gesammelt werden. Wir bitten darum,  Hinweise umgehend an philipp.kuebler@tg.ch zu senden 
+    - Die Testphase dauert von Mai bis und mit August 2024. Alle Anfragen werden archiviert.
+    - Chat_TG ist noch in einer Pilotphase. Insbesondere die Wissensdatenbank ist noch unterentwickelt. Mit dem vorliegenden Test sollen daher primär Hinweise für die Weiterentwicklung von Chat_TG gesammelt werden. 
+    - Die Entwicklung von Chat_TG dauert auch während der Testphase an.  Wir bitten darum, allfällige Hinweise für Verbesserrungen umgehend an philipp.kuebler@tg.ch zu senden 
     
     """)
    
