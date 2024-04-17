@@ -59,7 +59,8 @@ def welcome_page():
     - Die Testphase dauert von Mai bis und mit August 2024. Alle Anfragen werden archiviert.
     - Chat_TG beantwortet vor allem Fragen zuverlässig, deren Antwort basierend auf einer Bestimmung möglich ist. Komplexere Anfragen stellen aktuell ein Problem dar.   
     - Insbesondere die Wissensdatenbank ist noch unterentwickelt. Mit dem vorliegenden Test sollen daher primär Hinweise für die Weiterentwicklung von Chat_TG gesammelt werden.
-    - Die Entwicklung von Chat_TG dauert auch während der Testphase an.  Wir bitten darum, allfällige Hinweise für Verbesserungen umgehend an philipp.kuebler@tg.ch zu senden 
+    - Die Entwicklung von Chat_TG dauert auch während der Testphase an.  Wir bitten darum, allfällige Hinweise für Verbesserungen umgehend an philipp.kuebler@tg.ch zu senden.
+    - Chat_Tg läuft aktuell in einer Testumgebung mit limitierten Kapazitäten. Werden viele Anfragen innert kurzer Zeit gestellt, wird das System instabil. 
     
     """)
    
