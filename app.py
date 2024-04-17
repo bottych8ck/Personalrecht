@@ -175,8 +175,11 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
 
 
 def main_app():
-    st.title("Chat_TG Personalrecht - Testversion VTGS")
+    st.title("Chat_TG Personalrecht")
+    st.subheader("Testversion für den VTGS")
     st.subheader("Abfrage des Thurgauer Personalrechts")
+    st.write("Es werden folgende Erlasse abgefragt: ")
+
     if 'last_question' not in st.session_state:
         st.session_state['last_question'] = ""
     if 'last_answer' not in st.session_state:
@@ -204,7 +207,7 @@ def main_app():
         knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
         st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
 
-    if st.button("Mit GPT 4 beantworten (0.10 Fr. pro Anfrage)") and user_query:
+    if st.button("Mit GPT 4 beantworten (0.15 Fr. pro Anfrage)") and user_query:
         
         if user_query != st.session_state['last_question']:
             query_vector = get_embeddings(user_query)
