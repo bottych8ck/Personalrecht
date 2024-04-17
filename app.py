@@ -64,6 +64,7 @@ def update_gist_with_query_and_response(query, response):
     }
     
     # Update the Gist
+    requests.patch(url, headers=headers, json=payload)
 
 def get_embeddings(text):
     res = client.embeddings.create(input=[text], model="text-embedding-ada-002")
