@@ -178,7 +178,7 @@ def main_app():
     st.title("Chat_TG Personalrecht")
     st.subheader("Testversion für den VTGS")
     st.subheader("Abfrage des Thurgauer Personalrechts")
-    st.write("Es werden folgende Erlasse abgefragt: ")
+    st.write("Es werden folgende Erlasse abgefragt: Verordnung des Regierungsrates über die Rechtsstellung des Staatspersonals, Verordnung des Grossen Rates über die Besoldung des Staatspersonals, Verordnung des Regierungsrates zur Besoldungsverordnung, Verordnung über die Rechtsstellung der Lehrpersonen an den Volksschulen, Verordnung über die Rechtsstellung der Lehrpersonen an den Berufsfach- und Mittelschulen (RSV BM), Gesetz über die Verwaltungsrechtspflege, Verfassung des Kantons Thurgau, Verordnung des Regierungsrates betreffend die elektronische Übermittlung im Rahmen von Verwaltungs-, Zivil-, Straf- sowie Schuldbetreibungs- und Konkursverfahren, Gesetz über den Datenschutz, Verordnung des Regierungsrates über das Vernehmlassungsverfahren, Gesetz über die Verantwortlichkeit, Gesetz über die öffentlichen Bekanntmachungen, Gesetz über das Öffentlichkeitsprinzip und Verordnung des Regierungsrates über den Datenschutz ")
 
     if 'last_question' not in st.session_state:
         st.session_state['last_question'] = ""
