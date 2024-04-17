@@ -36,31 +36,39 @@ api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=api_key)
 
 def welcome_page():
-    st.title("ChatG-TG für Gemeinderecht")
+    st.title("ChatG-TG für Personalrecht")
 
     # Explanation of what the app does
     st.write("""
-        Diese Applikation dient dazu, Anfragen zum Thurgauer Gesetz über das Stimm- und Wahlrecht zu bearbeiten. 
+        Diese Applikation dient dazu, Anfragen zum Thurgauer Personalrecht zu bearbeiten. 
     """)
     st.header("So funktionierts:")
     st.markdown("""
-    - Die User stellen eine Anfrage zum Thurgauer Gemeinderecht. 
-    - Die Applikation berechnet und zeigt die am besten zur Anfrage passenden Bestimmungen des Gesetzes über das Stimm- und Wahlrecht.
-    - Auf der Grundlage der fünf am besten passenden Bestimmungen wird anschliessend ein Prompt für ein sog. Large Language Model (LLM, z.B. ChatGTP) erzeugt. Dieser Prompt beinhaltet wichtige Informationen, die das LLM für die Beantwortung nutzen kann.  
-    - Die User können den Prompt in die Zwischenablage kopieren und dem von ihnen genutzten LLM vorlegen.      
+    - Die User stellen eine Anfrage zum Thurgauer Personalrecht. 
+    - Die Applikation berechnet die am Besten zur Anfrage passenden Bestimmungen und Wissenselemente (sog. Retrieval).
+    -  Klicken die User auf "Hinweise" werden die am besten zur Anfrage passenden Bestimmungen und Wissenselemente angezeigt.
+    - Auf der Grundlage dieser Bestimmungen und Wissenselemente wird anschliessend eine Anweisung (sog. Prompt) für ein Sprachmodell (vorliegend wird auf das Sprachmodell von OpenAI (ChatGTP) verwendet) erzeugt. Dieser Prompt beinhaltet wichtige Informationen, die das Sprachmodell für die Beantwortung nutzen kann.  
+    - Klicken die User auf "Mit GTP 4 beantworten" wird der Prompt  einem LLM vorgelegt und die Antwort angezeigt.
+    
     """)
     st.header("Nutzungshinweise")
     st.markdown("""
-    - Die Applikation basiert auf der sog. RAG-Technik (Retrieval Augmented Generation). Dabei werden einem LLM bei einer Anfrage passende Informationen vorgelegt, die für die Beantwortung genutzt werden können.
-    - Aus Kostengründen erfolgt keine direkte Beantwortung der Frage in der Applikation, weshalb die User den Prompt lediglich kopieren und ihn danach selbst einem LLM vorlegen können.   
+    - Weder die Richtigkeit der Antworten des LLM noch der Auswahl der Bestimmungen und Wissenselemente kann garantiert werden.  
+    - Es fehlen noch diverse Bestimmungen. Insbesondere sind aktuell nur Gesetze und Verordnungen erfasst. Bestimmmungen aus Richtlinien fehlen. Es sind aktuell nursehr  wenige Wissenselemente erfasst.     
     - Der Datenschutz kann gegenwärtig nicht garantiert werden. Verwenden Sie daher keine Personendaten in Ihrer Anfrage.
-    - Die Applikation liefert eine Übersicht der semantisch und kontextuell am besten auf die Anfrage passenden Bestimmungen und generiert daraus einen Prompt. Weder die tatsächliche Anwendbarkeit der ausgewählten Bestimmungen noch die Richtigkeiten der Antwort des LLM kann garantiert werden.    
-    - Selbst bei Fragen, die nicht direkt das Gemeinderecht des Kantons Thurgau betreffen, sucht das System nach den am besten übereinstimmenden Bestimmungen innerhalb dieses Rechtsbereichs. Beachten Sie jedoch, dass in solchen Fällen die ausgewählten Bestimmungen möglicherweise nicht zutreffend oder relevant sind.
+    """)
+    
+    st.header("Hinweise für die Testphase mit dem VTGS")
+    st.markdown("""
+    - Die Testphase dauert von Mai bis und mit August 2024. Alle Anfragenwerden archiviert.
+    - Aktu
+    - Während der Testphase wird Chat_TG kontinuierlich weiterentwickelt. Mit dem vorliegenden Test sollen primär Hinweise für die Weiterentwicklung von Chat_TG gesammelt werden. Wir bitten darum,  Hinweise umgehend an philipp.kuebler@tg.ch zu senden 
+    
     """)
    
 
     # Agree button to proceed to the main app
-    if st.button("Einverstanden"):
+    if st.button("Einverstanden (muss zweimal geklickt werden)"):
         st.session_state.agreed_to_terms = True
         
 def update_gist_with_query_and_response(query, response):
