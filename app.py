@@ -35,6 +35,34 @@ load_dotenv()  # This line loads the variables from .env
 api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=api_key)
 
+def welcome_page():
+    st.title("ChatG-TG für Gemeinderecht")
+
+    # Explanation of what the app does
+    st.write("""
+        Diese Applikation dient dazu, Anfragen zum Thurgauer Gesetz über das Stimm- und Wahlrecht zu bearbeiten. 
+    """)
+    st.header("So funktionierts:")
+    st.markdown("""
+    - Die User stellen eine Anfrage zum Thurgauer Gemeinderecht. 
+    - Die Applikation berechnet und zeigt die am besten zur Anfrage passenden Bestimmungen des Gesetzes über das Stimm- und Wahlrecht.
+    - Auf der Grundlage der fünf am besten passenden Bestimmungen wird anschliessend ein Prompt für ein sog. Large Language Model (LLM, z.B. ChatGTP) erzeugt. Dieser Prompt beinhaltet wichtige Informationen, die das LLM für die Beantwortung nutzen kann.  
+    - Die User können den Prompt in die Zwischenablage kopieren und dem von ihnen genutzten LLM vorlegen.      
+    """)
+    st.header("Nutzungshinweise")
+    st.markdown("""
+    - Die Applikation basiert auf der sog. RAG-Technik (Retrieval Augmented Generation). Dabei werden einem LLM bei einer Anfrage passende Informationen vorgelegt, die für die Beantwortung genutzt werden können.
+    - Aus Kostengründen erfolgt keine direkte Beantwortung der Frage in der Applikation, weshalb die User den Prompt lediglich kopieren und ihn danach selbst einem LLM vorlegen können.   
+    - Der Datenschutz kann gegenwärtig nicht garantiert werden. Verwenden Sie daher keine Personendaten in Ihrer Anfrage.
+    - Die Applikation liefert eine Übersicht der semantisch und kontextuell am besten auf die Anfrage passenden Bestimmungen und generiert daraus einen Prompt. Weder die tatsächliche Anwendbarkeit der ausgewählten Bestimmungen noch die Richtigkeiten der Antwort des LLM kann garantiert werden.    
+    - Selbst bei Fragen, die nicht direkt das Gemeinderecht des Kantons Thurgau betreffen, sucht das System nach den am besten übereinstimmenden Bestimmungen innerhalb dieses Rechtsbereichs. Beachten Sie jedoch, dass in solchen Fällen die ausgewählten Bestimmungen möglicherweise nicht zutreffend oder relevant sind.
+    """)
+   
+
+    # Agree button to proceed to the main app
+    if st.button("Einverstanden"):
+        st.session_state.agreed_to_terms = True
+        
 def update_gist_with_query_and_response(query, response):
     url = f"https://api.github.com/gists/{st.secrets['gist_id']}"
     headers = {
@@ -284,7 +312,13 @@ def main_app():
 
 
 def main():
-    main_app()
+     if 'agreed_to_terms' not in st.session_state:
+         st.session_state.agreed_to_terms = False
+
+     if not st.session_state.agreed_to_terms:
+         welcome_page()
+     else:
+         main_app()
 
 if __name__ == "__main__":
     main()
