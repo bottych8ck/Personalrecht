@@ -37,7 +37,7 @@ client = openai.OpenAI(api_key=api_key)
 
 def welcome_page():
     st.title("ChatG-TG für Personalrecht")
-
+    st.title("Testversion für den VTGS")    
     # Explanation of what the app does
     st.write("""
         Diese Applikation dient dazu, Anfragen zum Thurgauer Personalrecht zu bearbeiten. 
@@ -46,7 +46,7 @@ def welcome_page():
     st.markdown("""
     - Die User stellen eine Anfrage zum Thurgauer Personalrecht. 
     - Klicken die User auf "Hinweise", werden die am Besten zur Anfrage passenden Bestimmungen und Wissenselemente berechnet (sog. Retriaval) und angezeigt.
-    - Klicken die User auf "Mit GTP 4 beantworten" wird auf der Grundlage dieser Bestimmungen und Wissenselemente eine Anweisung (sog. Prompt) für ein Sprachmodell (vorliegend das Sprachmodell von OpenAI (ChatGTP)) erzeugt. Die Antwort des Sprachmodells wird dem User angezeigt.
+    - Klicken die User auf "Mit GTP 4 beantworten" wird auf der Grundlage dieser Bestimmungen und Wissenselemente eine Anweisung (sog. Prompt) für ein Sprachmodell (vorliegend das Sprachmodell von OpenAI (ChatGPT)) erzeugt und die Antwort angezeigt.
     
     """)
     st.header("Nutzungshinweise")
