@@ -36,31 +36,29 @@ api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=api_key)
 
 def welcome_page():
-    st.title("ChatG-TG für Personalrecht")
+    st.title("Chat_TG für Personalrecht")
     st.subheader("(Testversion für den VTGS)")    
     
     st.header("So funktionierts:")
     st.markdown("""
-    - Diese Applikation dient dazu, Anfragen zum Thurgauer Personalrecht zu bearbeiten. 
     - Die User stellen eine Anfrage zum Thurgauer Personalrecht. 
-    - Klicken die User auf "Hinweise", werden die am Besten zur Anfrage passenden Bestimmungen und Wissenselemente berechnet (sog. Retriaval) und angezeigt.
+    - Klicken die User auf "Hinweise", werden die am Besten zur Anfrage passenden Bestimmungen und Wissenselemente berechnet (sog. Retrieval) und angezeigt.
     - Klicken die User auf "Mit GTP 4 beantworten" wird auf der Grundlage dieser Bestimmungen und Wissenselemente eine Anweisung (sog. Prompt) für ein Sprachmodell (vorliegend das Sprachmodell von OpenAI (ChatGPT)) erzeugt und die Antwort angezeigt.
     
     """)
     st.header("Nutzungshinweise")
     st.markdown("""
-    - Weder die Richtigkeit der Antworten des LLM noch der Auswahl der Bestimmungen und Wissenselemente kann garantiert werden.  
-    - Es fehlen noch diverse Bestimmungen. Insbesondere sind aktuell nur Gesetze und Verordnungen erfasst. Bestimmmungen aus Richtlinien fehlen. Es sind aktuell nursehr  wenige Wissenselemente erfasst.     
+    - Weder die Richtigkeit der Antworten des Sprachmodells noch der Auswahl der Bestimmungen und Wissenselemente kann garantiert werden.     
     - Der Datenschutz kann gegenwärtig nicht garantiert werden. Verwenden Sie daher keine Personendaten in Ihrer Anfrage.
     """)
     
     st.header("Hinweise für die Testphase mit dem VTGS")
     st.markdown("""
-    - Die Testphase dauert von Mai bis und mit August 2024. Alle Anfragen werden archiviert.
-    - Chat_TG beantwortet vor allem Fragen zuverlässig, deren Antwort basierend auf einer Bestimmung möglich ist. Komplexere Anfragen stellen aktuell ein Problem dar.   
-    - Insbesondere die Wissensdatenbank ist noch unterentwickelt. Mit dem vorliegenden Test sollen daher primär Hinweise für die Weiterentwicklung von Chat_TG gesammelt werden.
-    - Die Entwicklung von Chat_TG dauert auch während der Testphase an.  Wir bitten darum, allfällige Hinweise für Verbesserungen umgehend an philipp.kuebler@tg.ch zu senden.
-    - Chat_Tg läuft aktuell in einer Testumgebung mit limitierten Kapazitäten. Werden viele Anfragen innert kurzer Zeit gestellt, wird das System instabil. 
+    - Die Testphase dauert von Mai bis und mit August 2024. 
+    - Chat_TG beantwortet vor allem Fragen zuverlässiger, deren Antwort basierend auf einer oder wenigen Bestimmungen möglich ist. Hilreich ist, Die Anfrage relativ detailliert zu beschreiben.   
+    - Insbesondere die Wissensdatenbank hat noch sehr wenige Einträge. Aktuell sind sodann nur Gesetze und Verordnungen erfasst. Richtlinien fehlen.  
+    - Mit dem vorliegenden Test sollen primär Hinweise für die Weiterentwicklung von Chat_TG gesammelt werden. Die Arbeiten laufen  während der Testphase weiter. Wir bitten daher darum, allfällige Hinweise für Verbesserungen umgehend an philipp.kuebler@tg.ch zu senden.
+    - Chat_Tg läuft aktuell in einer Testumgebung mit limitierten Kapazitäten. Werden viele Anfragen innert kurzer Zeit gestellt, wird das System instabil.
     
     """)
    
@@ -247,7 +245,7 @@ def main_app():
         knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
         st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
 
-    if st.button("Hinweise"):
+    if st.button("Hinweise (keine Kosten)"):
         st.session_state.submitted = True
         st.write("Die folgenden Bestimmungen und Hinweise passen am Besten auf die Anfrage. Sie wurden aufgrund einer Analyse der Anfrage und einem Vergleich mit dem Gesetz und einer Wissensdatenbank berechnet.")
         with st.expander("Am besten auf die Anfrage passende Artikel", expanded=False):
