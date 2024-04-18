@@ -55,8 +55,8 @@ def welcome_page():
     st.header("Hinweise für die Testphase mit dem VTGS")
     st.markdown("""
     - Die Testphase dauert von Mai bis und mit August 2024. 
-    - Chat_TG beantwortet vor allem Fragen zuverlässiger, deren Antwort basierend auf einer oder wenigen Bestimmungen möglich ist. Hilreich ist, Die Anfrage relativ detailliert zu beschreiben.   
-    - Insbesondere die Wissensdatenbank hat noch sehr wenige Einträge. Aktuell sind sodann nur Gesetze und Verordnungen erfasst. Richtlinien fehlen.  
+    - Chat_TG beantwortet  Fragen zuverlässiger, deren Antwort basierend auf einer oder wenigen Bestimmungen möglich ist. Hilreich ist, die Anfrage detailliert zu beschreiben.   
+    - Insbesondere die Wissensdatenbank hat noch sehr wenige Einträge. Aktuell sind sodann nur Gesetze und Verordnungen erfasst, Richtlinien fehlen.  
     - Mit dem vorliegenden Test sollen primär Hinweise für die Weiterentwicklung von Chat_TG gesammelt werden. Die Arbeiten laufen  während der Testphase weiter. Wir bitten daher darum, allfällige Hinweise für Verbesserungen umgehend an philipp.kuebler@tg.ch zu senden.
     - Chat_Tg läuft aktuell in einer Testumgebung mit limitierten Kapazitäten. Werden viele Anfragen innert kurzer Zeit gestellt, wird das System instabil.
     
