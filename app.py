@@ -49,7 +49,7 @@ def welcome_page():
     st.header("Nutzungshinweise")
     st.markdown("""
     - Weder die Richtigkeit der Antworten des Sprachmodells noch der Auswahl der Bestimmungen und Wissenselemente kann garantiert werden.     
-    - Der Datenschutz kann gegenwärtig nicht garantiert werden. Verwenden Sie daher keine Personendaten in Ihrer Anfrage.
+    - Der Datenschutz kann gegenwärtig nicht eingehalten werden. Verwenden Sie daher keine Personendaten in Ihrer Anfrage.
     """)
     
     st.header("Hinweise für die Testphase mit dem VTGS")
