@@ -41,15 +41,15 @@ def welcome_page():
     
     st.header("So funktionierts:")
     st.markdown("""
-    - Die User stellen eine Anfrage zum Thurgauer Personalrecht. Chat_TG bearbeitet die Anfrage mittels der sog. "retrieval augmented generation"-Methode (RAG).
-    - Klicken die User auf "Hinweise", werden die am Besten zur Anfrage passenden Bestimmungen und Wissenselemente berechnet (Retrieval).
-    - Klicken die User auf "Mit GPT 4 beantworten" erzeugt Chat_TG auf der Grundlage dieser Bestimmungen und Wissenselemente eine Anweisung (sog. Prompt) für ein Sprachmodell, vorliegend dem Sprachmodell von OpenAI (Generation).
+    - Chat_TG bearbeitet User-Anfragen zum Thurgauer Personalrecht mittels der sog. "retrieval augmented generation"-Methode (RAG).
+    - Klicken die User auf "Hinweise", werden die am Besten zur Anfrage passenden Bestimmungen und Wissenselemente berechnet ("retrieval").
+    - Klicken die User auf "Mit GPT 4 beantworten" erzeugt Chat_TG auf der Grundlage der passenden Bestimmungen und Wissenselemente eine Anweisung für das Sprachmodell von OpenAI ("generation").
     
     """)
     st.header("Nutzungshinweise")
     st.markdown("""
     - Weder die Richtigkeit der Antworten des Sprachmodells noch der Auswahl der Bestimmungen und Wissenselemente kann garantiert werden.     
-    - Der Datenschutz kann gegenwärtig nicht eingehalten werden. Verwenden Sie daher keine Personendaten in Ihrer Anfrage.
+    - Der Datenschutz ist gegenwärtig nicht sichergestellt, weshalb nur allgemeine Anfragen gestellt werden sollten.
     """)
     
     st.header("Hinweise für die Testphase mit dem VTGS")
