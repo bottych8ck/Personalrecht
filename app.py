@@ -119,7 +119,7 @@ def is_relevant_article(section_data, relevance):
     # Check if any of the normalized tags match the normalized relevance criteria
     is_relevant = any(relevance_criteria in tag for tag in normalized_tags)
     
-    return is_relevantam 
+    return is_relevant 
 
     
 
