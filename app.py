@@ -41,16 +41,16 @@ def welcome_page():
     
     st.header("So funktionierts:")
     st.markdown("""
-    - Chat_TG bearbeitet User-Anfragen zum Thurgauer Personalrecht mittels der sog. "retrieval augmented generation"-Methode (RAG).
-    - Klicken die User auf "Hinweise", werden die am Besten zur Anfrage passenden Bestimmungen und Wissenselemente berechnet ("retrieval").
-    - Klicken die User auf "Mit GPT 4 beantworten" erzeugt Chat_TG auf der Grundlage der passenden Bestimmungen und Wissenselemente eine Anweisung für das Sprachmodell von OpenAI ("generation").
+    - Chat_TG bearbeitet User-Anfragen zum Thurgauer Personalrecht mit.
+    - Klicken die User auf "Hinweise", werden die am Besten zur Anfrage passenden Bestimmungen und Wissenselemente angezeigt.
+    - Klicken die User auf "Mit GPT 4 beantworten" erzeugt Chat_TG auf der Grundlage der passenden Bestimmungen und Wissenselemente eine Anweisung für das Sprachmodell von OpenAI.
     
     """)
     st.header("Nutzungshinweise")
     st.markdown("""
-    - Weder die Richtigkeit der Antworten des Sprachmodells noch der Auswahl der Bestimmungen und Wissenselemente kann garantiert werden.     
+    - Weder die Richtigkeit der Antworten des Sprachmodells noch der Auswahl der Bestimmungen und Wissenselemente ist garantiert.     
     - Der Datenschutz ist gegenwärtig nicht sichergestellt, weshalb nur allgemeine Anfragen gestellt werden sollten.
-    - Chat_TG beantwortet Fragen gut, deren Antwort basierend auf einer oder wenigen Bestimmungen möglich ist. Es wird empfohlen ist, die Anfrage detailliert zu beschreiben.
+    - Chat_TG beantwortet Fragen gut, deren Antwort basierend auf einer oder wenigen Bestimmungen möglich ist. Es wird zudem empfohlen, die Anfrage detailliert zu beschreiben.
     """)
     
     st.header("Hinweise für die Testphase mit dem VTGS")
@@ -58,7 +58,7 @@ def welcome_page():
     - Die Testphase dauert von Mai bis und mit August 2024.    
     - Chat_TG ist noch in Entwicklung. Insbesondere die Wissensdatenbank hat noch sehr wenige Einträge. Die Ergebnisse in dieser Spalte dürften daher im Regelfall kaum einschlägig sein. Aktuell sind sodann nur Gesetze und Verordnungen erfasst, Richtlinien fehlen.  
     - Mit dem vorliegenden Test sollen primär Hinweise für die Weiterentwicklung von Chat_TG gesammelt werden. Wir bitten daher darum, allfällige Hinweise für Verbesserungen umgehend an philipp.kuebler@tg.ch zu senden.
-    - Chat_TG läuft aktuell in einer Testumgebung mit limitierten Kapazitäten. Werden viele Anfragen innert kurzer Zeit gestellt, wird das System instabil. Chat_TG sollte daher nicht zu vielen Personen zugänglich gemacht werden. 
+    - Chat_TG läuft aktuell in einer Testumgebung mit limitierten Kapazitäten. Werden viele Anfragen innert kurzer Zeit gestellt, kann dies die Stabilität  beeinträchtigen. Chat_TG sollte daher nicht zu vielen Personen zugänglich gemacht werden. 
     
     """)
    
@@ -119,7 +119,7 @@ def is_relevant_article(section_data, relevance):
     # Check if any of the normalized tags match the normalized relevance criteria
     is_relevant = any(relevance_criteria in tag for tag in normalized_tags)
     
-    return is_relevant
+    return is_relevantam 
 
     
 
@@ -248,7 +248,7 @@ def main_app():
     if st.button("Hinweise (keine Kosten)"):
         st.session_state.submitted = True
         st.write("Die folgenden Bestimmungen und Hinweise passen am Besten auf die Anfrage. Sie wurden aufgrund einer Analyse der Anfrage und einem Vergleich mit dem Gesetz und einer Wissensdatenbank berechnet.")
-        with st.expander("Am besten auf die Anfrage passende Artikel", expanded=False):
+        with st.expander("Bestimmungen und Hinweise", expanded=False):
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown("#### Bestimmungen")
