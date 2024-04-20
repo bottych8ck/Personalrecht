@@ -42,13 +42,13 @@ def welcome_page():
     st.header("So funktionierts:")
     st.markdown("""
     - Chat_TG bearbeitet User-Anfragen zum Thurgauer Personalrecht mit.
-    - Klicken die User auf "Hinweise", werden die am Besten zur Anfrage passenden Bestimmungen und Wissenselemente angezeigt.
+    - Klicken die User auf "Hinweise", werden die am Besten zur Anfrage passenden Bestimmungen und Wissenselemente angezeigt. Hinweis: Nicht alle angezeigten Bestimmungen und Wissenselemente sind wirklich brauchbar. Die einschlägigen Bestimmungen sollten aber in der Auswahl enthalten sein.  
     - Klicken die User auf "Mit GPT 4 beantworten" erzeugt Chat_TG auf der Grundlage der passenden Bestimmungen und Wissenselemente eine Anweisung für das Sprachmodell von OpenAI.
     
     """)
     st.header("Nutzungshinweise")
     st.markdown("""
-    - Weder die Richtigkeit der Antworten des Sprachmodells noch der Auswahl der Bestimmungen und Wissenselemente ist garantiert.     
+    - Achtung: Weder die Richtigkeit der Antworten des Sprachmodells noch der Auswahl der Bestimmungen und Wissenselemente ist garantiert.     
     - Der Datenschutz ist gegenwärtig nicht sichergestellt, weshalb nur allgemeine Anfragen gestellt werden sollten.
     - Chat_TG beantwortet Fragen gut, deren Antwort basierend auf einer oder wenigen Bestimmungen möglich ist. Es wird zudem empfohlen, die Anfrage detailliert zu beschreiben.
     """)
@@ -247,7 +247,7 @@ def main_app():
 
     if st.button("Hinweise (keine Kosten)"):
         st.session_state.submitted = True
-        st.write("Die folgenden Bestimmungen und Hinweise passen am Besten auf die Anfrage. Sie wurden aufgrund einer Analyse der Anfrage und einem Vergleich mit dem Gesetz und einer Wissensdatenbank berechnet.")
+        st.write("Die folgenden Bestimmungen und Hinweise passen am Besten auf die Anfrage. Nicht alle angezeigten Bestimmungen und Wissenselemente sind wirklich brauchbar. Die einschlägigen Bestimmungen sollten aber in der Auswahl enthalten sein.")
         with st.expander("Bestimmungen und Hinweise", expanded=False):
             col1, col2 = st.columns(2)
             with col1:
