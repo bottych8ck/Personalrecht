@@ -113,14 +113,10 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
     prompt += f"{relevance_mapping.get(relevance, 'Die Frage ist allgemein.')} \n\n"
     article_number = 1
     
-    for title, _ in top_articles:
-        section_data = law_data.get(title, {})
-        name = section_data.get("Name", "Unbekanntes Gesetz")
-        aggregated_content = section_data.get("Inhalt", [])
-        name = section_data.get("Name", "Unbekanntes Gesetz")
-
-        content = " ".join(aggregated_content)
-        prompt += f"\n{article_number}. §: {title} von folgendem Erlass: {name}\n"
+    for uid, _ in top_articles:
+        title, all_paragraphs, law_name, law_url = get_article_content(uid, law_data)
+        content = " ".join(all_paragraphs)
+        prompt += f"\n{article_number}. §: {title} von folgendem Erlass: {law_name}\n"
         prompt += f"   - **Inhalt:** {content.strip()}\n"
         article_number += 1
 
