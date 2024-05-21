@@ -169,7 +169,7 @@ def main_app():
         knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
         st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
 
-    if st.button("Mit GPT 4 beantworten (0.10 Fr. pro Anfrage)") and user_query:
+    if st.button("Mit GPT 4o beantworten (0.5 Fr. pro Anfrage)") and user_query:
         
         if user_query != st.session_state['last_question']:
             query_vector = get_embeddings(user_query)
