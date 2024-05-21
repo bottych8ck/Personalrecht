@@ -150,7 +150,7 @@ def main_app():
     if 'top_knowledge_items' not in st.session_state:
         st.session_state.top_knowledge_items = [] 
 
-    user_query = st.text_area("Hier Ihre Frage eingeben:", height=150)
+    user_query = st.text_area("Hier Ihre Frage eingeben:", height=200)
 
     relevance_options = ["Staatspersonal", "Lehrperson VS", "Lehrperson Sek II"]
     relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Staatspersonal, Lehrpersonen der Volksschule oder Lehrpersonen der Berufsfach- und Mittelschulen bezieht:", relevance_options)
