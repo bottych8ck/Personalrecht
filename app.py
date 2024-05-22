@@ -139,7 +139,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
 
 
 def main_app():
-    st.title("Subsumary")
+    st.title("subsumary")
     st.subheader("Abfrage des Thurgauer Personalrechts")
     if 'last_question' not in st.session_state:
         st.session_state['last_question'] = ""
@@ -191,7 +191,7 @@ def main_app():
             ai_message = st.session_state['last_answer']
 
     if st.session_state['last_answer']:
-        st.subheader("Antwort Chat-TG:")
+        st.subheader("Antwort subsumary:")
         st.write(st.session_state['last_answer'])
     else:
         st.warning("Bitte geben Sie eine Anfrage ein.")
