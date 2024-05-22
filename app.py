@@ -139,7 +139,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
 
 
 def main_app():
-    st.title("Subsumary - Chat_TG")
+    st.title("Subsumary")
     st.subheader("Abfrage des Thurgauer Personalrechts")
     if 'last_question' not in st.session_state:
         st.session_state['last_question'] = ""
