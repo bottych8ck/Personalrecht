@@ -122,12 +122,12 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
 
     prompt += "\n"
     
-    prompt += "\nZusätzlich berücksichtige folgende allgemeine Grundsätze und Prinzipien:\n"
-    for item_id, _ in top_knowledge_items:
-        item = knowledge_base.get(item_id, {})
-        title = item.get("Title", "Unbekannt")
-        content = ' '.join(item.get("Content", []))
-        prompt += f"- {title}: {content}\n"
+    # prompt += "\nZusätzlich berücksichtige folgende allgemeine Grundsätze und Prinzipien:\n"
+    # for item_id, _ in top_knowledge_items:
+    #     item = knowledge_base.get(item_id, {})
+    #     title = item.get("Title", "Unbekannt")
+    #     content = ' '.join(item.get("Content", []))
+    #     prompt += f"- {title}: {content}\n"
 
    
     prompt += "Anfrage auf Deutsch beantworten. Prüfe die  Anwendbarkeit der einzelnen § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, vergiss ihn.\n"
@@ -169,7 +169,7 @@ def main_app():
         knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
         st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
 
-    if st.button("Mit GPT 4o beantworten (0.5 Fr. pro Anfrage)") and user_query:
+    if st.button("Mit GPT 4o beantworten") and user_query:
         
         if user_query != st.session_state['last_question']:
             query_vector = get_embeddings(user_query)
@@ -209,12 +209,12 @@ def main_app():
                     if law_url:
                         law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
                         
-                    st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
-                    if all_paragraphs:
-                        for paragraph in all_paragraphs:
-                            st.write(paragraph)
-                    else:
-                        st.write("Kein Inhalt verfügbar.")
+                    # st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
+                    # if all_paragraphs:
+                    #     for paragraph in all_paragraphs:
+                    #         st.write(paragraph)
+                    # else:
+                    #     st.write("Kein Inhalt verfügbar.")
 
             with col2:
                 st.markdown("#### Wissenselemente")
