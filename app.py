@@ -53,8 +53,9 @@ def handle_chat_completion(prompt):
     if response.choices:
         return response.choices[0].message.content
     else:
-        print("No choices returned in response")
-        return None
+        st.write("No choices returned in response")
+        return "No response received."
+
 
 def is_relevant_article(section_data, relevance):
     normalized_relevance = relevance.lower().replace("sek ii", "SEK II")
