@@ -152,6 +152,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
    
     prompt += "Anfrage auf Deutsch beantworten. Prüfe die  Anwendbarkeit der einzelnen § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, vergiss ihn.\n"
     prompt += "Mache nach der Antwort ein Fazit und erwähne dort die relevanten § mitsamt dem Erlassnahmen \n"
+    prompt += "Anfrage auf Deutsch beantworten \n"
 
     return prompt
 
