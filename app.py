@@ -50,7 +50,11 @@ def handle_chat_completion(prompt):
         ],
         model="llama3-8b-8192"  # Replace with the model you intend to use
     )
-    return response.choices[0].message.content
+    if response.choices:
+        return response.choices[0].message.content
+    else:
+        print("No choices returned in response")
+        return None
 
 def is_relevant_article(section_data, relevance):
     normalized_relevance = relevance.lower().replace("sek ii", "SEK II")
@@ -190,6 +194,7 @@ def main_app():
             query_vector = get_embeddings(user_query)
             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
             ai_message = handle_chat_completion(prompt)
+            print("AI Response:", ai_message)  # Check what is being returned by Groq
 
 
 
