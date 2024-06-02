@@ -192,10 +192,11 @@ def main_app():
     if st.button("Mit Lama3b beantworten") and user_query:
         
         if user_query != st.session_state['last_question']:
+            st.write("Processing new query...")
             query_vector = get_embeddings(user_query)
             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
             ai_message = handle_chat_completion(prompt)
-            print("AI Response:", ai_message)  # Check what is being returned by Groq
+            st.write("AI Response:", ai_message)  # Check what is being returned by Groq
 
 
 
