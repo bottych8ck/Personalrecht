@@ -1,6 +1,7 @@
 import openai
 import os
 import json
+from groq import Groq
 from dotenv import load_dotenv
 import streamlit as st
 import streamlit.components.v1 as components
@@ -30,12 +31,26 @@ with open('knowledge_base.json', 'r') as file:
 load_dotenv()  # This line loads the variables from .env
 
 
-api_key = os.getenv('OPENAI_API_KEY')
-client = openai.OpenAI(api_key=api_key)
+openai_api_key = os.getenv('OPENAI_API_KEY')
+openai_client = openai.OpenAI(api_key=openai_api_key)
+
+
+groq_api_key = os.getenv('GROQ_API_KEY')
+groq_client = Groq(api_key=groq_api_key)
 
 def get_embeddings(text):
-    res = client.embeddings.create(input=[text], model="text-embedding-ada-002")
+    res = openai_client.embeddings.create(input=[text], model="text-embedding-ada-002")
     return res.data[0].embedding
+
+def handle_chat_completion(prompt):
+    response = groq_client.chat.completions.create(
+        messages=[
+            {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+            {"role": "user", "content": prompt}
+        ],
+        model="llama3-8b-8192"  # Replace with the model you intend to use
+    )
+    return response.choices[0].message.content
 
 def is_relevant_article(section_data, relevance):
     normalized_relevance = relevance.lower().replace("sek ii", "SEK II")
@@ -169,24 +184,15 @@ def main_app():
         knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
         st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
 
-    if st.button("Mit GPT 4o beantworten (0.5 Fr. pro Anfrage)") and user_query:
+    if st.button("Mit Lama3b beantworten") and user_query:
         
         if user_query != st.session_state['last_question']:
             query_vector = get_embeddings(user_query)
             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-            response = client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                    {"role": "user", "content": prompt}
-                ]
-            )
-    
-            # Display the response from OpenAI
-            if response.choices:
-                ai_message = response.choices[0].message.content  # Corrected attribute access
-                st.session_state['last_question'] = user_query
-                st.session_state['last_answer'] = ai_message
+            ai_message = handle_chat_completion(prompt)
+
+
+
         else:
             ai_message = st.session_state['last_answer']
 
