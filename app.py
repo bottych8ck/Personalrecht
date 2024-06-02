@@ -206,7 +206,8 @@ def main_app():
         st.write(st.session_state['last_answer'])
     else:
         st.warning("Bitte geben Sie eine Anfrage ein.")
-        
+        print("No AI message available to display.")
+
     if st.button("Hinweise"):
         st.session_state.submitted = True
         st.write("Die folgenden Bestimmungen und Hinweise passen am Besten auf die Anfrage. Sie wurden aufgrund einer Analyse der Anfrage und einem Vergleich mit dem Gesetz und einer Wissensdatenbank berechnet.")
