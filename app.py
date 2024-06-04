@@ -10,12 +10,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 import requests
 from datetime import datetime
 
-# Mapping for relevance criteria
-relevance_mapping = {
-    "Staatspersonal": "Die Frage bezieht sich auf Staatspersonal.",
-    "Lehrperson VS": "Die Frage bezieht sich auf Wahlen an der Urne.",
-    "Lehrperson BfS": "Die Frage ist allgemein und nicht spezifisch relevant für die Gemeindeversammlung oder Urnenwahl."
-}
 
 # Load the data
 with open('article_embeddings.json', 'r') as file:
@@ -24,112 +18,17 @@ with open('article_embeddings.json', 'r') as file:
 with open('law_data.json', 'r') as file:
     law_data = json.load(file)
 
-with open('knowledge_base_embeddings.json', 'r') as file:
-    knowledge_base_embeddings = json.load(file)
-
-with open('knowledge_base.json', 'r') as file:
-    knowledge_base = json.load(file)
 load_dotenv()  # This line loads the variables from .env
 
 
 api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=api_key)
 
-def welcome_page():
-    st.title("Chat_TG für Personalrecht")
-    st.subheader("(Testversion für den VTGS)")    
-    
-    st.header("So funktionierts:")
-    st.markdown("""
-    - Chat_TG bearbeitet User-Anfragen zum Thurgauer Personalrecht mit.
-    - Klicken die User auf "Hinweise", werden die am Besten zur Anfrage passenden Bestimmungen und Wissenselemente angezeigt. Hinweis: Nicht alle angezeigten Bestimmungen und Wissenselemente sind wirklich brauchbar. Die einschlägigen Bestimmungen sollten aber in der Auswahl enthalten sein.  
-    - Klicken die User auf "Mit GPT 4 beantworten" erzeugt Chat_TG auf der Grundlage der passenden Bestimmungen und Wissenselemente eine Anweisung für das Sprachmodell von OpenAI.
-    
-    """)
-    st.header("Nutzungshinweise")
-    st.markdown("""
-    - Achtung: Weder die Richtigkeit der Antworten des Sprachmodells noch der Auswahl der Bestimmungen und Wissenselemente ist garantiert.     
-    - Der Datenschutz ist gegenwärtig nicht sichergestellt, weshalb nur allgemeine Anfragen gestellt werden sollten.
-    - Chat_TG beantwortet Fragen gut, deren Antwort basierend auf einer oder wenigen Bestimmungen möglich ist. Es wird zudem empfohlen, die Anfrage detailliert zu beschreiben.
-    """)
-    
-    st.header("Hinweise für die Testphase mit dem VTGS")
-    st.markdown("""
-    - Die Testphase dauert von Mai bis und mit August 2024.    
-    - Chat_TG ist noch in Entwicklung. Insbesondere die Wissensdatenbank hat noch sehr wenige Einträge. Die Ergebnisse in dieser Spalte dürften daher im Regelfall kaum einschlägig sein. Aktuell sind sodann nur Gesetze und Verordnungen erfasst, Richtlinien fehlen.  
-    - Mit dem vorliegenden Test sollen primär Hinweise für die Weiterentwicklung von Chat_TG gesammelt werden. Wir bitten daher darum, allfällige Hinweise für Verbesserungen umgehend an philipp.kuebler@tg.ch zu senden.
-    - Chat_TG läuft aktuell in einer Testumgebung mit limitierten Kapazitäten. Werden viele Anfragen innert kurzer Zeit gestellt, kann dies die Stabilität  beeinträchtigen. Chat_TG sollte daher nicht zu vielen Personen zugänglich gemacht werden. 
-    
-    """)
-   
-
-    # Agree button to proceed to the main app
-    if st.button("Einverstanden (muss zweimal geklickt werden)"):
-        st.session_state.agreed_to_terms = True
-        
-def update_gist_with_query_and_response(query, response):
-    url = f"https://api.github.com/gists/{st.secrets['gist_id']}"
-    headers = {
-        "Authorization": f"token {st.secrets['github_token']}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    
-    # Fetch the existing content of the Gist
-    gist_content = requests.get(url, headers=headers).json()
-    file_name = list(gist_content['files'])[0]  # Assumes there's only one file in the Gist
-    current_content = gist_content['files'][file_name]['content']
-    
-    # Load the current content as JSON and append the new data
-    if current_content:
-        data = json.loads(current_content)
-    else:
-        data = []  # Initialize as empty list if the content is empty
-    data.append({
-        "timestamp": datetime.now().isoformat(),
-        "query": query,
-        "response": response
-    })
-    
-    # Prepare the updated content
-    updated_content = json.dumps(data, indent=4)
-    payload = {
-        "files": {
-            file_name: {
-                "content": updated_content
-            }
-        }
-    }
-    
-    # Update the Gist
-    requests.patch(url, headers=headers, json=payload)
 
 def get_embeddings(text):
     res = client.embeddings.create(input=[text], model="text-embedding-ada-002")
     return res.data[0].embedding
-
-def is_relevant_article(section_data, relevance):
-    normalized_relevance = relevance.lower().replace("sek ii", "SEK II")
     
-    # Try to get "Tags" first (for knowledge_base), fallback to "tags" (for law_data) if not found
-    tags = section_data.get("Tags", section_data.get("tags", []))
-    normalized_tags = [tag.lower().replace("sek ii", "SEK II") for tag in tags]
-    
-    relevance_criteria = normalized_relevance  # Direct use of normalized_relevance ensures we're checking against the correct criteria
-    
-    # Check if any of the normalized tags match the normalized relevance criteria
-    is_relevant = any(relevance_criteria in tag for tag in normalized_tags)
-    
-    return is_relevant 
-
-    
-
-def get_relevant_articles(law_data, relevance):
-    relevant_articles = {}
-    for section, section_data in law_data.items():
-        if is_relevant_article(section_data, relevance):
-            relevant_articles[section] = section_data
-    return relevant_articles
-
 def calculate_similarities(query_vector, article_embeddings):
     query_vector = np.array(query_vector).reshape(1, -1)
     similarities = {}
@@ -154,11 +53,6 @@ def get_article_content(uid, law_data):
     law_name = article_info.get("Name", "Unbekanntes Gesetz")
     law_url = article_info.get("URL", "")
 
-    # Check if "Im § erwähnter Artikel des EOG" exists and append its content to all_paragraphs
-    mentioned_articles = article_info.get("Im § erwähnter Artikel des EOG", [])
-    if mentioned_articles:
-        all_paragraphs += ["Im § erwähnter Artikel des EOG:"] + mentioned_articles
-
     return (title, all_paragraphs, law_name, law_url)
 
 def generate_html_with_js(prompt):
@@ -177,10 +71,9 @@ def generate_html_with_js(prompt):
     </script>
     """
 
-def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
+def generate_prompt(user_query, top_articles, law_data):
     prompt = f"Beantworte folgende Frage: \"{user_query}\"\n\n"
     prompt += "Beantworte die Frage nur gestützt auf einen oder mehrere der folgenden §. Prüfe zuerst, ob der § überhaupt auf die Frage anwendbar ist. Wenn er nicht anwendbar ist, vergiss den §.\n"
-    prompt += f"{relevance_mapping.get(relevance, 'Die Frage ist allgemein.')} \n\n"
     article_number = 1
     
     for title, _ in top_articles:
@@ -196,13 +89,6 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
 
     prompt += "\n"
     
-    prompt += "\nZusätzlich berücksichtige folgende allgemeine Grundsätze und Prinzipien:\n"
-    for item_id, _ in top_knowledge_items:
-        item = knowledge_base.get(item_id, {})
-        title = item.get("Title", "Unbekannt")
-        content = ' '.join(item.get("Content", []))
-        prompt += f"- {title}: {content}\n"
-
    
     prompt += "Anfrage auf Deutsch beantworten. Prüfe die  Anwendbarkeit der einzelnen § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, vergiss ihn.\n"
     prompt += "Mache nach der Antwort ein Fazit und erwähne dort die relevanten § mitsamt dem Erlassnahmen \n"
@@ -213,23 +99,18 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
 
 
 def main_app():
-    st.title("Chat_TG Personalrecht")
-    st.subheader("(Testversion für den VTGS)")
-    st.subheader("Abfrage des Thurgauer Personalrechts")
-    st.write("Es werden folgende Erlasse abgefragt: Verordnung des Regierungsrates über die Rechtsstellung des Staatspersonals, Verordnung des Grossen Rates über die Besoldung des Staatspersonals, Verordnung des Regierungsrates zur Besoldungsverordnung, Verordnung über die Rechtsstellung der Lehrpersonen an den Volksschulen, Verordnung über die Rechtsstellung der Lehrpersonen an den Berufsfach- und Mittelschulen (RSV BM), Gesetz über die Verwaltungsrechtspflege, Verfassung des Kantons Thurgau, Verordnung des Regierungsrates betreffend die elektronische Übermittlung im Rahmen von Verwaltungs-, Zivil-, Straf- sowie Schuldbetreibungs- und Konkursverfahren, Gesetz über den Datenschutz, Verordnung des Regierungsrates über das Vernehmlassungsverfahren, Gesetz über die Verantwortlichkeit, Gesetz über die öffentlichen Bekanntmachungen, Gesetz über das Öffentlichkeitsprinzip und Verordnung des Regierungsrates über den Datenschutz ")
-
+    st.title("Chat_TG / subsumary")
+    st.subheader("(Testversion für die KVTG)")
+    st.subheader("Abfrage des Thurgauer Rechtsbuches")
+    
     if 'last_question' not in st.session_state:
         st.session_state['last_question'] = ""
     if 'last_answer' not in st.session_state:
         st.session_state['last_answer'] = None
     if 'prompt' not in st.session_state:
         st.session_state['prompt'] = ""
-    if 'top_knowledge_items' not in st.session_state:
-        st.session_state.top_knowledge_items = [] 
 
     user_query = st.text_input("Hier Ihre Frage eingeben:")
-    relevance_options = ["Staatspersonal", "Lehrperson VS", "Lehrperson Sek II"]
-    relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Staatspersonal, Lehrpersonen der Volksschule oder Lehrpersonen der Berufsfach- und Mittelschulen bezieht:", relevance_options)
 
     if 'top_articles' not in st.session_state:
         st.session_state.top_articles = []
@@ -240,47 +121,34 @@ def main_app():
         similarities = calculate_similarities(query_vector, article_embeddings)
         
         sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-        filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-        st.session_state.top_articles = filtered_articles[:10]
-        knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-        st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
 
-    if st.button("Hinweise (keine Kosten)"):
+        st.session_state.top_articles = sorted_articles[:10]
+
+    if st.button("Hinweise"):
         st.session_state.submitted = True
-        st.write("Die folgenden Bestimmungen und Hinweise passen am Besten auf die Anfrage. Nicht alle angezeigten Bestimmungen und Wissenselemente sind wirklich brauchbar. Die einschlägigen Bestimmungen sollten aber in der Auswahl enthalten sein.")
+        st.write("Die folgenden Bestimmungen  am Besten auf die Anfrage. Nicht alle angezeigten Bestimmungen sind wirklich einschlägig.")
         with st.expander("Bestimmungen und Hinweise", expanded=False):
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("#### Bestimmungen")
-                for uid, score in st.session_state.top_articles:  # Assuming top_articles stores (uid, score)
-                    title, all_paragraphs, law_name, law_url = get_article_content(uid, law_data)
-                    law_name_display = law_name if law_name else "Unbekanntes Gesetz"
-                    if law_url:
-                        law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
-                        
-                    st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
-                    if all_paragraphs:
-                        for paragraph in all_paragraphs:
-                            st.write(paragraph)
-                    else:
-                        st.write("Kein Inhalt verfügbar.")
-    
-            with col2:
-                st.markdown("#### Wissenselemente")
-                for item_id, _ in st.session_state.top_knowledge_items:  # Adjust based on how you're storing these
-                    item = knowledge_base.get(item_id, {})
-                    title = item.get("Title", "Unbekannt")
-                    content = ' '.join(item.get("Content", []))
-                    st.markdown(f"**{title}**")
-                    st.write(content)
+            st.markdown("#### Bestimmungen")
+            for uid, score in st.session_state.top_articles:  # Assuming top_articles stores (uid, score)
+                title, all_paragraphs, law_name, law_url = get_article_content(uid, law_data)
+                law_name_display = law_name if law_name else "Unbekanntes Gesetz"
+                if law_url:
+                    law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
                     
-    if st.button("Mit GPT 4 beantworten (0.15 Fr. pro Anfrage)") and user_query:
+                st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
+                if all_paragraphs:
+                    for paragraph in all_paragraphs:
+                        st.write(paragraph)
+                else:
+                    st.write("Kein Inhalt verfügbar.")
+                    
+    if st.button("Mit GPT 4o beantworten)") and user_query:
         
         if user_query != st.session_state['last_question']:
             query_vector = get_embeddings(user_query)
-            prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+            prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
             response = client.chat.completions.create(
-                model="gpt-4-turbo",
+                model="gpt-4o",
                 messages=[
                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
                     {"role": "user", "content": prompt}
@@ -302,32 +170,25 @@ def main_app():
     else:
         st.warning("Bitte geben Sie eine Anfrage ein.")
         
-
-                    
-    # if st.session_state.submitted:
-    #     if st.button("Prompt generieren"):
-    #         if user_query and st.session_state.top_articles:
-    #             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-    #             html_with_js = generate_html_with_js(prompt)
-    #             html(html_with_js)
-    #             st.text_area("Prompt:", prompt, height=300)
-    #             st.session_state['prompt'] = prompt
+    if st.session_state.submitted:
+        if st.button("Prompt generieren"):
+            if user_query and st.session_state.top_articles:
+                prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
+                html_with_js = generate_html_with_js(prompt)
+                html(html_with_js)
+                st.text_area("Prompt:", prompt, height=300)
+                st.session_state['prompt'] = prompt
                          
-    #         else:
-    #             if not user_query:
-    #                 st.warning("Bitte geben Sie eine Anfrage ein.")
-    #             if not st.session_state.top_articles:
-    #                 st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
+            else:
+                if not user_query:
+                    st.warning("Bitte geben Sie eine Anfrage ein.")
+                if not st.session_state.top_articles:
+                    st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
 
 
 def main():
-     if 'agreed_to_terms' not in st.session_state:
-         st.session_state.agreed_to_terms = False
-
-     if not st.session_state.agreed_to_terms:
-         welcome_page()
-     else:
-         main_app()
+    main_app()
 
 if __name__ == "__main__":
     main()
+
