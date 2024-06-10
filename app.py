@@ -28,7 +28,7 @@ with open('knowledge_base_embeddings.json', 'r') as file:
 with open('knowledge_base.json', 'r') as file:
     knowledge_base = json.load(file)
 load_dotenv()  # This line loads the variables from .env
-logo_path = 'subsumary_Logo_2farbig_schwarz.png'
+logo_path = 'subsumary_Logo_1farbig_schwarz.png'
 
 api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=api_key)
