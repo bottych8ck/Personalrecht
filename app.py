@@ -199,18 +199,18 @@ def main_app():
     if st.button("Hinweise"):
         st.session_state.submitted = True
         st.write("Die folgenden Bestimmungen und Hinweise passen am Besten auf die Anfrage.")
-              for uid, score in st.session_state.top_articles:  # Assuming top_articles stores (uid, score)
-                title, all_paragraphs, law_name, law_url = get_article_content(uid, law_data)
-                law_name_display = law_name if law_name else "Unbekanntes Gesetz"
-                if law_url:
-                    law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
-                    
-                st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
-                if all_paragraphs:
-                    for paragraph in all_paragraphs:
-                        st.write(paragraph)
-                else:
-                    st.write("Kein Inhalt verfügbar.")  
+        for uid, score in st.session_state.top_articles:  # Assuming top_articles stores (uid, score)
+            title, all_paragraphs, law_name, law_url = get_article_content(uid, law_data)
+            law_name_display = law_name if law_name else "Unbekanntes Gesetz"
+            if law_url:
+                law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
+                
+            st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
+            if all_paragraphs:
+                for paragraph in all_paragraphs:
+                    st.write(paragraph)
+            else:
+                st.write("Kein Inhalt verfügbar.")  
                     
     if st.session_state.submitted:
         if st.button("Prompt generieren"):
