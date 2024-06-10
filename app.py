@@ -198,32 +198,25 @@ def main_app():
         
     if st.button("Hinweise"):
         st.session_state.submitted = True
-        st.write("Die folgenden Bestimmungen und Hinweise passen am Besten auf die Anfrage. Sie wurden aufgrund einer Analyse der Anfrage und einem Vergleich mit dem Gesetz und einer Wissensdatenbank berechnet.")
-        with st.expander("Am besten auf die Anfrage passende Artikel", expanded=False):
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("#### Bestimmungen")
-                for uid, score in st.session_state.top_articles:  # Assuming top_articles stores (uid, score)
-                    title, all_paragraphs, law_name, law_url = get_article_content(uid, law_data)
-                    law_name_display = law_name if law_name else "Unbekanntes Gesetz"
-                    if law_url:
-                        law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
-                        
-                    # st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
-                    # if all_paragraphs:
-                    #     for paragraph in all_paragraphs:
-                    #         st.write(paragraph)
-                    # else:
-                    #     st.write("Kein Inhalt verfügbar.")
+        st.write("Die folgenden Bestimmungen  am Besten auf die Anfrage. Nicht alle angezeigten Bestimmungen sind wirklich einschlägig.")
+        with st.expander("Bestimmungen und Hinweise", expanded=False):
+            st.markdown("#### Bestimmungen")
+            for uid, score in st.session_state.top_articles:  # Assuming top_articles stores (uid, score)
+                title, all_paragraphs, law_name, law_url = get_article_content(uid, law_data)
+                law_name_display = law_name if law_name else "Unbekanntes Gesetz"
+                if law_url:
+                    law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
+                    
+                st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
+                if all_paragraphs:
+                    for paragraph in all_paragraphs:
+                        st.write(paragraph)
+                else:
+                    st.write("Kein Inhalt verfügbar.")
 
-            with col2:
-                st.markdown("#### Wissenselemente")
-                for item_id, _ in st.session_state.top_knowledge_items:  # Adjust based on how you're storing these
-                    item = knowledge_base.get(item_id, {})
-                    title = item.get("Title", "Unbekannt")
-                    content = ' '.join(item.get("Content", []))
-                    st.markdown(f"**{title}**")
-                    st.write(content)
+                    
+                
+    
                     
     if st.session_state.submitted:
         if st.button("Prompt generieren"):
