@@ -115,14 +115,18 @@ def generate_html_with_js(prompt):
         var copyText = document.getElementById('text_area');
         copyText.style.opacity = 1; // Make the textarea visible to enable selection
         copyText.select();
-        document.execCommand('copy');
+        navigator.clipboard.writeText(copyText.value).then(function() {{
+            alert('Copied to clipboard!');
+        }}, function(err) {{
+            console.error('Could not copy text: ', err);
+        }});
         copyText.style.opacity = 0; // Hide the textarea again
-        alert('Copied to clipboard!');
     }}
     // Automatically copy to clipboard when the script is loaded
     copyToClipboard();
     </script>
     """
+
 
 
 def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
