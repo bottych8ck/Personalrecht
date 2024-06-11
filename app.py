@@ -235,7 +235,7 @@ def main_app():
         
 
     if st.session_state.submitted:
-        if st.button("Den riesen Prompt generieren und kopieren"):
+        if st.button("Prompt generieren und in die Zwischenablage kopieren"):
             if user_query and st.session_state.top_articles:
                 # Generate the prompt
                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
