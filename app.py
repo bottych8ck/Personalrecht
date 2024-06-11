@@ -107,6 +107,7 @@ def generate_html_with_js(prompt):
     </script>
     """
 
+
 def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
     prompt = f"Beantworte folgende Frage: \"{user_query}\"\n\n"
     prompt += "Beantworte die Frage nur gestützt auf einen oder mehrere der folgenden §. Prüfe zuerst, ob der § überhaupt auf die Frage anwendbar ist. Wenn er nicht anwendbar ist, vergiss den §.\n"
@@ -213,7 +214,7 @@ def main_app():
         
 
     if st.session_state.submitted:
-        if st.button("Prompt generieren und kopieren"):
+        if st.button("Den riesen Prompt generieren und kopieren"):
             if user_query and st.session_state.top_articles:
                 # Generate the prompt
                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
