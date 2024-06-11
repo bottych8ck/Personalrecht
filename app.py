@@ -91,10 +91,25 @@ def get_article_content(uid, law_data):
 
     return (title, all_paragraphs, law_name, law_url)
 
+# def generate_html_with_js(prompt):
+#     return f"""
+#     <textarea id='text_area' style='opacity: 0; position: absolute; left: -9999px;'>{prompt}</textarea>
+#     <button onclick='copyToClipboard()'>Text in die Zwischenablage kopieren</button>
+#     <script>
+#     function copyToClipboard() {{
+#         var copyText = document.getElementById('text_area');
+#         copyText.style.opacity = 1; // Make the textarea visible to enable selection
+#         copyText.select();
+#         document.execCommand('copy');
+#         copyText.style.opacity = 0; // Hide the textarea again
+#         alert('Copied to clipboard!');
+#     }}
+#     </script>
+#     """
+
 def generate_html_with_js(prompt):
     return f"""
     <textarea id='text_area' style='opacity: 0; position: absolute; left: -9999px;'>{prompt}</textarea>
-    <button onclick='copyToClipboard()'>Text in die Zwischenablage kopieren</button>
     <script>
     function copyToClipboard() {{
         var copyText = document.getElementById('text_area');
@@ -104,6 +119,8 @@ def generate_html_with_js(prompt):
         copyText.style.opacity = 0; // Hide the textarea again
         alert('Copied to clipboard!');
     }}
+    // Automatically copy to clipboard when the script is loaded
+    copyToClipboard();
     </script>
     """
 
