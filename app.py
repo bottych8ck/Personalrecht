@@ -232,8 +232,8 @@ def main_app():
         if st.session_state['last_answer']:
             st.subheader("Antwort subsumary:")
             st.write(st.session_state['last_answer'])
-        else:
-            st.warning("Bitte geben Sie eine Anfrage ein.")
+        # else:
+        #     st.warning("Bitte geben Sie eine Anfrage ein.")
             
 
     with col2:
