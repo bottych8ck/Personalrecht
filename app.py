@@ -251,8 +251,8 @@ def main_app():
                 # Display the generated prompt in a text area
                 st.text_area("Prompt:", prompt, height=300)
             else:
-                if not user_query:
-                    st.warning("Bitte geben Sie eine Anfrage ein.")
+                # if not user_query:
+                #     st.warning("Bitte geben Sie eine Anfrage ein.")
                 if not st.session_state.top_articles:
                     st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
 
