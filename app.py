@@ -205,7 +205,8 @@ def main_app():
                     st.write(paragraph)
             else:
                 st.write("Kein Inhalt verfügbar.")  
-                    
+    col1, col2 = st.columns(2)
+                
     with col1:
         if st.button("Mit GPT 4o beantworten") and user_query:
             
