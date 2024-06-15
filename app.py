@@ -206,52 +206,54 @@ def main_app():
             else:
                 st.write("Kein Inhalt verfügbar.")  
                     
-    if st.button("Mit GPT 4o beantworten") and user_query:
-        
-        if user_query != st.session_state['last_question']:
-            query_vector = get_embeddings(user_query)
-            prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-            response = client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                    {"role": "user", "content": prompt}
-                ]
-            )
-    
-            # Display the response from OpenAI
-            if response.choices:
-                ai_message = response.choices[0].message.content  # Corrected attribute access
-                st.session_state['last_question'] = user_query
-                st.session_state['last_answer'] = ai_message
-        else:
-            ai_message = st.session_state['last_answer']
-
-    if st.session_state['last_answer']:
-        st.subheader("Antwort subsumary:")
-        st.write(st.session_state['last_answer'])
-    else:
-        st.warning("Bitte geben Sie eine Anfrage ein.")
-        
-
-    if st.session_state.submitted:
-        if st.button("Prompt generieren und in die Zwischenablage kopieren"):
-            if user_query and st.session_state.top_articles:
-                # Generate the prompt
+    with col1:
+        if st.button("Mit GPT 4o beantworten") and user_query:
+            
+            if user_query != st.session_state['last_question']:
+                query_vector = get_embeddings(user_query)
                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                st.session_state['prompt'] = prompt
-    
-                # Create HTML with JavaScript to copy the prompt to the clipboard
-                html_with_js = generate_html_with_js(prompt)
-                html(html_with_js)
-    
-                # Display the generated prompt in a text area
-                st.text_area("Prompt:", prompt, height=300)
+                response = client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+        
+                # Display the response from OpenAI
+                if response.choices:
+                    ai_message = response.choices[0].message.content  # Corrected attribute access
+                    st.session_state['last_question'] = user_query
+                    st.session_state['last_answer'] = ai_message
             else:
-                if not user_query:
-                    st.warning("Bitte geben Sie eine Anfrage ein.")
-                if not st.session_state.top_articles:
-                    st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
+                ai_message = st.session_state['last_answer']
+    
+        if st.session_state['last_answer']:
+            st.subheader("Antwort subsumary:")
+            st.write(st.session_state['last_answer'])
+        else:
+            st.warning("Bitte geben Sie eine Anfrage ein.")
+            
+
+    with col2:
+        if st.session_state.submitted:
+            if st.button("Prompt generieren und in die Zwischenablage kopieren"):
+                if user_query and st.session_state.top_articles:
+                    # Generate the prompt
+                    prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+                    st.session_state['prompt'] = prompt
+        
+                    # Create HTML with JavaScript to copy the prompt to the clipboard
+                    html_with_js = generate_html_with_js(prompt)
+                    html(html_with_js)
+        
+                    # Display the generated prompt in a text area
+                    st.text_area("Prompt:", prompt, height=300)
+                else:
+                    if not user_query:
+                        st.warning("Bitte geben Sie eine Anfrage ein.")
+                    if not st.session_state.top_articles:
+                        st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
 
 
 
