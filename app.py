@@ -237,24 +237,24 @@ def main_app():
             
 
     with col2:
-        if st.session_state.submitted:
-            if st.button("Prompt generieren und in die Zwischenablage kopieren"):
-                if user_query and st.session_state.top_articles:
-                    # Generate the prompt
-                    prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                    st.session_state['prompt'] = prompt
         
-                    # Create HTML with JavaScript to copy the prompt to the clipboard
-                    html_with_js = generate_html_with_js(prompt)
-                    html(html_with_js)
-        
-                    # Display the generated prompt in a text area
-                    st.text_area("Prompt:", prompt, height=300)
-                else:
-                    if not user_query:
-                        st.warning("Bitte geben Sie eine Anfrage ein.")
-                    if not st.session_state.top_articles:
-                        st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
+        if st.button("Prompt generieren und in die Zwischenablage kopieren"):
+            if user_query and st.session_state.top_articles:
+                # Generate the prompt
+                prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+                st.session_state['prompt'] = prompt
+    
+                # Create HTML with JavaScript to copy the prompt to the clipboard
+                html_with_js = generate_html_with_js(prompt)
+                html(html_with_js)
+    
+                # Display the generated prompt in a text area
+                st.text_area("Prompt:", prompt, height=300)
+            else:
+                if not user_query:
+                    st.warning("Bitte geben Sie eine Anfrage ein.")
+                if not st.session_state.top_articles:
+                    st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
 
 
 
