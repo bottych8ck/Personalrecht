@@ -193,7 +193,7 @@ def main_app():
     if st.button("Relevante Bestimmungen"):
         st.session_state.submitted = True
         
-        with st.expander("am Besten passende Bestimmungen"):
+        with st.expander("am Besten passende Bestimmungen", expanded=True):
     
             for uid, score in st.session_state.top_articles:  # Assuming top_articles stores (uid, score)
                 title, all_paragraphs, law_name, law_url = get_article_content(uid, law_data)
