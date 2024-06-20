@@ -192,19 +192,21 @@ def main_app():
         st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
     if st.button("Relevante Bestimmungen"):
         st.session_state.submitted = True
-        st.write("Die folgenden Bestimmungen und Hinweise passen am Besten auf die Anfrage.")
-        for uid, score in st.session_state.top_articles:  # Assuming top_articles stores (uid, score)
-            title, all_paragraphs, law_name, law_url = get_article_content(uid, law_data)
-            law_name_display = law_name if law_name else "Unbekanntes Gesetz"
-            if law_url:
-                law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
-                
-            st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
-            if all_paragraphs:
-                for paragraph in all_paragraphs:
-                    st.write(paragraph)
-            else:
-                st.write("Kein Inhalt verfügbar.")  
+        
+        with st.expander("am Besten passende Bestimmungen"):
+    
+            for uid, score in st.session_state.top_articles:  # Assuming top_articles stores (uid, score)
+                title, all_paragraphs, law_name, law_url = get_article_content(uid, law_data)
+                law_name_display = law_name if law_name else "Unbekanntes Gesetz"
+                if law_url:
+                    law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
+                    
+                st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
+                if all_paragraphs:
+                    for paragraph in all_paragraphs:
+                        st.write(paragraph)
+                else:
+                    st.write("Kein Inhalt verfügbar.")  
     st.write("")
     st.write("")
     st.write("")
