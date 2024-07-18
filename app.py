@@ -16,7 +16,8 @@ with open('law_data.json', 'r') as file:
 load_dotenv()  # This line loads the variables from .env
 
 api_key = os.getenv('OPENAI_API_KEY')
-openai.api_key = api_key
+client = openai.OpenAI(api_key=api_key)
+
 
 def get_embeddings(text):
     res = client.embeddings.create(input=[text], model="text-embedding-ada-002")
