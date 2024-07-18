@@ -119,6 +119,10 @@ def main_app():
         st.session_state['last_answer'] = None
     if 'prompt' not in st.session_state:
         st.session_state['prompt'] = ""
+    if 'top_articles' not in st.session_state:
+        st.session_state['top_articles'] = []
+    if 'submitted' not in st.session_state:
+        st.session_state['submitted'] = False
 
     user_query = st.text_input("Hier Ihre Frage eingeben:")
 
