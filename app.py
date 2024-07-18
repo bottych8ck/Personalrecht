@@ -73,16 +73,20 @@ def get_article_content(title, law_data):
 def generate_html_with_js(prompt):
     return f"""
     <textarea id='text_area' style='opacity: 0; position: absolute; left: -9999px;'>{prompt}</textarea>
-    <button onclick='copyToClipboard()'>Text in die Zwischenablage kopieren</button>
     <script>
     function copyToClipboard() {{
         var copyText = document.getElementById('text_area');
         copyText.style.opacity = 1; // Make the textarea visible to enable selection
         copyText.select();
-        document.execCommand('copy');
+        navigator.clipboard.writeText(copyText.value).then(function() {{
+            alert('Copied to clipboard!');
+        }}, function(err) {{
+            console.error('Could not copy text: ', err);
+        }});
         copyText.style.opacity = 0; // Hide the textarea again
-        alert('Copied to clipboard!');
     }}
+    // Automatically copy to clipboard when the script is loaded
+    copyToClipboard();
     </script>
     """
 
@@ -157,7 +161,7 @@ st.write("")
                   
             prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o",
                 messages=[
                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
                     {"role": "user", "content": prompt}
@@ -178,7 +182,25 @@ st.write("")
     else:
         st.warning("Bitte geben Sie eine Anfrage ein.")
 
-            
+    with col2:    
+        if st.button("Prompt generieren und in die Zwischenablage kopieren"):
+            if user_query and st.session_state.top_articles:
+                # Generate the prompt
+                prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
+                st.session_state['prompt'] = prompt
+    
+                # Create HTML with JavaScript to copy the prompt to the clipboard
+                html_with_js = generate_html_with_js(prompt)
+                html(html_with_js)
+    
+                # Display the generated prompt in a text area
+                st.text_area("Prompt:", prompt, height=300)
+            else:
+                # if not user_query:
+                #     st.warning("Bitte geben Sie eine Anfrage ein.")
+                if not st.session_state.top_articles:
+                    st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
+          
     if st.button("Hinweise"):
         st.session_state.submitted = True
         st.write("Die folgenden Artikel bilden die Grundlage der obigen Antwort. Sie wurden aufgrund einer Analyse der Anfrage und einem Vergleich und mit den relevanten Gesetzesdaten berechnet.")
