@@ -149,58 +149,58 @@ st.write("")
 st.write("")
 st.write("")
     
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Mit GPT 4o beantworten") and user_query:
-        
-            if user_query != st.session_state['last_question']:
-                query_vector = get_embeddings(user_query)
-                similarities = calculate_similarities(query_vector, article_embeddings)
-                top_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)      
-                st.session_state.top_articles = top_articles[:10]
-                  
-            prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
-            response = client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                    {"role": "user", "content": prompt}
-                ]
-            )
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("Mit GPT 4o beantworten") and user_query:
     
-            # Display the response from OpenAI
-            if response.choices:
-                ai_message = response.choices[0].message.content  # Corrected attribute access
-                st.session_state['last_question'] = user_query
-                st.session_state['last_answer'] = ai_message
-        else:
-            ai_message = st.session_state['last_answer']
+        if user_query != st.session_state['last_question']:
+            query_vector = get_embeddings(user_query)
+            similarities = calculate_similarities(query_vector, article_embeddings)
+            top_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)      
+            st.session_state.top_articles = top_articles[:10]
+              
+        prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                {"role": "user", "content": prompt}
+            ]
+        )
 
-    if st.session_state['last_answer']:
-        st.subheader("Antwort subsumrary:")
-        st.write(st.session_state['last_answer'])
+        # Display the response from OpenAI
+        if response.choices:
+            ai_message = response.choices[0].message.content  # Corrected attribute access
+            st.session_state['last_question'] = user_query
+            st.session_state['last_answer'] = ai_message
     else:
-        st.warning("Bitte geben Sie eine Anfrage ein.")
+        ai_message = st.session_state['last_answer']
 
-    with col2:    
-        if st.button("Prompt generieren und in die Zwischenablage kopieren"):
-            if user_query and st.session_state.top_articles:
-                # Generate the prompt
-                prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
-                st.session_state['prompt'] = prompt
-    
-                # Create HTML with JavaScript to copy the prompt to the clipboard
-                html_with_js = generate_html_with_js(prompt)
-                html(html_with_js)
-    
-                # Display the generated prompt in a text area
-                st.text_area("Prompt:", prompt, height=300)
-            else:
-                # if not user_query:
-                #     st.warning("Bitte geben Sie eine Anfrage ein.")
-                if not st.session_state.top_articles:
-                    st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
-          
+if st.session_state['last_answer']:
+    st.subheader("Antwort subsumrary:")
+    st.write(st.session_state['last_answer'])
+else:
+    st.warning("Bitte geben Sie eine Anfrage ein.")
+
+with col2:    
+    if st.button("Prompt generieren und in die Zwischenablage kopieren"):
+        if user_query and st.session_state.top_articles:
+            # Generate the prompt
+            prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
+            st.session_state['prompt'] = prompt
+
+            # Create HTML with JavaScript to copy the prompt to the clipboard
+            html_with_js = generate_html_with_js(prompt)
+            html(html_with_js)
+
+            # Display the generated prompt in a text area
+            st.text_area("Prompt:", prompt, height=300)
+        else:
+            # if not user_query:
+            #     st.warning("Bitte geben Sie eine Anfrage ein.")
+            if not st.session_state.top_articles:
+                st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
+      
     if st.button("Hinweise"):
         st.session_state.submitted = True
         st.write("Die folgenden Artikel bilden die Grundlage der obigen Antwort. Sie wurden aufgrund einer Analyse der Anfrage und einem Vergleich und mit den relevanten Gesetzesdaten berechnet.")
