@@ -180,11 +180,11 @@ with col1:
     else:
         ai_message = st.session_state['last_answer']
 
-if st.session_state['last_answer']:
-    st.subheader("Antwort subsumrary:")
-    st.write(st.session_state['last_answer'])
-else:
-    st.warning("Bitte geben Sie eine Anfrage ein.")
+    if st.session_state['last_answer']:
+        st.subheader("Antwort subsumrary:")
+        st.write(st.session_state['last_answer'])
+    else:
+        st.warning("Bitte geben Sie eine Anfrage ein.")
 
 with col2:    
     if st.button("Prompt generieren und in die Zwischenablage kopieren"):
