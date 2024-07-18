@@ -155,15 +155,14 @@ def main_app():
                 similarities = calculate_similarities(query_vector, article_embeddings)
                 top_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
                 st.session_state['top_articles'] = top_articles[:10]
-
-            prompt = generate_prompt(user_query, st.session_state['top_articles'], law_data)
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschine. Du beantwortest alle Fragen auf Deutsch."},
-                    {"role": "user", "content": prompt}
-                ]
-            )
+                prompt = generate_prompt(user_query, st.session_state['top_articles'], law_data)
+                response = client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
 
             if response.choices:
                 ai_message = response.choices[0].message['content']
