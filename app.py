@@ -120,18 +120,40 @@ def main_app():
 
     if 'top_articles' not in st.session_state:
         st.session_state.top_articles = []
+        query_vector = get_embeddings(user_query)
+        similarities = calculate_similarities(query_vector, article_embeddings)
+            
+        top_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+                        
+        st.session_state.top_articles = top_articles[:10]
     if 'submitted' not in st.session_state:
         st.session_state.submitted = False
-
-    if st.button("Mit GPT 3.5 beantworten (.05 Fr. pro Anfrage :-) )") and user_query:
+    with st.expander("am Besten passende Bestimmungen", expanded=True): 
+        for title, score in st.session_state.top_articles:
+            title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
+            law_name_display = law_name if law_name else "Unbekanntes Gesetz"
+            if law_url:
+                law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
+                
+            st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
+            if all_paragraphs:
+                for paragraph in all_paragraphs:
+                    st.write(paragraph)
+            else:
+                st.write("Kein Inhalt verfügbar.")
+st.write("")
+    st.write("")
+    st.write("")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Mit GPT 4o beantworten") and user_query:
         
-        if user_query != st.session_state['last_question']:
-            query_vector = get_embeddings(user_query)
-            similarities = calculate_similarities(query_vector, article_embeddings)
-            
-            top_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-                        
-            st.session_state.top_articles = top_articles[:10]
+            if user_query != st.session_state['last_question']:
+                query_vector = get_embeddings(user_query)
+                similarities = calculate_similarities(query_vector, article_embeddings)
+                top_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)      
+                st.session_state.top_articles = top_articles[:10]
                   
             prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
             response = client.chat.completions.create(
@@ -151,7 +173,7 @@ def main_app():
             ai_message = st.session_state['last_answer']
 
     if st.session_state['last_answer']:
-        st.subheader("Antwort Chat-TG:")
+        st.subheader("Antwort subsumrary:")
         st.write(st.session_state['last_answer'])
     else:
         st.warning("Bitte geben Sie eine Anfrage ein.")
