@@ -218,20 +218,7 @@ st.write("")
                 else:
                     st.write("Kein Inhalt verfügbar.")
 
-    if st.session_state.submitted:
-        if st.button("Prompt generieren"):
-            if user_query and st.session_state.top_articles:
-                prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
-                html_with_js = generate_html_with_js(prompt)
-                html(html_with_js)
-                st.text_area("Prompt:", prompt, height=300)
-                st.session_state['prompt'] = prompt
-                         
-            else:
-                if not user_query:
-                    st.warning("Bitte geben Sie eine Anfrage ein.")
-                if not st.session_state.top_articles:
-                    st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
+
 
 
 def main():
