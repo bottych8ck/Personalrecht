@@ -122,27 +122,28 @@ def main_app():
     if 'submitted' not in st.session_state:
         st.session_state['submitted'] = False
 
-    user_query = st.text_input("Hier Ihre Frage eingeben:")
+    user_query = st.text_area("Hier Ihre Frage eingeben:", height=200)
 
     if user_query:
         query_vector = get_embeddings(user_query)
         similarities = calculate_similarities(query_vector, article_embeddings)
         top_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
         st.session_state['top_articles'] = top_articles[:10]
-
-    with st.expander("Am besten passende Bestimmungen", expanded=True):
-        for title, score in st.session_state['top_articles']:
-            title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
-            law_name_display = law_name if law_name else "Unbekanntes Gesetz"
-            if law_url:
-                law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
-                
-            st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
-            if all_paragraphs:
-                for paragraph in all_paragraphs:
-                    st.write(paragraph)
-            else:
-                st.write("Kein Inhalt verfügbar.")
+    if st.button("Relevante Bestimmungen"):
+        st.session_state.submitted = True
+        with st.expander("Am besten passende Bestimmungen", expanded=True):
+            for title, score in st.session_state['top_articles']:
+                title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
+                law_name_display = law_name if law_name else "Unbekanntes Gesetz"
+                if law_url:
+                    law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
+                    
+                st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
+                if all_paragraphs:
+                    for paragraph in all_paragraphs:
+                        st.write(paragraph)
+                else:
+                    st.write("Kein Inhalt verfügbar.")
 
     st.write("")
     st.write("")
