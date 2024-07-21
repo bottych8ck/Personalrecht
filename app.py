@@ -91,21 +91,6 @@ def get_article_content(uid, law_data):
 
     return (title, all_paragraphs, law_name, law_url)
 
-# def generate_html_with_js(prompt):
-#     return f"""
-#     <textarea id='text_area' style='opacity: 0; position: absolute; left: -9999px;'>{prompt}</textarea>
-#     <button onclick='copyToClipboard()'>Text in die Zwischenablage kopieren</button>
-#     <script>
-#     function copyToClipboard() {{
-#         var copyText = document.getElementById('text_area');
-#         copyText.style.opacity = 1; // Make the textarea visible to enable selection
-#         copyText.select();
-#         document.execCommand('copy');
-#         copyText.style.opacity = 0; // Hide the textarea again
-#         alert('Copied to clipboard!');
-#     }}
-#     </script>
-#     """
 
 def generate_html_with_js(prompt):
     return f"""
@@ -239,8 +224,33 @@ def main_app():
             st.write(st.session_state['last_answer'])
         # else:
         #     st.warning("Bitte geben Sie eine Anfrage ein.")
+    
+        if st.button("Mit GPT 4o-mini beantworten") and user_query:
             
-
+            if user_query != st.session_state['last_question']:
+                query_vector = get_embeddings(user_query)
+                prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+        
+                # Display the response from OpenAI
+                if response.choices:
+                    ai_message = response.choices[0].message.content  # Corrected attribute access
+                    st.session_state['last_question'] = user_query
+                    st.session_state['last_answer'] = ai_message
+            else:
+                ai_message = st.session_state['last_answer']
+    
+        if st.session_state['last_answer']:
+            st.subheader("Antwort subsumary:")
+            st.write(st.session_state['last_answer'])
+        # else:
+        #     st.warning("Bitte geben Sie eine Anfrage ein.")
     with col2:
         
         if st.button("Prompt generieren und in die Zwischenablage kopieren"):
