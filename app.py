@@ -17,6 +17,20 @@ relevance_mapping = {
     "Lehrperson VS": "Die Frage bezieht sich auf Wahlen an der Urne.",
     "Lehrperson BfS": "Die Frage ist allgemein und nicht spezifisch relevant für die Gemeindeversammlung oder Urnenwahl."
 }
+tags_mapping = {
+    "directly applicable: Staatspersonal": "Staatspersonal",
+    "indirectly applicable: Staatspersonal": "Staatspersonal",
+    "directly applicable: Lehrperson VS": "Lehrperson VS",
+    "indirectly applicable: Lehrperson VS": "Lehrperson VS",
+    "directly applicable: Lehrperson Sek II": "Lehrperson Sek II",
+    "indirectly applicable: Lehrperson Sek II": "Lehrperson Sek II"
+}
+
+reverse_tags_mapping = {
+    "Staatspersonal": ["directly applicable: Staatspersonal", "indirectly applicable: Staatspersonal"],
+    "Lehrperson VS": ["directly applicable: Lehrperson VS", "indirectly applicable: Lehrperson VS"],
+    "Lehrperson Sek II": ["directly applicable: Lehrperson Sek II", "indirectly applicable: Lehrperson Sek II"]
+}
 
 # Load the data
 with open('article_embeddings.json', 'r') as file:
