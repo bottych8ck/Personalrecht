@@ -55,7 +55,7 @@ def update_file_in_github(file_path, content, commit_message="Update file"):
     repo_name = os.getenv('GITHUB_REPO_NAME')
     token = os.getenv('GITHUB_TOKEN')
 
-    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{file_path}"
+    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{file_path}?ref=learningsubsumary"
     headers = {
         "Authorization": f"token {token}",
         "Accept": "application/vnd.github.v3+json"
