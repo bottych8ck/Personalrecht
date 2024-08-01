@@ -54,8 +54,9 @@ def update_file_in_github(file_path, content, commit_message="Update file"):
     repo_owner = os.getenv('GITHUB_REPO_OWNER')
     repo_name = os.getenv('GITHUB_REPO_NAME')
     token = os.getenv('GITHUB_TOKEN')
+    branch_name = os.getenv('GITHUB_BRANCH', 'learningsubsumary')  # Assuming 'learningsubsumary' is the branch name
 
-    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{file_path}?ref=learningsubsumary"
+    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{file_path}?ref={branch_name}"
     headers = {
         "Authorization": f"token {token}",
         "Accept": "application/vnd.github.v3+json"
@@ -70,14 +71,15 @@ def update_file_in_github(file_path, content, commit_message="Update file"):
     data = {
         "message": commit_message,
         "content": base64.b64encode(content.encode('utf-8')).decode('utf-8'),
-        "sha": sha
+        "sha": sha,
+        "branch": branch_name
     }
 
     # Update the file
     response = requests.put(url, headers=headers, json=data)
     response.raise_for_status()
     return response.json()
-    
+
 def update_knowledge_base_local(new_data):
     update_file_in_github('knowledge_base.json', json.dumps(new_data, indent=4, ensure_ascii=False))
     st.success("Knowledge base updated in GitHub.")
