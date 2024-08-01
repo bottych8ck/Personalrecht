@@ -214,12 +214,12 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
 
     prompt += "\n"
     
-    # prompt += "\nZusätzlich berücksichtige folgende allgemeine Grundsätze und Prinzipien:\n"
-    # for item_id, _ in top_knowledge_items:
-    #     item = knowledge_base.get(item_id, {})
-    #     title = item.get("Title", "Unbekannt")
-    #     content = ' '.join(item.get("Content", []))
-    #     prompt += f"- {title}: {content}\n"
+    prompt += "\nZusätzlich berücksichtige folgende allgemeine Grundsätze und Prinzipien:\n"
+    for item_id, _ in top_knowledge_items:
+        item = knowledge_base.get(item_id, {})
+        title = item.get("Title", "Unbekannt")
+        content = ' '.join(item.get("Content", []))
+        prompt += f"- {title}: {content}\n"
 
    
     prompt += "Anfrage auf Deutsch beantworten. Prüfe die  Anwendbarkeit der einzelnen § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, vergiss ihn.\n"
