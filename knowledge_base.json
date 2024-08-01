@@ -163,5 +163,16 @@
             "indirectly applicable: Lehrperson Sek II",
             "directly applicable: Lehrperson VS"
         ]
+    },
+    "15": {
+        "Title": "Hinweis zu folgender Frage: Wie lange Mittag?",
+        "Content": [
+            "Es gibt nur eine Mindestdauer im Gesetz, keine Maximaldauer"
+        ],
+        "Category": "User-Hinweis",
+        "Tags": [
+            "directly applicable: Staatspersonal",
+            "indirectly applicable: Staatspersonal"
+        ]
     }
 }
