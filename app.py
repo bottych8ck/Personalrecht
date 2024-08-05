@@ -230,6 +230,8 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
 
 
 def main_app():
+    st.image(logo_path, width=400)
+    st.subheader("Abfrage des Thurgauer Personalrechts")
     if 'last_question' not in st.session_state:
         st.session_state['last_question'] = ""
     if 'last_answer' not in st.session_state:
