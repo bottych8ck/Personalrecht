@@ -44,6 +44,13 @@ with open('knowledge_base_embeddings.json', 'r') as file:
 
 with open('knowledge_base.json', 'r') as file:
     knowledge_base = json.load(file)
+
+for item_id, item in knowledge_base.items():
+    content = item.get("Content", "")
+    if isinstance(content, str):
+        # Split content into a list of lines
+        knowledge_base[item_id]["Content"] = content.split('\n')
+
 load_dotenv()  # This line loads the variables from .env
 logo_path = 'subsumary_Logo_1farbig_schwarz.png'
 
@@ -306,7 +313,9 @@ def main_app():
                 for item_id, _ in st.session_state.top_knowledge_items:
                     item = knowledge_base.get(item_id, {})
                     title = item.get("Title", "Unbekannt")
-                    content = '\n'.join(item.get("Content", []))  # Join content paragraphs with newlines
+                    content_list = item.get("Content", [])
+                    # Normalize and join content with proper formatting
+                    content = '\n'.join(line.strip() for line in content_list)
                     st.markdown(f"**{title}**")
                     st.markdown(content)  # Use st.markdown to display content
 
