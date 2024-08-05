@@ -306,9 +306,10 @@ def main_app():
                 for item_id, _ in st.session_state.top_knowledge_items:
                     item = knowledge_base.get(item_id, {})
                     title = item.get("Title", "Unbekannt")
-                    content = ' '.join(item.get("Content", []))
+                    content = '\n'.join(item.get("Content", []))  # Join content paragraphs with newlines
                     st.markdown(f"**{title}**")
-                    st.write(content)
+                    st.markdown(content)  # Use st.markdown to display content
+
 
     if 'show_form' not in st.session_state:
         st.session_state.show_form = False
