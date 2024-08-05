@@ -320,51 +320,51 @@ def main_app():
                     st.markdown(content)  # Use st.markdown to display content
 
 
-    if 'show_form' not in st.session_state:
-        st.session_state.show_form = False
+    # if 'show_form' not in st.session_state:
+    #     st.session_state.show_form = False
 
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Neuer Eintrag hinzufügen"):
-            st.session_state.show_form = not st.session_state.show_form
+    # col1, col2 = st.columns(2)
+    # with col1:
+    #     if st.button("Neuer Eintrag hinzufügen"):
+    #         st.session_state.show_form = not st.session_state.show_form
 
-        if st.session_state.show_form:
-            with st.form(key='add_knowledge_form'):
-                title = st.text_input("Titel", value=f"Hinweis zu folgender Frage: {user_query}")
-                content = st.text_area("Inhalt")
-                category = "User-Hinweis"
-                selected_german_tags = st.multiselect(
-                    "Anwendbarkeit: Auf welche Personalkategorie ist das neue Wissen anwendbar? Bitte auswählen, mehrfache Auswahl ist erlaubt.",
-                    list(set(tags_mapping.values())),
-                    default=[
-                        "Staatspersonal",
-                        "Lehrperson VS",
-                        "Lehrperson Sek II"
-                    ]
-                )
-                submit_button = st.form_submit_button(label='Hinzufügen')
+    #     if st.session_state.show_form:
+    #         with st.form(key='add_knowledge_form'):
+    #             title = st.text_input("Titel", value=f"Hinweis zu folgender Frage: {user_query}")
+    #             content = st.text_area("Inhalt")
+    #             category = "User-Hinweis"
+    #             selected_german_tags = st.multiselect(
+    #                 "Anwendbarkeit: Auf welche Personalkategorie ist das neue Wissen anwendbar? Bitte auswählen, mehrfache Auswahl ist erlaubt.",
+    #                 list(set(tags_mapping.values())),
+    #                 default=[
+    #                     "Staatspersonal",
+    #                     "Lehrperson VS",
+    #                     "Lehrperson Sek II"
+    #                 ]
+    #             )
+    #             submit_button = st.form_submit_button(label='Hinzufügen')
 
-                if submit_button and title and content:
-                    # Convert the selected German tags to their corresponding English tags
-                    selected_english_tags = []
-                    for selected_german_tag in selected_german_tags:
-                        selected_english_tags.extend(reverse_tags_mapping[selected_german_tag])
-                    add_to_knowledge_base(title, content, category, selected_english_tags)
-                    st.success("Neues Wissen erfolgreich hinzugefügt!")
+    #             if submit_button and title and content:
+    #                 # Convert the selected German tags to their corresponding English tags
+    #                 selected_english_tags = []
+    #                 for selected_german_tag in selected_german_tags:
+    #                     selected_english_tags.extend(reverse_tags_mapping[selected_german_tag])
+    #                 add_to_knowledge_base(title, content, category, selected_english_tags)
+    #                 st.success("Neues Wissen erfolgreich hinzugefügt!")
 
-        if 'delete_form' not in st.session_state:
-            st.session_state.delete_form = False
-    with col2:
-        if st.button("Eintrag löschen"):
-            st.session_state.delete_form = not st.session_state.delete_form
+    #     if 'delete_form' not in st.session_state:
+    #         st.session_state.delete_form = False
+    # with col2:
+    #     if st.button("Eintrag löschen"):
+    #         st.session_state.delete_form = not st.session_state.delete_form
 
-        if st.session_state.delete_form:
-            with st.form(key='delete_knowledge_form'):
-                entry_id_to_delete = st.selectbox("Wählen Sie das Wissenselement zum Löschen aus:", [(key, knowledge_base[key]["Title"]) for key in knowledge_base.keys()])
-                delete_button = st.form_submit_button(label='Löschen')
+    #     if st.session_state.delete_form:
+    #         with st.form(key='delete_knowledge_form'):
+    #             entry_id_to_delete = st.selectbox("Wählen Sie das Wissenselement zum Löschen aus:", [(key, knowledge_base[key]["Title"]) for key in knowledge_base.keys()])
+    #             delete_button = st.form_submit_button(label='Löschen')
 
-                if delete_button and entry_id_to_delete:
-                    delete_from_knowledge_base(entry_id_to_delete)
+    #             if delete_button and entry_id_to_delete:
+    #                 delete_from_knowledge_base(entry_id_to_delete)
 
 
     st.write("")
