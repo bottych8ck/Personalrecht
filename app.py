@@ -231,7 +231,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
 
 def main_app():
     st.image(logo_path, width=400)
-    st.subheader("Abfrage des Thurgauer Personalrechts")
+    st.subheader("Thurgauer Personalrecht und Telefonliste des Rechtsdiensts")
     if 'last_question' not in st.session_state:
         st.session_state['last_question'] = ""
     if 'last_answer' not in st.session_state:
@@ -278,7 +278,7 @@ def main_app():
 
         st.session_state['last_question'] = user_query
 
-    if st.button("Relevante Bestimmungen und Wissenselemente"):
+    if st.button("Relevante Bestimmungen und Einträge in der Telefonliste"):
         st.session_state.submitted = True
         with st.expander("Am besten auf die Anfrage passende Bestimmungen und Wissenselemente", expanded=True):
             col1, col2 = st.columns(2)
@@ -302,7 +302,7 @@ def main_app():
                             st.write("Kein Inhalt verfügbar.")
 
             with col2:
-                st.markdown("#### Wissenselemente")
+                st.markdown("#### Einträge in der Telefonliste")
                 for item_id, _ in st.session_state.top_knowledge_items:
                     item = knowledge_base.get(item_id, {})
                     title = item.get("Title", "Unbekannt")
@@ -315,7 +315,7 @@ def main_app():
 
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("Neues Wissenselement hinzufügen"):
+        if st.button("Neuer Eintrag hinzufügen"):
             st.session_state.show_form = not st.session_state.show_form
 
         if st.session_state.show_form:
@@ -345,7 +345,7 @@ def main_app():
         if 'delete_form' not in st.session_state:
             st.session_state.delete_form = False
     with col2:
-        if st.button("Wissenselement löschen"):
+        if st.button("Eintrag löschen"):
             st.session_state.delete_form = not st.session_state.delete_form
 
         if st.session_state.delete_form:
