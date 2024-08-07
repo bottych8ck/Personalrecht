@@ -281,7 +281,7 @@ def main_app():
         st.session_state.top_knowledge_items = [
             (item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True)
             if is_relevant_article(knowledge_base[item_id], relevance)
-        ][:35]
+        ][:30]
 
         st.session_state['last_question'] = user_query
 
@@ -290,7 +290,7 @@ def main_app():
         with st.expander("Am besten auf die Anfrage passende Bestimmungen und Wissenselemente", expanded=True):
             col1, col2 = st.columns(2)
             with col1:
-                st.markdown("#### Bestimmungen")
+                st.markdown("#### Bestimmungen (Top-10)")
                 for uid, score in st.session_state.top_articles:
                     article_info = law_data.get(str(uid), None)
                     if article_info:
@@ -309,7 +309,7 @@ def main_app():
                             st.write("Kein Inhalt verfügbar.")
 
             with col2:
-                st.markdown("#### Einträge in der Telefonliste")
+                st.markdown("#### Einträge in der Telefonliste (Top-30)")
                 for item_id, _ in st.session_state.top_knowledge_items:
                     item = knowledge_base.get(item_id, {})
                     title = item.get("Title", "Unbekannt")
