@@ -219,7 +219,7 @@ def main_app():
                 query_vector = get_embeddings(user_query)
                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
                 response = client.chat.completions.create(
-                    model="gpt-4o",
+                    model="gpt-4o-2024-08-06",
                     messages=[
                         {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
                         {"role": "user", "content": prompt}
