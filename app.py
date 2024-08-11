@@ -314,13 +314,15 @@ def main_app():
                     item = knowledge_base.get(item_id, {})
                     title = item.get("Title", "Unbekannt")
                     content = item.get("Content", "")
-                    if isinstance(content, list):
-                        content = '\n'.join(content)  # Join list back into a single string with line breaks
                     
-            
-                    # Display the title and content
+                    if isinstance(content, list):
+                        # Join list into a single string with double spaces at the end of each line to ensure Markdown respects line breaks
+                        content = '  \n'.join(content)
+                    
+                    # Display the title and content with proper formatting
                     st.markdown(f"**{title}**")
                     st.markdown(content)
+
 
 
     # if 'show_form' not in st.session_state:
