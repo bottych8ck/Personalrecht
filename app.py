@@ -314,6 +314,7 @@ def main_app():
                     item = knowledge_base.get(item_id, {})
                     title = item.get("Title", "Unbekannt")
                     content = item.get("Content", "")
+                    year = item.get("Year", "")
                     
                     if isinstance(content, list):
                         # Join list into a single string with double spaces at the end of each line to ensure Markdown respects line breaks
@@ -321,6 +322,7 @@ def main_app():
                     
                     # Display the title and content with proper formatting
                     st.markdown(f"**{title}**")
+                    st.markdown(f"*Auskunft aus dem Jahr {year}*")  # Display the year under the title
                     st.markdown(content)
 
 
