@@ -313,11 +313,14 @@ def main_app():
                 for item_id, _ in st.session_state.top_knowledge_items:
                     item = knowledge_base.get(item_id, {})
                     title = item.get("Title", "Unbekannt")
-                    content = item.get("Content", "")  # Directly get the content string
+                    content = item.get("Content", "")
+                    if isinstance(content, list):
+                        content = '\n'.join(content)  # Join list back into a single string with line breaks
+                    
             
                     # Display the title and content
                     st.markdown(f"**{title}**")
-                    st.markdown(content.replace('\n', '  \n'))  # Replace \n with Markdown line breaks
+                    st.markdown(content)
 
 
     # if 'show_form' not in st.session_state:
