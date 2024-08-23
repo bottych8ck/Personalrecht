@@ -23,7 +23,7 @@ storage_client = storage.Client()
 
 # Specify your bucket name
 bucket_name = "data_embeddings_ask"
-bucket = storage_client.bucket(bucket_n
+bucket = storage_client.bucket(bucket_name)
 
 # Mapping for relevance criteria
 relevance_mapping = {
