@@ -13,7 +13,7 @@ from google.cloud import storage
 
 # Option 1: Write the credentials to a temporary file and use it
 with open("gcs-key.json", "w") as f:
-    f.write(google_credentials)
+    f.write(GOOGLE_APPLICATION_CREDENTIALS_JSON)
 
 # Set the environment variable to point to this temporary file
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gcs-key.json"
