@@ -11,11 +11,11 @@ import base64
 import requests
 from google.cloud import storage
 
-google_credentials = st.secrets["GOOGLE_APPLICATION_CREDENTIALS_JSON"]
+google_credentials = json.loads(google_credentials_str)
 
-# Write the credentials to a temporary file
+# Write the credentials dictionary to a temporary file
 with open("gcs-key.json", "w") as f:
-    f.write(google_credentials)
+    json.dump(google_credentials, f)
 
 # Set the environment variable to point to this temporary file
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gcs-key.json"
