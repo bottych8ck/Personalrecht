@@ -11,6 +11,9 @@ import base64
 import requests
 from google.cloud import storage
 
+google_credentials_str = st.secrets["GOOGLE_APPLICATION_CREDENTIALS_JSON"]
+
+# Convert the JSON string into a dictionary
 google_credentials = json.loads(google_credentials_str)
 
 # Write the credentials dictionary to a temporary file
@@ -22,6 +25,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gcs-key.json"
 
 # Initialize the Google Cloud Storage client
 storage_client = storage.Client()
+
 
 # Specify your bucket name
 bucket_name = "data_embeddings_ask"
