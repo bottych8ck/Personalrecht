@@ -4,3 +4,5 @@ numpy
 scikit-learn
 python-dotenv
 requests
+google-cloud-storage
+
