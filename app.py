@@ -9,7 +9,21 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import base64
 import requests
+from google.cloud import storage
 
+# Option 1: Write the credentials to a temporary file and use it
+with open("gcs-key.json", "w") as f:
+    f.write(google_credentials)
+
+# Set the environment variable to point to this temporary file
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gcs-key.json"
+
+# Initialize a Google Cloud Storage client
+storage_client = storage.Client()
+
+# Specify your bucket name
+bucket_name = "data_embeddings_ask"
+bucket = storage_client.bucket(bucket_n
 
 # Mapping for relevance criteria
 relevance_mapping = {
