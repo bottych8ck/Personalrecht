@@ -11,19 +11,17 @@ import base64
 import requests
 from google.cloud import storage
 
-google_credentials_str = st.secrets["GOOGLE_APPLICATION_CREDENTIALS_JSON"]
+# Retrieve the Google Cloud credentials from Streamlit secrets
+google_credentials = st.secrets["GOOGLE_APPLICATION_CREDENTIALS_JSON"]
 
-# Convert the JSON string into a dictionary
-google_credentials = json.loads(google_credentials_str)
-
-# Write the credentials dictionary to a temporary file
+# Option 1: Write the credentials to a temporary file and use it
 with open("gcs-key.json", "w") as f:
-    json.dump(google_credentials, f)
+    f.write(google_credentials)
 
 # Set the environment variable to point to this temporary file
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gcs-key.json"
 
-# Initialize the Google Cloud Storage client
+# Initialize a Google Cloud Storage client
 storage_client = storage.Client()
 
 
