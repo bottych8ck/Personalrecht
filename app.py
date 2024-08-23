@@ -15,14 +15,11 @@ from google.cloud import storage
 google_credentials = st.secrets["GOOGLE_APPLICATION_CREDENTIALS_JSON"]
 
 # Option 1: Write the credentials to a temporary file and use it
-with open("gcs-key.json", "w") as f:
-    f.write(google_credentials)
+credentials_info = json.loads(google_credentials)
 
-# Set the environment variable to point to this temporary file
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gcs-key.json"
-
-# Initialize a Google Cloud Storage client
-storage_client = storage.Client()
+# Use the credentials to create a Google Cloud Storage client
+credentials = service_account.Credentials.from_service_account_info(credentials_info)
+storage_client = storage.Client(credentials=credentials)
 
 
 # Specify your bucket name
