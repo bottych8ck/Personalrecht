@@ -47,14 +47,16 @@ reverse_tags_mapping = {
 }
 
 # Load the data
-with open('article_embeddings.json', 'r') as file:
-    article_embeddings = json.load(file)
+lob = bucket.blob('article_embeddings.json')
+article_embeddings = json.loads(blob.download_as_text())
+
+
+# Load 'knowledge_base_embeddings.json' from Google Cloud Storage
+blob = bucket.blob('knowledge_base_embeddings.json')
+knowledge_base_embeddings = json.loads(blob.download_as_text())
     
 with open('law_data.json', 'r') as file:
     law_data = json.load(file)
-
-with open('knowledge_base_embeddings.json', 'r') as file:
-    knowledge_base_embeddings = json.load(file)
 
 with open('knowledge_base.json', 'r') as file:
     knowledge_base = json.load(file)
