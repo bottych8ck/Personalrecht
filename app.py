@@ -11,14 +11,16 @@ import base64
 import requests
 from google.cloud import storage
 
-# Option 1: Write the credentials to a temporary file and use it
+google_credentials = st.secrets["GOOGLE_APPLICATION_CREDENTIALS_JSON"]
+
+# Write the credentials to a temporary file
 with open("gcs-key.json", "w") as f:
-    f.write(GOOGLE_APPLICATION_CREDENTIALS_JSON)
+    f.write(google_credentials)
 
 # Set the environment variable to point to this temporary file
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gcs-key.json"
 
-# Initialize a Google Cloud Storage client
+# Initialize the Google Cloud Storage client
 storage_client = storage.Client()
 
 # Specify your bucket name
