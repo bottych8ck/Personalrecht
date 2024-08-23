@@ -46,7 +46,7 @@ reverse_tags_mapping = {
     "Lehrperson Sek II": ["directly applicable: Lehrperson Sek II", "indirectly applicable: Lehrperson Sek II"]
 }
 
-# Load the data
+# Load the article_embededings
 lob = bucket.blob('article_embeddings.json')
 article_embeddings = json.loads(blob.download_as_text())
 
