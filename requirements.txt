@@ -5,4 +5,5 @@ scikit-learn
 python-dotenv
 requests
 google-cloud-storage
-
+gcsfs
+st-files-connection
