@@ -18,7 +18,6 @@ def safe_print_json_preview(json_str, length=50):
 
 # Retrieve the Google Cloud credentials from Streamlit secrets
 google_credentials_json = st.secrets.get("GOOGLE_APPLICATION_CREDENTIALS_JSON", "")
-
 safe_print_json_preview(google_credentials_json)
 
 if not google_credentials_json:
@@ -34,24 +33,10 @@ except json.JSONDecodeError as e:
     st.write("Please check the format of your JSON in Streamlit secrets.")
     st.stop()
 
-# Create a temporary file to store the credentials
 try:
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as temp_file:
-        json.dump(google_credentials, temp_file)
-        temp_file_path = temp_file.name
-    st.success(f"Temporary file created at: {temp_file_path}")
-except Exception as e:
-    st.error(f"Error creating temporary file: {e}")
-    st.stop()
-
-# Set the environment variable to point to this temporary file
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = temp_file_path
-st.write(f"GOOGLE_APPLICATION_CREDENTIALS set to: {temp_file_path}")
-
-try:
-    # Initialize a Google Cloud Storage client
-    storage_client = storage.Client()
-    # If we get here, the client was initialized successfully
+    # Initialize the Google Cloud Storage client using the credentials directly
+    credentials = service_account.Credentials.from_service_account_info(google_credentials)
+    storage_client = storage.Client(credentials=credentials)
     st.success("Google Cloud Storage client initialized successfully!")
     
     # Test the client by listing buckets
@@ -61,13 +46,6 @@ except Exception as e:
     st.error(f"Error initializing Google Cloud Storage client: {e}")
     st.write("Full error details:")
     st.exception(e)
-
-# Clean up the temporary file
-try:
-    os.unlink(temp_file_path)
-    st.success("Temporary file cleaned up successfully.")
-except Exception as e:
-    st.error(f"Error cleaning up temporary file: {e}")
 
 st.write("Script completed.")
 
