@@ -14,7 +14,12 @@ from st_files_connection import FilesConnection
 
 conn = st.connection('gcs', type=FilesConnection)
 
-
+try:
+    file_list = conn.list_files("data_embeddings_ask/")
+    st.write("Files in bucket:", file_list)
+except Exception as e:
+    st.error(f"Failed to connect or list files: {e}")
+    st.stop()
 file1_path = "data_embeddings_ask/article_embeddings.json"
 file2_path = "data_embeddings_ask/knowledge_base_embeddings.json"
 
