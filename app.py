@@ -11,7 +11,7 @@ import base64
 import requests
 from google.cloud import storage
 
-def safe_print_json_preview(json_str, length=50):
+def safe_print_json_preview(json_str, length=250):
     """Safely print a preview of the JSON string."""
     preview = json_str[:length] + "..." if len(json_str) > length else json_str
     st.write(f"JSON preview: {preview}")
