@@ -10,51 +10,30 @@ from sklearn.metrics.pairwise import cosine_similarity
 import base64
 import requests
 from google.cloud import storage
+from st_files_connection import FilesConnection
 
-def safe_print_json_preview(json_str, length=250):
-    """Safely print a preview of the JSON string."""
-    preview = json_str[:length] + "..." if len(json_str) > length else json_str
-    st.write(f"JSON preview: {preview}")
+conn = st.connection('gcs', type=FilesConnection)
 
-# Retrieve the Google Cloud credentials from Streamlit secrets
-google_credentials_json = st.secrets.get("GOOGLE_APPLICATION_CREDENTIALS_JSON", "")
-safe_print_json_preview(google_credentials_json)
 
-if not google_credentials_json:
-    st.error("No credentials found in Streamlit secrets.")
-    st.stop()
+file1_path = "data_embeddings_ask/article_embeddings.json"
+file2_path = "data_embeddings_ask/knowledge_base_embeddings.json"
 
-# Parse the JSON to ensure it's valid
+file1_content = conn.read(file1_path, input_format="text")
 try:
-    google_credentials = json.loads(google_credentials_json)
-    st.success("JSON successfully parsed.")
+    artcile_embeddings = json.loads(file1_content)
+    st.write("File 1 successfully loaded into a dictionary.")
 except json.JSONDecodeError as e:
-    st.error(f"Invalid JSON in secrets: {e}")
-    st.write("Please check the format of your JSON in Streamlit secrets.")
+    st.error(f"Failed to parse File 1 as JSON: {e}")
     st.stop()
 
+# Read and parse the second JSON file into a dictionary
+file2_content = conn.read(file2_path, input_format="text")
 try:
-    # Initialize the Google Cloud Storage client using the credentials directly
-    credentials = service_account.Credentials.from_service_account_info(google_credentials)
-    storage_client = storage.Client(credentials=credentials)
-    st.success("Google Cloud Storage client initialized successfully!")
-    
-    # Test the client by listing buckets
-    buckets = list(storage_client.list_buckets())
-    st.write(f"Successfully listed {len(buckets)} buckets.")
-except Exception as e:
-    st.error(f"Error initializing Google Cloud Storage client: {e}")
-    st.write("Full error details:")
-    st.exception(e)
-
-st.write("Script completed.")
-
-
-
-# Specify your bucket name
-bucket_name = "data_embeddings_ask"
-bucket = storage_client.bucket(bucket_name)
-
+    knowlegde_base_embeddings = json.loads(file2_content)
+    st.write("File 2 successfully loaded into a dictionary.")
+except json.JSONDecodeError as e:
+    st.error(f"Failed to parse File 2 as JSON: {e}")
+    st.stop()
 # Mapping for relevance criteria
 relevance_mapping = {
     "Staatspersonal": "Die Frage bezieht sich auf Staatspersonal.",
@@ -76,14 +55,7 @@ reverse_tags_mapping = {
     "Lehrperson Sek II": ["directly applicable: Lehrperson Sek II", "indirectly applicable: Lehrperson Sek II"]
 }
 
-# Load the article_embededings
-lob = bucket.blob('article_embeddings.json')
-article_embeddings = json.loads(blob.download_as_text())
 
-
-# Load 'knowledge_base_embeddings.json' from Google Cloud Storage
-blob = bucket.blob('knowledge_base_embeddings.json')
-knowledge_base_embeddings = json.loads(blob.download_as_text())
     
 with open('law_data.json', 'r') as file:
     law_data = json.load(file)
