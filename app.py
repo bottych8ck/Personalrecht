@@ -48,8 +48,10 @@ try:
     file2_content = conn.read(file2_path, input_format="text")
     knowledge_base_embeddings = json.loads(file2_content)
     st.write("File 2 successfully loaded into a dictionary.")
+
 except Exception as e:
-    st.error(f"Faile
+    st.error(f"Failed to load or parse File 2: {e}")
+    st.stop()
 
 
     
