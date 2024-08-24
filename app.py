@@ -10,6 +10,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 import base64
 import requests
 from google.cloud import storage
+from google.oauth2 import service_account  # Ensure this import is included
+
 from st_files_connection import FilesConnection
 
 import streamlit as st
