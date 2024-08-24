@@ -12,9 +12,13 @@ import requests
 from google.cloud import storage
 from st_files_connection import FilesConnection
 
+# Step 1: Convert the AttrDict to a regular dictionary
 google_credentials = dict(st.secrets["GOOGLE_APPLICATION_CREDENTIALS_JSON"])
 
-# Step 2: Use the credentials to initialize the Google Cloud Storage client
+# Step 2: Ensure private_key is a single string
+google_credentials["private_key"] = google_credentials["private_key"].replace("\\n", "\n")
+
+# Step 3: Use the credentials to initialize the Google Cloud Storage client
 try:
     credentials = service_account.Credentials.from_service_account_info(google_credentials)
     client = storage.Client(credentials=credentials)
@@ -22,6 +26,7 @@ try:
 except Exception as e:
     st.error(f"Failed to initialize Google Cloud Storage client: {e}")
     st.stop()
+
     
 # Mapping for relevance criteria
 relevance_mapping = {
