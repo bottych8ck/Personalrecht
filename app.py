@@ -12,16 +12,45 @@ import requests
 from google.cloud import storage
 from st_files_connection import FilesConnection
 
-google_credentials = st.secrets["GOOGLE_APPLICATION_CREDENTIALS_JSON"]
+import streamlit as st
+from st_files_connection import FilesConnection
+import json
 
-# Step 2: Use the credentials to initialize the Google Cloud Storage client
+# Initialize the connection to GCS using secrets from Streamlit
 try:
-    credentials = service_account.Credentials.from_service_account_info(google_credentials)
-    client = storage.Client(credentials=credentials)
-    st.success("Google Cloud Storage client initialized successfully.")
+    conn = st.connection('gcs', type=FilesConnection)
+    st.write("Attempting to connect to Google Cloud Storage...")
+
+    # Check if we can list files or access a known file to verify the connection
+    test_file_path = "data_embeddings_ask/article_embeddings.json"
+    conn.read(test_file_path, input_format="text")
+    
+    st.success("Connected to Google Cloud Storage successfully!")
 except Exception as e:
-    st.error(f"Failed to initialize Google Cloud Storage client: {e}")
+    st.error(f"Failed to connect to Google Cloud Storage: {e}")
     st.stop()
+
+# Define the paths to your files in the GCS bucket
+file1_path = "data_embeddings_ask/article_embeddings.json"
+file2_path = "data_embeddings_ask/knowledge_base_embeddings.json"
+
+# Try to read and parse the first JSON file
+try:
+    file1_content = conn.read(file1_path, input_format="text")
+    article_embeddings = json.loads(file1_content)
+    st.write("File 1 successfully loaded into a dictionary.")
+except Exception as e:
+    st.error(f"Failed to load or parse File 1: {e}")
+    st.stop()
+
+# Try to read and parse the second JSON file
+try:
+    file2_content = conn.read(file2_path, input_format="text")
+    knowledge_base_embeddings = json.loads(file2_content)
+    st.write("File 2 successfully loaded into a dictionary.")
+except Exception as e:
+    st.error(f"Faile
+
 
     
 # Mapping for relevance criteria
