@@ -12,7 +12,14 @@ import requests
 from google.cloud import storage
 from st_files_connection import FilesConnection
 
-conn = st.connection('gcs', type=FilesConnection)
+st.write("Attempting to connect to GCS...")
+
+try:
+    conn = st.connection('gcs', type=FilesConnection)
+    st.write("Connection established.")
+except Exception as e:
+    st.error(f"Connection failed: {e}")
+    st.stop()
 
 try:
     file_list = conn.list_files("data_embeddings_ask/")
