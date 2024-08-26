@@ -25,28 +25,28 @@ google_credentials = dict(google_credentials_json)  # Convert to dict
 credentials = service_account.Credentials.from_service_account_info(google_credentials)
 client = storage.Client(credentials=credentials)
 
-# Example: list buckets to test the connection
-buckets = list(client.list_buckets())
-st.write(f"Successfully connected to Google Cloud Storage. Found {len(buckets)} buckets.")
+## Define your bucket and file paths
+bucket_name = "data_embeddings_ask"
+file1_path = "data_embeddings_ask/article_embeddings.json"
+file2_path = "data_embeddings_ask/knowledge_base_embeddings.json"
 
-# # Try to read and parse the first JSON file
-# try:
-#     file1_content = conn.read(file1_path, input_format="text")
-#     article_embeddings = json.loads(file1_content)
-#     st.write("File 1 successfully loaded into a dictionary.")
-# except Exception as e:
-#     st.error(f"Failed to load or parse File 1: {e}")
-#     st.stop()
+def load_json_from_gcs(bucket_name, file_path):
+    try:
+        bucket = client.get_bucket(bucket_name)
+        blob = bucket.blob(file_path)
+        file_content = blob.download_as_text()  # Download the content as text
+        return json.loads(file_content)  # Parse the JSON content into a dictionary
+    except Exception as e:
+        st.error(f"Failed to load or parse {file_path} from GCS: {e}")
+        st.stop()
 
-# # Try to read and parse the second JSON file
-# try:
-#     file2_content = conn.read(file2_path, input_format="text")
-#     knowledge_base_embeddings = json.loads(file2_content)
-#     st.write("File 2 successfully loaded into a dictionary.")
+# Load the first JSON file into a dictionary
+article_embeddings = load_json_from_gcs(bucket_name, file1_path)
+st.write("File 1 successfully loaded into a dictionary.")
 
-# except Exception as e:
-#     st.error(f"Failed to load or parse File 2: {e}")
-#     st.stop()
+# Load the second JSON file into a dictionary
+knowledge_base_embeddings = load_json_from_gcs(bucket_name, file2_path)
+st.write("File 2 successfully loaded into a dictionary.")
     
 # Mapping for relevance criteria
 relevance_mapping = {
