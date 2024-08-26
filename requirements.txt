@@ -7,3 +7,4 @@ requests
 google-cloud-storage
 gcsfs
 st-files-connection
+groq
