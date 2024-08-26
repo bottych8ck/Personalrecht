@@ -47,6 +47,8 @@ st.write("File 1 successfully loaded into a dictionary.")
 # Load the second JSON file into a dictionary
 knowledge_base_embeddings = load_json_from_gcs(bucket_name, file2_path)
 st.write("File 2 successfully loaded into a dictionary.")
+
+
     
 # Mapping for relevance criteria
 relevance_mapping = {
