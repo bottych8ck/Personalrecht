@@ -27,8 +27,8 @@ client = storage.Client(credentials=credentials)
 
 ## Define your bucket and file paths
 bucket_name = "data_embeddings_ask"
-file1_path = "data_embeddings_ask/article_embeddings.json"
-file2_path = "data_embeddings_ask/knowledge_base_embeddings.json"
+file1_path = "article_embeddings.json"
+file2_path = "knowledge_base_embeddings.json"  # Adjust this based on your file structure
 
 def load_json_from_gcs(bucket_name, file_path):
     try:
@@ -44,7 +44,7 @@ def load_json_from_gcs(bucket_name, file_path):
 article_embeddings = load_json_from_gcs(bucket_name, file1_path)
 st.write("File 1 successfully loaded into a dictionary.")
 
-# Load the second JSON file into a dictionary
+# Load the second JSON file into a dictionary (ensure the correct path)
 knowledge_base_embeddings = load_json_from_gcs(bucket_name, file2_path)
 st.write("File 2 successfully loaded into a dictionary.")
 
