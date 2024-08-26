@@ -449,28 +449,30 @@ def main_app():
 
 
     with col2:
-        if st.button("Mit GPT 4o mini beantworten"):
+        if st.button("Mit Llama 3.1 beantworten (keine Kostenfolgen)"):
             if user_query:
                 query_vector = get_embeddings(user_query)
                 similarities = calculate_similarities(query_vector, article_embeddings)
-                
+    
                 sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
                 filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
                 st.session_state.top_articles = filtered_articles[:10]
                 knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
                 st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                response = client.chat.completions.create(
-                    model="gpt-4o-mini",
+                
+                # Using Groq API to generate response with LLaMA 3.1 model
+                chat_completion = client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
                         {"role": "user", "content": prompt}
-                    ]
+                    ],
+                    model="llama-3.1-model-identifier",  # Replace with the correct model identifier for LLaMA 3.1
                 )
-        
-                    # Display the response from OpenAI
-                if response.choices:
-                    ai_message = response.choices[0].message.content  # Corrected attribute access
+    
+                # Extract and display the response content
+                if chat_completion.choices:
+                    ai_message = chat_completion.choices[0]['message']['content']
                     st.session_state['last_question'] = user_query
                     st.session_state['last_answer'] = ai_message
             else:
@@ -478,6 +480,7 @@ def main_app():
         if st.session_state['last_answer']:
             st.subheader("Antwort subsumary:")
             st.write(st.session_state['last_answer'])
+
 
 
 
