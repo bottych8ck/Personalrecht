@@ -42,12 +42,9 @@ def load_json_from_gcs(bucket_name, file_path):
 
 # Load the first JSON file into a dictionary
 article_embeddings = load_json_from_gcs(bucket_name, file1_path)
-st.write("File 1 successfully loaded into a dictionary.")
 
 # Load the second JSON file into a dictionary (ensure the correct path)
 knowledge_base_embeddings = load_json_from_gcs(bucket_name, file2_path)
-st.write("File 2 successfully loaded into a dictionary.")
-
 
     
 # Mapping for relevance criteria
@@ -272,7 +269,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
 
 def main_app():
     st.image(logo_path, width=400)
-    st.subheader("Thurgauer Personalrecht und Telefonliste des Rechtsdiensts")
+    st.subheader("Thurgauer Schul- und Personalrecht und Telefonliste des Rechtsdiensts")
     if 'last_question' not in st.session_state:
         st.session_state['last_question'] = ""
     if 'last_answer' not in st.session_state:
