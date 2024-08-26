@@ -29,24 +29,6 @@ client = storage.Client(credentials=credentials)
 buckets = list(client.list_buckets())
 st.write(f"Successfully connected to Google Cloud Storage. Found {len(buckets)} buckets.")
 
-# # Initialize the connection to GCS using secrets from Streamlit
-# try:
-#     conn = st.connection('gcs', type=FilesConnection)
-#     st.write("Attempting to connect to Google Cloud Storage...")
-
-#     # Check if we can list files or access a known file to verify the connection
-#     test_file_path = "data_embeddings_ask/article_embeddings.json"
-#     conn.read(test_file_path, input_format="text")
-    
-#     st.success("Connected to Google Cloud Storage successfully!")
-# except Exception as e:
-#     st.error(f"Failed to connect to Google Cloud Storage: {e}")
-#     st.stop()
-
-# # Define the paths to your files in the GCS bucket
-# file1_path = "data_embeddings_ask/article_embeddings.json"
-# file2_path = "data_embeddings_ask/knowledge_base_embeddings.json"
-
 # # Try to read and parse the first JSON file
 # try:
 #     file1_content = conn.read(file1_path, input_format="text")
@@ -65,8 +47,6 @@ st.write(f"Successfully connected to Google Cloud Storage. Found {len(buckets)} 
 # except Exception as e:
 #     st.error(f"Failed to load or parse File 2: {e}")
 #     st.stop()
-
-
     
 # Mapping for relevance criteria
 relevance_mapping = {
