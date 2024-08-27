@@ -17,6 +17,13 @@ from st_files_connection import FilesConnection
 import json
 from groq import Groq
 
+openai_api_key = os.getenv('OPENAI_API_KEY')
+openai_client = openai.OpenAI(api_key=openai_api_key)
+
+# Initialize Groq client
+groq_api_key = os.getenv('GROQ_API_KEY')
+groq_client = Groq(api_key=groq_api_key)
+    
 
 google_credentials_json = st.secrets["GOOGLE_APPLICATION_CREDENTIALS_JSON"]
 google_credentials = dict(google_credentials_json)  # Convert to dict
@@ -85,8 +92,6 @@ for item_id, item in knowledge_base.items():
 load_dotenv()  # This line loads the variables from .env
 logo_path = 'subsumary_Logo_1farbig_schwarz.png'
 
-api_key = os.getenv('OPENAI_API_KEY')
-client = openai.OpenAI(api_key=api_key)
 
 def update_file_in_github(file_path, content, commit_message="Update file"):
     repo_owner = os.getenv('GITHUB_REPO_OWNER')
@@ -157,7 +162,7 @@ def delete_from_knowledge_base(entry_id):
         st.error(f"Entry {entry_id} not found.")
 
 def get_embeddings(text):
-    res = client.embeddings.create(input=[text], model="text-embedding-ada-002")
+    res = openai_client.embeddings.create(input=[text], model="text-embedding-ada-002")
     return res.data[0].embedding
 
 def is_relevant_article(section_data, relevance):
@@ -423,7 +428,7 @@ def main_app():
                 knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
                 st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                response = client.chat.completions.create(
+                response = openai_client.chat.completions.create(
                     model="gpt-4o-2024-08-06",
                     messages=[
                         {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
@@ -443,8 +448,6 @@ def main_app():
             st.write(st.session_state['last_answer_gpt4o'])
 
 
-
-
     with col2:
         if st.button("Mit Llama 3.1 beantworten (keine Kostenfolgen)"):
             if user_query:
@@ -459,7 +462,7 @@ def main_app():
                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
                 
                 # Using Groq API to generate response with LLaMA 3.1 model
-                chat_completion = client.chat.completions.create(
+                chat_completion = groq_client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
                         {"role": "user", "content": prompt}
