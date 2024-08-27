@@ -467,7 +467,7 @@ def main_app():
                         {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
                         {"role": "user", "content": prompt}
                     ],
-                    model="llama-3.1-model-identifier",  # Replace with the correct model identifier for LLaMA 3.1
+                    model="llama-3.1-70b-versatile",  
                 )
     
                 # Extract and display the response content
