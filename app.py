@@ -462,14 +462,23 @@ def main_app():
                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
                 
                 # Using Groq API to generate response with LLaMA 3.1 model
-                chat_completion = groq_client.chat.completions.create(
-                    messages=[
-                        {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    model="llama-3.1-70b-versatile",  
-                )
-    
+                
+                st.write(f"Sending request to Groq API: {prompt}")
+
+                try:
+                    chat_completion = groq_client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        model="llama-3.1-70b-versatile"  
+                    )
+                except groq.InternalServerError as e:
+                    st.error("An internal server error occurred with the Groq API. Please try again later.")
+                    st.write(f"Error details: {e}")
+                    return  # Or handle it accordingly
+
+   
                 # Extract and display the response content
                 if chat_completion.choices:
                     ai_message = chat_completion.response.choices[0].message.content
