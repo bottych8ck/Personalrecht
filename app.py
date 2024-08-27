@@ -478,9 +478,17 @@ def main_app():
                     st.session_state['last_answer'] = ai_message
             else:
                 ai_message = st.session_state['last_answer']
-        if st.session_state['last_answer']:
-            st.subheader("Antwort subsumary:")
-            st.write(st.session_state['last_answer'])
+                # Extract and display the response content
+            if chat_completion.choices:
+                ai_message = chat_completion.choices[0].message.content
+                st.session_state['last_question'] = user_query
+                st.session_state['last_answer'] = ai_message
+            else:
+                ai_message = st.session_state['last_answer']
+            
+                    if st.session_state['last_answer']:
+                        st.subheader("Antwort subsumary:")
+                        st.write(st.session_state['last_answer'])
 
 
 
