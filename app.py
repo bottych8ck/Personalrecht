@@ -463,7 +463,7 @@ def main_app():
                 
                 # Using Groq API to generate response with LLaMA 3.1 model
                 
-                st.write(f"Sending request to Groq API: {prompt}")
+                
 
                 try:
                     chat_completion = groq_client.chat.completions.create(
