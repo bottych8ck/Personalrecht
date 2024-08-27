@@ -486,9 +486,9 @@ def main_app():
             else:
                 ai_message = st.session_state['last_answer']
             
-                    if st.session_state['last_answer']:
-                        st.subheader("Antwort subsumary:")
-                        st.write(st.session_state['last_answer'])
+            if st.session_state['last_answer']:
+                st.subheader("Antwort subsumary:")
+                st.write(st.session_state['last_answer'])
 
 
 
