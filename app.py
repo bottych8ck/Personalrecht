@@ -472,7 +472,8 @@ def main_app():
     
                 # Extract and display the response content
                 if chat_completion.choices:
-                    ai_message = chat_completion.choices[0]['message']['content']
+                    ai_message = chat_completion.response.choices[0].message.content
+                    response.choices[0].message.content
                     st.session_state['last_question'] = user_query
                     st.session_state['last_answer'] = ai_message
             else:
