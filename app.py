@@ -414,11 +414,12 @@ def main_app():
     st.write("")
     st.write("")    
 
-# Display GPT-4 response buttons
     col1, col2 = st.columns(2)
+
     with col1:
-        if st.button("Mit GPT 4o beantworten"):
-            if user_query:
+        model_selection = st.radio("Mit einem Sprachmodell beantworten", ["GPT 4o", "Llama 3.1"])
+        if model_selection == "GPT 4o":
+           if user_query:
                 query_vector = get_embeddings(user_query)
                 similarities = calculate_similarities(query_vector, article_embeddings)
                 
@@ -445,11 +446,9 @@ def main_app():
                 ai_message = st.session_state['last_answer_gpt4o']
         if st.session_state['last_answer_gpt4o']:
             st.subheader("Antwort subsumary:")
-            st.write(st.session_state['last_answer_gpt4o'])
+            st.write(st.session_state['last_answer_gpt4o'])            
 
-
-    with col2:
-        if st.button("Mit Llama 3.1 beantworten (keine Kostenfolgen)"):
+        if model_selection == "Llama 3.1":
             if user_query:
                 query_vector = get_embeddings(user_query)
                 similarities = calculate_similarities(query_vector, article_embeddings)
@@ -501,25 +500,23 @@ def main_app():
                 st.write(st.session_state['last_answer'])
 
 
-
-
-        
-        
-    if st.button("Prompt generieren und in die Zwischenablage kopieren"):
-        if user_query and st.session_state.top_articles:
-            # Generate the prompt
-            prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-            st.session_state['prompt'] = prompt
-
-            # Create HTML with JavaScript to copy the prompt to the clipboard
-            html_with_js = generate_html_with_js(prompt)
-            st.components.v1.html(html_with_js)
-
-            # Display the generated prompt in a text area
-            st.text_area("Prompt:", prompt, height=300)
-        else:
-            if not st.session_state.top_articles:
-                st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
+    with col2:
+             
+        if st.button("Prompt generieren und in die Zwischenablage kopieren"):
+            if user_query and st.session_state.top_articles:
+                # Generate the prompt
+                prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+                st.session_state['prompt'] = prompt
+    
+                # Create HTML with JavaScript to copy the prompt to the clipboard
+                html_with_js = generate_html_with_js(prompt)
+                st.components.v1.html(html_with_js)
+    
+                # Display the generated prompt in a text area
+                st.text_area("Prompt:", prompt, height=300)
+            else:
+                if not st.session_state.top_articles:
+                    st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
 
 if __name__ == "__main__":
     main_app()
