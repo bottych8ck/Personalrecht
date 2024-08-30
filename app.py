@@ -274,7 +274,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
 
 def main_app():
     st.image(logo_path, width=400)
-    st.subheader("Thurgauer Schul- und Personalrecht und Telefonliste des Rechtsdiensts")
+    st.subheader("Abfrage des Thurgauer Schul- und Personalrecht und der Telefonliste des Rechtsdiensts")
     if 'last_question' not in st.session_state:
         st.session_state['last_question'] = ""
     if 'last_answer' not in st.session_state:
