@@ -412,7 +412,9 @@ def main_app():
 
     st.write("")
     st.write("")
+    st.write("")   
     st.write("")    
+
 
     col1, col2 = st.columns(2)
 
