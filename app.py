@@ -419,6 +419,10 @@ def main_app():
     col1, col2 = st.columns(2)
 
     with col1:
+        if 'last_answer_gpt4o' not in st.session_state:
+            st.session_state['last_answer_gpt4o'] = ""
+        if 'last_answer_llama' not in st.session_state:
+            st.session_state['last_answer_llama'] = ""
         # Initial button to select the model
         if st.button("Antwort mit Sprachmodell"):
             # Select box appears after the button is clicked
