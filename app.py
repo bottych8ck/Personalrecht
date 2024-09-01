@@ -419,38 +419,39 @@ def main_app():
     col1, col2 = st.columns(2)
 
     with col1:
-        if 'last_answer_gpt4o' not in st.session_state:
-            st.session_state['last_answer_gpt4o'] = ""
-        if 'last_answer_llama' not in st.session_state:
-            st.session_state['last_answer_llama'] = ""
-        # Initial button to select the model
-        if st.button("Antwort mit Sprachmodell"):
-            # Select box appears after the button is clicked
-            model_selection = st.selectbox(
-                "Wählen Sie ein Sprachmodell aus:",
-                ["GPT 4o", "Llama 3.1"]
-            )
-            
-            # Now check which model is selected and execute corresponding code
+    # Button to start the process
+    if st.button("Antwort mit Sprachmodell"):
+        st.session_state['show_model_selection'] = True
+
+    # Show model selection if the button was clicked
+    if st.session_state['show_model_selection']:
+        model_selection = st.selectbox(
+            "Wählen Sie ein Sprachmodell aus:",
+            ["GPT 4o", "Llama 3.1"]
+        )
+        st.session_state['selected_model'] = model_selection
+
+        # Button to generate answer
+        if st.button("Generieren Sie eine Antwort"):
             if user_query:
                 query_vector = get_embeddings(user_query)
                 similarities = calculate_similarities(query_vector, article_embeddings)
-    
+
                 sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
                 filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
                 st.session_state.top_articles = filtered_articles[:10]
-    
+
                 knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
                 st.session_state.top_knowledge_items = [
                     (item_id, score)
                     for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True)
                     if is_relevant_article(knowledge_base[item_id], relevance)
                 ][:5]
-    
+
                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-    
+
                 # Handle GPT-4o model selection
-                if model_selection == "GPT 4o":
+                if st.session_state['selected_model'] == "GPT 4o":
                     try:
                         response = openai_client.chat.completions.create(
                             model="gpt-4o-2024-08-06",
@@ -459,20 +460,18 @@ def main_app():
                                 {"role": "user", "content": prompt}
                             ]
                         )
-    
+
                         if response.choices:
                             ai_message = response.choices[0].message.content
-                            st.session_state['last_question'] = user_query
-                            st.session_state['last_answer_gpt4o'] = ai_message
-                            st.subheader("Antwort subsumary (GPT-4o):")
-                            st.write(ai_message)
+                            st.session_state['last_answer'] = ai_message
+                            st.session_state['last_model'] = "GPT 4o"
                         else:
                             st.warning("No response generated from GPT-4o.")
                     except Exception as e:
                         st.error(f"An error occurred with the OpenAI API: {str(e)}")
-    
+
                 # Handle Llama 3.1 model selection
-                elif model_selection == "Llama 3.1":
+                elif st.session_state['selected_model'] == "Llama 3.1":
                     try:
                         chat_completion = groq_client.chat.completions.create(
                             messages=[
@@ -481,34 +480,32 @@ def main_app():
                             ],
                             model="llama-3.1-70b-versatile"
                         )
-    
+
                         if chat_completion.choices and len(chat_completion.choices) > 0:
                             ai_message = chat_completion.choices[0].message.content
-                            st.session_state['last_question'] = user_query
-                            st.session_state['last_answer_llama'] = ai_message
-                            st.subheader("Antwort subsumary (Llama 3.1):")
-                            st.write(ai_message)
+                            st.session_state['last_answer'] = ai_message
+                            st.session_state['last_model'] = "Llama 3.1"
                         else:
                             st.warning("No response generated from Llama 3.1.")
-    
+
                     except groq.InternalServerError as e:
                         st.error(f"An internal server error occurred with the Groq API: {str(e)}")
                     except Exception as e:
                         st.error(f"An error occurred with the Groq API: {str(e)}")
-    
+
+                # Display the generated answer
+                if st.session_state['last_answer']:
+                    st.subheader(f"Antwort subsumary ({st.session_state['last_model']}):")
+                    st.write(st.session_state['last_answer'])
             else:
-                st.warning("Please enter a query before selecting a model.")
-    
-        # Display the last answer if available (still inside the button click event)
-        elif st.session_state['last_answer_gpt4o'] or st.session_state['last_answer_llama']:
-            if st.session_state['last_answer_gpt4o']:
-                st.subheader("Last Antwort subsumary (GPT-4o):")
-                st.write(st.session_state['last_answer_gpt4o'])
-            elif st.session_state['last_answer_llama']:
-                st.subheader("Last Antwort subsumary (Llama 3.1):")
-                st.write(st.session_state['last_answer_llama'])
+                st.warning("Please enter a query before generating an answer.")
 
+    # Display the last answer if available (outside the generate button but inside the main flow)
+    elif st.session_state['last_answer']:
+        st.subheader(f"Last Antwort subsumary ({st.session_state['last_model']}):")
+        st.write(st.session_state['last_answer'])
 
+Version 4 of 4
 
     # with col1:
     #     model_selection = st.radio("Mit einem Sprachmodell beantworten", ["GPT 4o", "Llama 3.1"])
