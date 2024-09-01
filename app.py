@@ -496,7 +496,7 @@ if st.session_state['last_answer_gpt4o'] or st.session_state['last_answer_llama'
         st.write(st.session_state['last_answer_gpt4o'])
     elif st.session_state['last_answer_llama']:
         st.write(st.session_state['last_answer_llama'])
-Last edited just now
+
 
 
     # with col1:
