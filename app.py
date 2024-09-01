@@ -419,18 +419,34 @@ def main_app():
     col1, col2 = st.columns(2)
 
     with col1:
-        model_selection = st.radio("Mit einem Sprachmodell beantworten", ["GPT 4o", "Llama 3.1"])
-        if model_selection == "GPT 4o":
-           if user_query:
-                query_vector = get_embeddings(user_query)
-                similarities = calculate_similarities(query_vector, article_embeddings)
-                
-                sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-                filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-                st.session_state.top_articles = filtered_articles[:10]
-                knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-                st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
-                prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+    # Initial button to select the model
+    if st.button("Antwort mit Sprachmodell"):
+        # Select box appears after the button is clicked
+        model_selection = st.selectbox(
+            "Wählen Sie ein Sprachmodell aus:",
+            ["GPT 4o", "Llama 3.1"]
+        )
+        
+        # Now check which model is selected and execute corresponding code
+        if user_query:
+            query_vector = get_embeddings(user_query)
+            similarities = calculate_similarities(query_vector, article_embeddings)
+
+            sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+            filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
+            st.session_state.top_articles = filtered_articles[:10]
+
+            knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
+            st.session_state.top_knowledge_items = [
+                (item_id, score)
+                for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True)
+                if is_relevant_article(knowledge_base[item_id], relevance)
+            ][:5]
+
+            prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+
+            # Handle GPT-4o model selection
+            if model_selection == "GPT 4o":
                 response = openai_client.chat.completions.create(
                     model="gpt-4o-2024-08-06",
                     messages=[
@@ -438,68 +454,145 @@ def main_app():
                         {"role": "user", "content": prompt}
                     ]
                 )
-        
-                    # Display the response from OpenAI
+
+                # Display response and update session state
                 if response.choices:
-                    ai_message = response.choices[0].message.content  # Corrected attribute access
+                    ai_message = response.choices[0].message.content
                     st.session_state['last_question'] = user_query
                     st.session_state['last_answer_gpt4o'] = ai_message
-        else:
-            ai_message = st.session_state['last_answer_gpt4o']
-        if st.session_state['last_answer_gpt4o']:
-            st.subheader("Antwort subsumary:")
-            st.write(st.session_state['last_answer_gpt4o'])            
+                else:
+                    ai_message = st.session_state.get('last_answer_gpt4o', '')
 
-        if model_selection == "Llama 3.1":
-            if user_query:
-                query_vector = get_embeddings(user_query)
-                similarities = calculate_similarities(query_vector, article_embeddings)
-    
-                sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-                filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-                st.session_state.top_articles = filtered_articles[:10]
-                knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-                st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
-                prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                
-                # Using Groq API to generate response with LLaMA 3.1 model
-                
-                
-
+            # Handle Llama 3.1 model selection
+            elif model_selection == "Llama 3.1":
                 try:
                     chat_completion = groq_client.chat.completions.create(
                         messages=[
                             {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
                             {"role": "user", "content": prompt}
                         ],
-                        model="llama-3.1-70b-versatile"  
+                        model="llama-3.1-70b-versatile"
                     )
+
+                    if chat_completion.choices:
+                        ai_message = chat_completion.choices[0].message.content
+                        st.session_state['last_question'] = user_query
+                        st.session_state['last_answer_llama'] = ai_message
+                    else:
+                        ai_message = st.session_state.get('last_answer_llama', '')
                 except groq.InternalServerError as e:
                     st.error("An internal server error occurred with the Groq API. Please try again later.")
                     st.write(f"Error details: {e}")
-                    return  # Or handle it accordingly
+                    ai_message = st.session_state.get('last_answer_llama', '')
+
+            else:
+                ai_message = ''
+
+            # Display response
+            if ai_message:
+                st.subheader("Antwort subsumary:")
+                st.write(ai_message)
+
+        # Handle the case where there's no user query
+        else:
+            if model_selection == "GPT 4o":
+                ai_message = st.session_state.get('last_answer_gpt4o', '')
+            elif model_selection == "Llama 3.1":
+                ai_message = st.session_state.get('last_answer_llama', '')
+            else:
+                ai_message = ''
+
+            if ai_message:
+                st.subheader("Antwort subsumary:")
+                st.write(ai_message)
+
+with col2:
+    if st.button("Prompt generierelen und in die Zwischenablage kopieren"):
+        # Your clipboard logic here
+        pass
+
+    # with col1:
+    #     model_selection = st.radio("Mit einem Sprachmodell beantworten", ["GPT 4o", "Llama 3.1"])
+    #     if model_selection == "GPT 4o":
+    #        if user_query:
+    #             query_vector = get_embeddings(user_query)
+    #             similarities = calculate_similarities(query_vector, article_embeddings)
+                
+    #             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+    #             filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
+    #             st.session_state.top_articles = filtered_articles[:10]
+    #             knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
+    #             st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
+    #             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+    #             response = openai_client.chat.completions.create(
+    #                 model="gpt-4o-2024-08-06",
+    #                 messages=[
+    #                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+    #                     {"role": "user", "content": prompt}
+    #                 ]
+    #             )
+        
+    #                 # Display the response from OpenAI
+    #             if response.choices:
+    #                 ai_message = response.choices[0].message.content  # Corrected attribute access
+    #                 st.session_state['last_question'] = user_query
+    #                 st.session_state['last_answer_gpt4o'] = ai_message
+    #     else:
+    #         ai_message = st.session_state['last_answer_gpt4o']
+    #     if st.session_state['last_answer_gpt4o']:
+    #         st.subheader("Antwort subsumary:")
+    #         st.write(st.session_state['last_answer_gpt4o'])            
+
+    #     if model_selection == "Llama 3.1":
+    #         if user_query:
+    #             query_vector = get_embeddings(user_query)
+    #             similarities = calculate_similarities(query_vector, article_embeddings)
+    
+    #             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+    #             filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
+    #             st.session_state.top_articles = filtered_articles[:10]
+    #             knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
+    #             st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
+    #             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+                
+    #             # Using Groq API to generate response with LLaMA 3.1 model
+                
+                
+
+    #             try:
+    #                 chat_completion = groq_client.chat.completions.create(
+    #                     messages=[
+    #                         {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+    #                         {"role": "user", "content": prompt}
+    #                     ],
+    #                     model="llama-3.1-70b-versatile"  
+    #                 )
+    #             except groq.InternalServerError as e:
+    #                 st.error("An internal server error occurred with the Groq API. Please try again later.")
+    #                 st.write(f"Error details: {e}")
+    #                 return  # Or handle it accordingly
 
    
-                if chat_completion.choices:
-                    ai_message = chat_completion.choices[0].message.content  # Corrected access
-                    st.session_state['last_question'] = user_query
-                    st.session_state['last_answer'] = ai_message
-                else:
-                    ai_message = st.session_state['last_answer']
+    #             if chat_completion.choices:
+    #                 ai_message = chat_completion.choices[0].message.content  # Corrected access
+    #                 st.session_state['last_question'] = user_query
+    #                 st.session_state['last_answer'] = ai_message
+    #             else:
+    #                 ai_message = st.session_state['last_answer']
 
-            else:
-                ai_message = st.session_state['last_answer']
-                # Extract and display the response content
-            if chat_completion.choices:
-                ai_message = chat_completion.choices[0].message.content
-                st.session_state['last_question'] = user_query
-                st.session_state['last_answer'] = ai_message
-            else:
-                ai_message = st.session_state['last_answer']
+    #         else:
+    #             ai_message = st.session_state['last_answer']
+    #             # Extract and display the response content
+    #         if chat_completion.choices:
+    #             ai_message = chat_completion.choices[0].message.content
+    #             st.session_state['last_question'] = user_query
+    #             st.session_state['last_answer'] = ai_message
+    #         else:
+    #             ai_message = st.session_state['last_answer']
             
-            if st.session_state['last_answer']:
-                st.subheader("Antwort subsumary:")
-                st.write(st.session_state['last_answer'])
+    #         if st.session_state['last_answer']:
+    #             st.subheader("Antwort subsumary:")
+    #             st.write(st.session_state['last_answer'])
 
 
     with col2:
