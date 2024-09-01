@@ -506,10 +506,7 @@ def main_app():
                     st.subheader("Antwort subsumary:")
                     st.write(ai_message)
 
-    with col2:
-        if st.button("Prompt generierelen und in die Zwischenablage kopieren"):
-            # Your clipboard logic here
-            pass
+
 
     # with col1:
     #     model_selection = st.radio("Mit einem Sprachmodell beantworten", ["GPT 4o", "Llama 3.1"])
