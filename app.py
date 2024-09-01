@@ -37,22 +37,45 @@ bucket_name = "data_embeddings_ask"
 file1_path = "article_embeddings.json"
 file2_path = "knowledge_base_embeddings.json"  # Adjust this based on your file structure
 
-def load_json_from_gcs(bucket_name, file_path):
+# def load_json_from_gcs(bucket_name, file_path):
+#     try:
+#         bucket = client.get_bucket(bucket_name)
+#         blob = bucket.blob(file_path)
+#         file_content = blob.download_as_text()  # Download the content as text
+#         return json.loads(file_content)  # Parse the JSON content into a dictionary
+#     except Exception as e:
+#         st.error(f"Failed to load or parse {file_path} from GCS: {e}")
+#         st.stop()
+
+
+import numpy as np
+
+def load_json_from_gcs_as_numpy(bucket_name, file_path):
     try:
+        # Load JSON from Google Cloud Storage
         bucket = client.get_bucket(bucket_name)
         blob = bucket.blob(file_path)
         file_content = blob.download_as_text()  # Download the content as text
-        return json.loads(file_content)  # Parse the JSON content into a dictionary
+        data_dict = json.loads(file_content)  # Parse the JSON content into a dictionary
+        
+        # Convert dictionary values (embeddings) to NumPy arrays
+        numpy_data_dict = {key: np.array(value, dtype=np.float32) for key, value in data_dict.items()}
+        
+        return numpy_data_dict
+    
     except Exception as e:
         st.error(f"Failed to load or parse {file_path} from GCS: {e}")
         st.stop()
 
-# Load the first JSON file into a dictionary
-article_embeddings = load_json_from_gcs(bucket_name, file1_path)
 
-# Load the second JSON file into a dictionary (ensure the correct path)
-knowledge_base_embeddings = load_json_from_gcs(bucket_name, file2_path)
+# # Load the first JSON file into a dictionary
+# article_embeddings = load_json_from_gcs(bucket_name, file1_path)
 
+# # Load the second JSON file into a dictionary (ensure the correct path)
+# knowledge_base_embeddings = load_json_from_gcs(bucket_name, file2_path)
+
+article_embeddings = load_json_from_gcs_as_numpy(bucket_name, file1_path)
+knowledge_base_embeddings = load_json_from_gcs_as_numpy(bucket_name, file2_path)
     
 # Mapping for relevance criteria
 relevance_mapping = {
@@ -179,8 +202,6 @@ def is_relevant_article(section_data, relevance):
     
     return is_relevant
 
-    
-
 def get_relevant_articles(law_data, relevance):
     relevant_articles = {}
     for section, section_data in law_data.items():
@@ -188,17 +209,31 @@ def get_relevant_articles(law_data, relevance):
             relevant_articles[section] = section_data
     return relevant_articles
 
-def calculate_similarities(query_vector, article_embeddings):
-    query_vector = np.array(query_vector).reshape(1, -1)
-    similarities = {}
+# def calculate_similarities(query_vector, article_embeddings):
+#     query_vector = np.array(query_vector).reshape(1, -1)
+#     similarities = {}
     
+#     for title, article_vector in article_embeddings.items():
+#         try:
+#             article_vector = np.asarray(article_vector, dtype=np.float32).reshape(1, -1)
+#             similarity = cosine_similarity(query_vector, article_vector)[0][0]
+#             similarities[title] = similarity
+#         except TypeError as e:
+#             print(f"Error processing article '{title}': {e}")
+#     print("Calculated similarities for", len(similarities), "articles.")    
+#     return similarities
+
+
+def calculate_similarities(query_vector, article_embeddings):
+    # Convert the query vector to a NumPy array and ensure it's a 2D array
+    query_vector = np.array(query_vector, dtype=np.float32).reshape(1, -1)
+    similarities = {}
+
     for title, article_vector in article_embeddings.items():
-        try:
-            article_vector = np.asarray(article_vector, dtype=np.float32).reshape(1, -1)
-            similarity = cosine_similarity(query_vector, article_vector)[0][0]
-            similarities[title] = similarity
-        except TypeError as e:
-            print(f"Error processing article '{title}': {e}")
+        # Directly use the NumPy array for the article vector
+        similarity = cosine_similarity(query_vector, article_vector.reshape(1, -1))[0][0]
+        similarities[title] = similarity
+
     print("Calculated similarities for", len(similarities), "articles.")    
     return similarities
 
@@ -512,92 +547,6 @@ def main_app():
         elif st.session_state['last_answer']:
             st.subheader(f"Last Antwort subsumary ({st.session_state['last_model']}):")
             st.write(st.session_state['last_answer'])
-
-
-
-    # with col1:
-    #     model_selection = st.radio("Mit einem Sprachmodell beantworten", ["GPT 4o", "Llama 3.1"])
-    #     if model_selection == "GPT 4o":
-    #        if user_query:
-    #             query_vector = get_embeddings(user_query)
-    #             similarities = calculate_similarities(query_vector, article_embeddings)
-                
-    #             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-    #             filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-    #             st.session_state.top_articles = filtered_articles[:10]
-    #             knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-    #             st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
-    #             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-    #             response = openai_client.chat.completions.create(
-    #                 model="gpt-4o-2024-08-06",
-    #                 messages=[
-    #                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-    #                     {"role": "user", "content": prompt}
-    #                 ]
-    #             )
-        
-    #                 # Display the response from OpenAI
-    #             if response.choices:
-    #                 ai_message = response.choices[0].message.content  # Corrected attribute access
-    #                 st.session_state['last_question'] = user_query
-    #                 st.session_state['last_answer_gpt4o'] = ai_message
-    #     else:
-    #         ai_message = st.session_state['last_answer_gpt4o']
-    #     if st.session_state['last_answer_gpt4o']:
-    #         st.subheader("Antwort subsumary:")
-    #         st.write(st.session_state['last_answer_gpt4o'])            
-
-    #     if model_selection == "Llama 3.1":
-    #         if user_query:
-    #             query_vector = get_embeddings(user_query)
-    #             similarities = calculate_similarities(query_vector, article_embeddings)
-    
-    #             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-    #             filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-    #             st.session_state.top_articles = filtered_articles[:10]
-    #             knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-    #             st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
-    #             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                
-    #             # Using Groq API to generate response with LLaMA 3.1 model
-                
-                
-
-    #             try:
-    #                 chat_completion = groq_client.chat.completions.create(
-    #                     messages=[
-    #                         {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-    #                         {"role": "user", "content": prompt}
-    #                     ],
-    #                     model="llama-3.1-70b-versatile"  
-    #                 )
-    #             except groq.InternalServerError as e:
-    #                 st.error("An internal server error occurred with the Groq API. Please try again later.")
-    #                 st.write(f"Error details: {e}")
-    #                 return  # Or handle it accordingly
-
-   
-    #             if chat_completion.choices:
-    #                 ai_message = chat_completion.choices[0].message.content  # Corrected access
-    #                 st.session_state['last_question'] = user_query
-    #                 st.session_state['last_answer'] = ai_message
-    #             else:
-    #                 ai_message = st.session_state['last_answer']
-
-    #         else:
-    #             ai_message = st.session_state['last_answer']
-    #             # Extract and display the response content
-    #         if chat_completion.choices:
-    #             ai_message = chat_completion.choices[0].message.content
-    #             st.session_state['last_question'] = user_query
-    #             st.session_state['last_answer'] = ai_message
-    #         else:
-    #             ai_message = st.session_state['last_answer']
-            
-    #         if st.session_state['last_answer']:
-    #             st.subheader("Antwort subsumary:")
-    #             st.write(st.session_state['last_answer'])
-
 
     with col2:
              
