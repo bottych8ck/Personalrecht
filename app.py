@@ -474,12 +474,15 @@ def main_app():
                             model="llama-3.1-70b-versatile"
                         )
     
-                        if chat_completion.choices:
+                        if chat_completion.choices and len(chat_completion.choices) > 0:
                             ai_message = chat_completion.choices[0].message.content
                             st.session_state['last_question'] = user_query
                             st.session_state['last_answer_llama'] = ai_message
+                            st.write("Antwort erhalten")
                         else:
                             ai_message = st.session_state.get('last_answer_llama', '')
+
+                   
                     except groq.InternalServerError as e:
                         st.error("An internal server error occurred with the Groq API. Please try again later.")
                         st.write(f"Error details: {e}")
