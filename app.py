@@ -419,6 +419,14 @@ def main_app():
     col1, col2 = st.columns(2)
 
     with col1:
+        if 'last_answer' not in st.session_state:
+            st.session_state['last_answer'] = ""
+        if 'last_model' not in st.session_state:
+            st.session_state['last_model'] = ""
+        if 'show_model_selection' not in st.session_state:
+            st.session_state['show_model_selection'] = False
+        if 'selected_model' not in st.session_state:
+            st.session_state['selected_model'] = None
         # Button to start the process
         if st.button("Antwort mit Sprachmodell"):
             st.session_state['show_model_selection'] = True
