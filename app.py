@@ -209,30 +209,42 @@ def get_relevant_articles(law_data, relevance):
             relevant_articles[section] = section_data
     return relevant_articles
 
-# def calculate_similarities(query_vector, article_embeddings):
-#     query_vector = np.array(query_vector).reshape(1, -1)
-#     similarities = {}
-    
-#     for title, article_vector in article_embeddings.items():
-#         try:
-#             article_vector = np.asarray(article_vector, dtype=np.float32).reshape(1, -1)
-#             similarity = cosine_similarity(query_vector, article_vector)[0][0]
-#             similarities[title] = similarity
-#         except TypeError as e:
-#             print(f"Error processing article '{title}': {e}")
-#     print("Calculated similarities for", len(similarities), "articles.")    
-#     return similarities
 
+# Funktion mit numpy
+# def calculate_similarities(query_vector, article_embeddings):
+#     # Convert the query vector to a NumPy array and ensure it's a 2D array
+#     query_vector = np.array(query_vector, dtype=np.float32).reshape(1, -1)
+#     similarities = {}
+
+#     for title, article_vector in article_embeddings.items():
+#         # Directly use the NumPy array for the article vector
+#         similarity = cosine_similarity(query_vector, article_vector.reshape(1, -1))[0][0]
+#         similarities[title] = similarity
 
 def calculate_similarities(query_vector, article_embeddings):
-    # Convert the query vector to a NumPy array and ensure it's a 2D array
-    query_vector = np.array(query_vector, dtype=np.float32).reshape(1, -1)
-    similarities = {}
+# Convert the query vector to a NumPy array and ensure it's a 2D array
+query_vector = np.array(query_vector, dtype=np.float32).reshape(1, -1)
 
-    for title, article_vector in article_embeddings.items():
-        # Directly use the NumPy array for the article vector
-        similarity = cosine_similarity(query_vector, article_vector.reshape(1, -1))[0][0]
-        similarities[title] = similarity
+# Stack all article vectors into a single NumPy array for batch processing
+all_article_vectors = np.stack(list(article_embeddings.values()))
+
+# Compute cosine similarity in a vectorized manner
+# Normalize the vectors
+query_norm = np.linalg.norm(query_vector)
+article_norms = np.linalg.norm(all_article_vectors, axis=1)
+
+# Dot product between query and all article vectors
+dot_products = np.dot(all_article_vectors, query_vector.T).flatten()
+
+# Compute cosine similarities
+similarities = dot_products / (query_norm * article_norms)
+
+# Create a dictionary to store the results
+similarity_dict = dict(zip(article_embeddings.keys(), similarities))
+
+print("Calculated similarities for", len(similarity_dict), "articles.")    
+return similarity_dict
+
 
     print("Calculated similarities for", len(similarities), "articles.")    
     return similarities
