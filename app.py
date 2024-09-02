@@ -19,7 +19,7 @@ client = secretmanager.SecretManagerServiceClient()
 
 def get_secret(name):
     # Access the secret version
-    project_id = "your-google-cloud-project-id"
+    project_id = "law-data-for-ask-the-tellist"
     secret_name = name
     resource_name = f"projects/{project_id}/secrets/{secret_name}/versions/latest"
     response = client.access_secret_version(request={"name": resource_name})
