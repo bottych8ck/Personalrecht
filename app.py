@@ -23,16 +23,36 @@ def get_secret(name):
     secret_name = name
     resource_name = f"projects/{project_id}/secrets/{secret_name}/versions/latest"
     response = client.access_secret_version(request={"name": resource_name})
-    return response.payload.data.decode('UTF-8')
+    return response.payload.data.decode('UTF-8', errors='replace')  # Replace undecodable characters
 
-openai_api_key = get_secret('OPENAI_API_KEY')
+def get_environment_or_secret(name):
+    # First, try to get the secret from environment variables
+    secret = os.getenv(name)
+    if not secret:
+        # If the environment variable is not set, get it from the Secret Manager
+        secret = get_secret(name)
+    return secret
+
+# Get API keys and credentials
+openai_api_key = get_environment_or_secret('OPENAI_API_KEY')
+groq_api_key = get_environment_or_secret('GROQ_API_KEY')
+google_credentials_json = get_environment_or_secret('GOOGLE_APPLICATION_CREDENTIALS_JSON')
+
 openai_client = openai.OpenAI(api_key=openai_api_key)
-
-groq_api_key = get_secret('GROQ_API_KEY')
 groq_client = Groq(api_key=groq_api_key)
 
-google_credentials_json = get_secret("GOOGLE_APPLICATION_CREDENTIALS_JSON")
 google_credentials = json.loads(google_credentials_json)
+credentials = service_account.Credentials.from_service_account_info(google_credentials)
+client = storage.Client(credentials=credentials)
+
+#openai_api_key = get_secret('OPENAI_API_KEY')
+#openai_client = openai.OpenAI(api_key=openai_api_key)
+
+#groq_api_key = get_secret('GROQ_API_KEY')
+#groq_client = Groq(api_key=groq_api_key)
+
+#google_credentials_json = get_secret("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+#google_credentials = json.loads(google_credentials_json)
 
 # Initialize the Google Cloud Storage client using the credentials
 credentials = service_account.Credentials.from_service_account_info(google_credentials)
@@ -107,11 +127,13 @@ reverse_tags_mapping = {
 
 
     
-with open('law_data.json', 'r') as file:
+with open('law_data.json', 'r', encoding='utf-8', errors='replace') as file:
     law_data = json.load(file)
 
-with open('knowledge_base.json', 'r') as file:
+
+with open('knowledge_base.json', 'r', encoding='utf-8', errors='replace') as file:
     knowledge_base = json.load(file)
+
 
 for item_id, item in knowledge_base.items():
     content = item.get("Content", "")
@@ -230,31 +252,30 @@ def get_relevant_articles(law_data, relevance):
 
 def calculate_similarities(query_vector, article_embeddings):
 # Convert the query vector to a NumPy array and ensure it's a 2D array
-query_vector = np.array(query_vector, dtype=np.float32).reshape(1, -1)
+    query_vector = np.array(query_vector, dtype=np.float32).reshape(1, -1)
 
-# Stack all article vectors into a single NumPy array for batch processing
-all_article_vectors = np.stack(list(article_embeddings.values()))
+    # Stack all article vectors into a single NumPy array for batch processing
+    all_article_vectors = np.stack(list(article_embeddings.values()))
 
-# Compute cosine similarity in a vectorized manner
-# Normalize the vectors
-query_norm = np.linalg.norm(query_vector)
-article_norms = np.linalg.norm(all_article_vectors, axis=1)
+    # Compute cosine similarity in a vectorized manner
+    # Normalize the vectors
+    query_norm = np.linalg.norm(query_vector)
+    article_norms = np.linalg.norm(all_article_vectors, axis=1)
 
-# Dot product between query and all article vectors
-dot_products = np.dot(all_article_vectors, query_vector.T).flatten()
+    # Dot product between query and all article vectors
+    dot_products = np.dot(all_article_vectors, query_vector.T).flatten()
 
-# Compute cosine similarities
-similarities = dot_products / (query_norm * article_norms)
+    # Compute cosine similarities
+    similarities = dot_products / (query_norm * article_norms)
 
-# Create a dictionary to store the results
-similarity_dict = dict(zip(article_embeddings.keys(), similarities))
+    # Create a dictionary to store the results
+    similarity_dict = dict(zip(article_embeddings.keys(), similarities))
 
-print("Calculated similarities for", len(similarity_dict), "articles.")    
-return similarity_dict
+    print("Calculated similarities for", len(similarity_dict), "articles.")    
+    return similarity_dict
 
 
-    print("Calculated similarities for", len(similarities), "articles.")    
-    return similarities
+
 
 def get_article_content(uid, law_data):
     # Fetch the article information using the UID
