@@ -11,9 +11,6 @@ import base64
 import requests
 from google.cloud import storage
 from google.oauth2 import service_account  # Ensure this import is included
-from st_files_connection import FilesConnection
-import streamlit as st
-from st_files_connection import FilesConnection
 import json
 from groq import Groq
 
