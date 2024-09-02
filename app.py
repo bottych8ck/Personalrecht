@@ -31,10 +31,6 @@ openai_client = openai.OpenAI(api_key=openai_api_key)
 groq_api_key = get_secret('GROQ_API_KEY')
 groq_client = Groq(api_key=groq_api_key)
 
-
-google_credentials_json = st.secrets["GOOGLE_APPLICATION_CREDENTIALS_JSON"]
-google_credentials = dict(google_credentials_json)  # Convert to dict
-
 google_credentials_json = get_secret("GOOGLE_APPLICATION_CREDENTIALS_JSON")
 google_credentials = json.loads(google_credentials_json)
 
