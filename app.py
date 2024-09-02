@@ -13,21 +13,35 @@ from google.cloud import storage
 from google.oauth2 import service_account  # Ensure this import is included
 import json
 from groq import Groq
+from google.cloud import secretmanager
 
-openai_api_key = os.getenv('OPENAI_API_KEY')
+client = secretmanager.SecretManagerServiceClient()
+
+def get_secret(name):
+    # Access the secret version
+    project_id = "your-google-cloud-project-id"
+    secret_name = name
+    resource_name = f"projects/{project_id}/secrets/{secret_name}/versions/latest"
+    response = client.access_secret_version(request={"name": resource_name})
+    return response.payload.data.decode('UTF-8')
+
+openai_api_key = get_secret('OPENAI_API_KEY')
 openai_client = openai.OpenAI(api_key=openai_api_key)
 
-# Initialize Groq client
-groq_api_key = os.getenv('GROQ_API_KEY')
+groq_api_key = get_secret('GROQ_API_KEY')
 groq_client = Groq(api_key=groq_api_key)
-    
+
 
 google_credentials_json = st.secrets["GOOGLE_APPLICATION_CREDENTIALS_JSON"]
 google_credentials = dict(google_credentials_json)  # Convert to dict
 
+google_credentials_json = get_secret("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+google_credentials = json.loads(google_credentials_json)
+
 # Initialize the Google Cloud Storage client using the credentials
 credentials = service_account.Credentials.from_service_account_info(google_credentials)
 client = storage.Client(credentials=credentials)
+
 
 ## Define your bucket and file paths
 bucket_name = "data_embeddings_ask"
