@@ -18,7 +18,7 @@ from google.cloud import secretmanager
 client = secretmanager.SecretManagerServiceClient()
 
 def get_secret(name):
-    # Access the secret version
+# Access the secret version
     project_id = "law-data-for-ask-the-tellist"
     secret_name = name
     resource_name = f"projects/{project_id}/secrets/{secret_name}/versions/latest"
@@ -45,16 +45,7 @@ google_credentials = json.loads(google_credentials_json)
 credentials = service_account.Credentials.from_service_account_info(google_credentials)
 client = storage.Client(credentials=credentials)
 
-#openai_api_key = get_secret('OPENAI_API_KEY')
-#openai_client = openai.OpenAI(api_key=openai_api_key)
 
-#groq_api_key = get_secret('GROQ_API_KEY')
-#groq_client = Groq(api_key=groq_api_key)
-
-#google_credentials_json = get_secret("GOOGLE_APPLICATION_CREDENTIALS_JSON")
-#google_credentials = json.loads(google_credentials_json)
-
-# Initialize the Google Cloud Storage client using the credentials
 credentials = service_account.Credentials.from_service_account_info(google_credentials)
 client = storage.Client(credentials=credentials)
 
@@ -63,19 +54,6 @@ client = storage.Client(credentials=credentials)
 bucket_name = "data_embeddings_ask"
 file1_path = "article_embeddings.json"
 file2_path = "knowledge_base_embeddings.json"  # Adjust this based on your file structure
-
-# def load_json_from_gcs(bucket_name, file_path):
-#     try:
-#         bucket = client.get_bucket(bucket_name)
-#         blob = bucket.blob(file_path)
-#         file_content = blob.download_as_text()  # Download the content as text
-#         return json.loads(file_content)  # Parse the JSON content into a dictionary
-#     except Exception as e:
-#         st.error(f"Failed to load or parse {file_path} from GCS: {e}")
-#         st.stop()
-
-
-import numpy as np
 
 def load_json_from_gcs_as_numpy(bucket_name, file_path):
     try:
@@ -113,15 +91,15 @@ relevance_mapping = {
 tags_mapping = {
     "directly applicable: Staatspersonal": "Staatspersonal",
     "indirectly applicable: Staatspersonal": "Staatspersonal",
-    "directly applicable: Lehrperson VS": "Lehrperson VS",
-    "indirectly applicable: Lehrperson VS": "Lehrperson VS",
+    "directly applicable: Lehrperson VS": "Schulrecht / Lehrperson VS",
+    "indirectly applicable: Lehrperson VS": "Schulrecht / Lehrperson VS",
     "directly applicable: Lehrperson Sek II": "Lehrperson Sek II",
     "indirectly applicable: Lehrperson Sek II": "Lehrperson Sek II"
 }
 
 reverse_tags_mapping = {
     "Staatspersonal": ["directly applicable: Staatspersonal", "indirectly applicable: Staatspersonal"],
-    "Lehrperson VS": ["directly applicable: Lehrperson VS", "indirectly applicable: Lehrperson VS"],
+    "Schulrecht / Lehrperson VS": ["directly applicable: Lehrperson VS", "indirectly applicable: Lehrperson VS"],
     "Lehrperson Sek II": ["directly applicable: Lehrperson Sek II", "indirectly applicable: Lehrperson Sek II"]
 }
 
@@ -217,17 +195,29 @@ def get_embeddings(text):
     res = openai_client.embeddings.create(input=[text], model="text-embedding-ada-002")
     return res.data[0].embedding
 
-def is_relevant_article(section_data, relevance):
-    normalized_relevance = relevance.lower().replace("sek ii", "SEK II")
+#def is_relevant_article(section_data, relevance):
+ #   normalized_relevance = relevance.lower().replace("sek ii", "SEK II")
     
     # Try to get "Tags" first (for knowledge_base), fallback to "tags" (for law_data) if not found
-    tags = section_data.get("Tags", section_data.get("tags", []))
-    normalized_tags = [tag.lower().replace("sek ii", "SEK II") for tag in tags]
+  #  tags = section_data.get("Tags", section_data.get("tags", []))
+   # normalized_tags = [tag.lower().replace("sek ii", "SEK II") for tag in tags]
     
-    relevance_criteria = normalized_relevance  # Direct use of normalized_relevance ensures we're checking against the correct criteria
+    #relevance_criteria = normalized_relevance  # Direct use of normalized_relevance ensures we're checking against the correct criteria
     
     # Check if any of the normalized tags match the normalized relevance criteria
-    is_relevant = any(relevance_criteria in tag for tag in normalized_tags)
+   # is_relevant = any(relevance_criteria in tag for tag in normalized_tags)
+    
+    #return is_relevant
+
+def is_relevant_article(section_data, relevance):
+    # Retrieve the tags from the section data
+    tags = section_data.get("Tags", section_data.get("tags", []))
+
+    # Get the list of relevant tags for the selected relevance
+    relevant_tags = reverse_tags_mapping.get(relevance, [relevance])
+
+    # Check if any of the article's tags are in the list of relevant tags
+    is_relevant = any(tag in relevant_tags for tag in tags)
     
     return is_relevant
 
@@ -239,16 +229,6 @@ def get_relevant_articles(law_data, relevance):
     return relevant_articles
 
 
-# Funktion mit numpy
-# def calculate_similarities(query_vector, article_embeddings):
-#     # Convert the query vector to a NumPy array and ensure it's a 2D array
-#     query_vector = np.array(query_vector, dtype=np.float32).reshape(1, -1)
-#     similarities = {}
-
-#     for title, article_vector in article_embeddings.items():
-#         # Directly use the NumPy array for the article vector
-#         similarity = cosine_similarity(query_vector, article_vector.reshape(1, -1))[0][0]
-#         similarities[title] = similarity
 
 def calculate_similarities(query_vector, article_embeddings):
 # Convert the query vector to a NumPy array and ensure it's a 2D array
@@ -339,7 +319,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
         content = ' '.join(item.get("Content", []))
         prompt += f"- {title}: {content}\n"
 
-   
+
     prompt += "Anfrage auf Deutsch beantworten. Prüfe die  Anwendbarkeit der einzelnen § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, vergiss ihn.\n"
     prompt += "Mache nach der Antwort ein Fazit und erwähne dort die relevanten § mitsamt dem Erlassnahmen \n"
 
@@ -372,8 +352,8 @@ def main_app():
 
     user_query = st.text_area("Hier Ihre Frage eingeben:", height=200, key="user_query_text_area")
 
-    relevance_options = ["Staatspersonal", "Lehrperson VS", "Lehrperson Sek II"]
-    relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Staatspersonal, Lehrpersonen der Volksschule oder Lehrpersonen der Berufsfach- und Mittelschulen bezieht:", relevance_options)
+    relevance_options = ["Schulrecht / Lehrperson VS", "Staatspersonal", "Lehrperson Sek II"]
+    relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Schulrecht oder Lehrpersonen der Volksschule, auf Staatspersonal oder Lehrpersonen der Berufsfach- und Mittelschulen bezieht:", relevance_options)
 
     if 'top_articles' not in st.session_state:
         st.session_state.top_articles = []
@@ -589,7 +569,7 @@ def main_app():
             st.write(st.session_state['last_answer'])
 
     with col2:
-             
+            
         if st.button("Prompt generierelen und in die Zwischenablage kopieren"):
             if user_query and st.session_state.top_articles:
                 # Generate the prompt
@@ -608,4 +588,3 @@ def main_app():
 
 if __name__ == "__main__":
     main_app()
-
