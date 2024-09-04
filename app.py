@@ -73,12 +73,6 @@ def load_json_from_gcs_as_numpy(bucket_name, file_path):
         st.stop()
 
 
-# # Load the first JSON file into a dictionary
-# article_embeddings = load_json_from_gcs(bucket_name, file1_path)
-
-# # Load the second JSON file into a dictionary (ensure the correct path)
-# knowledge_base_embeddings = load_json_from_gcs(bucket_name, file2_path)
-
 article_embeddings = load_json_from_gcs_as_numpy(bucket_name, file1_path)
 knowledge_base_embeddings = load_json_from_gcs_as_numpy(bucket_name, file2_path)
     
@@ -123,74 +117,6 @@ load_dotenv()  # This line loads the variables from .env
 logo_path = 'subsumary_Logo_1farbig_schwarz.png'
 
 
-def update_file_in_github(file_path, content, commit_message="Update file"):
-    repo_owner = os.getenv('GITHUB_REPO_OWNER')
-    repo_name = os.getenv('GITHUB_REPO_NAME')
-    token = os.getenv('GITHUB_TOKEN')
-    branch_name = os.getenv('GITHUB_BRANCH', 'learningsubsumary')  # Assuming 'learningsubsumary' is the branch name
-
-    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{file_path}?ref={branch_name}"
-    headers = {
-        "Authorization": f"token {token}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-
-    # Get the current file SHA
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    sha = response.json()["sha"]
-
-    # Prepare the data to update the file
-    data = {
-        "message": commit_message,
-        "content": base64.b64encode(content.encode('utf-8')).decode('utf-8'),
-        "sha": sha,
-        "branch": branch_name
-    }
-
-    # Update the file
-    response = requests.put(url, headers=headers, json=data)
-    response.raise_for_status()
-    return response.json()
-
-def update_knowledge_base_local(new_data):
-    update_file_in_github('knowledge_base.json', json.dumps(new_data, indent=4, ensure_ascii=False))
-    st.success("Knowledge base updated in GitHub.")
-
-def update_knowledge_base_embeddings_local(new_embeddings):
-    update_file_in_github('knowledge_base_embeddings.json', json.dumps(new_embeddings, indent=4, ensure_ascii=False))
-    st.success("Knowledge base embeddings updated in GitHub.")
-
-def add_to_knowledge_base(title, content, category, tags):
-    if knowledge_base:
-        max_id = max(int(k) for k in knowledge_base.keys())
-    else:
-        max_id = 0
-    new_id = str(max_id + 1)
-    knowledge_base[new_id] = {
-        "Title": title,
-        "Content": [content],
-        "Category": category,
-        "Tags": tags  # Ensure tags are stored as a flat list
-    }
-    update_knowledge_base_local(knowledge_base)
-    
-    # Create and store the embedding
-    embedding = get_embeddings(content)
-    knowledge_base_embeddings[new_id] = embedding
-    update_knowledge_base_embeddings_local(knowledge_base_embeddings)
-
-def delete_from_knowledge_base(entry_id):
-    if entry_id in knowledge_base:
-        del knowledge_base[entry_id]
-        if entry_id in knowledge_base_embeddings:
-            del knowledge_base_embeddings[entry_id]
-        update_knowledge_base_local(knowledge_base)
-        update_knowledge_base_embeddings_local(knowledge_base_embeddings)
-        st.success(f"Entry {entry_id} successfully deleted.")
-    else:
-        st.error(f"Entry {entry_id} not found.")
-
 def get_embeddings(text):
     res = openai_client.embeddings.create(input=[text], model="text-embedding-ada-002")
     return res.data[0].embedding
@@ -208,27 +134,12 @@ def is_relevant_article(section_data, relevance):
     
     return is_relevant
 
-# def is_relevant_article(section_data, relevance):
-#     normalized_relevance = relevance.lower().replace("sek ii", "SEK II")
-    
-#     # Try to get "Tags" first (for knowledge_base), fallback to "tags" (for law_data) if not found
-#     tags = section_data.get("Tags", section_data.get("tags", []))
-#     normalized_tags = [tag.lower().replace("sek ii", "SEK II") for tag in tags]
-    
-#     relevance_criteria = normalized_relevance  # Direct use of normalized_relevance ensures we're checking against the correct criteria
-    
-#     # Check if any of the normalized tags match the normalized relevance criteria
-#     is_relevant = any(relevance_criteria in tag for tag in normalized_tags)
-    
-#     return is_relevant
-
 def get_relevant_articles(law_data, relevance):
     relevant_articles = {}
     for section, section_data in law_data.items():
         if is_relevant_article(section_data, relevance):
             relevant_articles[section] = section_data
     return relevant_articles
-
 
 
 def calculate_similarities(query_vector, article_embeddings):
@@ -301,7 +212,7 @@ def generate_html_with_js(prompt):
 def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
     prompt = f"Beantworte folgende Frage: \"{user_query}\"\n\n"
     prompt += "Beantworte die Frage nur gestützt auf einen oder mehrere der folgenden §. Prüfe zuerst, ob der § überhaupt auf die Frage anwendbar ist. Wenn er nicht anwendbar ist, vergiss den §.\n"
-    prompt += f"{relevance_mapping.get(relevance, 'Die Frage ist allgemein.')} \n\n"
+    prompt += f"{relevance_mapping.get(relevance, '')} \n\n"
     article_number = 1
     
     for uid, _ in top_articles:
@@ -322,33 +233,43 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
 
 
     prompt += "Anfrage auf Deutsch beantworten. Prüfe die  Anwendbarkeit der einzelnen § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, vergiss ihn.\n"
-    prompt += "Mache nach der Antwort ein Fazit und erwähne dort die relevanten § mitsamt dem Erlassnahmen \n"
+    prompt += "Mache nach der Antwort ein Fazit. \n"
 
     return prompt
 
 
 
 def main_app():
-    st.image(logo_path, width=400)
-    st.subheader("Abfrage des Thurgauer Schul- und Personalrecht und der Telefonliste des Rechtsdiensts")
+    # st.image(logo_path, width=400)
+    # st.subheader("Abfrage des Thurgauer Schul- und Personalrecht und der Telefonliste des Rechtsdiensts")
+    # if 'last_question' not in st.session_state:
+    #     st.session_state['last_question'] = ""
+    # if 'last_answer' not in st.session_state:
+    #     st.session_state['last_answer'] = None
+    # if 'last_answer_gpt4o' not in st.session_state:
+    #     st.session_state['last_answer_gpt4o'] = None
+    # if 'top_articles' not in st.session_state:
+    #     st.session_state['top_articles'] = []
+    # if 'top_knowledge_items' not in st.session_state:
+    #     st.session_state['top_knowledge_items'] = []
+    # if 'prompt' not in st.session_state:
+    #     st.session_state['prompt'] = ""
+    # if 'submitted' not in st.session_state:
+    #     st.session_state['submitted'] = False
+    # if 'show_form' not in st.session_state:
+    #     st.session_state['show_form'] = False
+    # if 'delete_form' not in st.session_state:
+    #     st.session_state['delete_form'] = False
     if 'last_question' not in st.session_state:
         st.session_state['last_question'] = ""
     if 'last_answer' not in st.session_state:
         st.session_state['last_answer'] = None
-    if 'last_answer_gpt4o' not in st.session_state:
-        st.session_state['last_answer_gpt4o'] = None
     if 'top_articles' not in st.session_state:
         st.session_state['top_articles'] = []
     if 'top_knowledge_items' not in st.session_state:
         st.session_state['top_knowledge_items'] = []
-    if 'prompt' not in st.session_state:
-        st.session_state['prompt'] = ""
-    if 'submitted' not in st.session_state:
-        st.session_state['submitted'] = False
-    if 'show_form' not in st.session_state:
-        st.session_state['show_form'] = False
-    if 'delete_form' not in st.session_state:
-        st.session_state['delete_form'] = False
+    if 'relevance' not in st.session_state:
+        st.session_state['relevance'] = "Schulrecht / Lehrperson VS"  # Default relevance
 
 
     user_query = st.text_area("Hier Ihre Frage eingeben:", height=200, key="user_query_text_area")
@@ -356,12 +277,9 @@ def main_app():
     relevance_options = ["Schulrecht / Lehrperson VS", "Staatspersonal", "Lehrperson Sek II"]
     relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Schulrecht oder Lehrpersonen der Volksschule, auf Staatspersonal oder Lehrpersonen der Berufsfach- und Mittelschulen bezieht:", relevance_options)
 
-    if 'top_articles' not in st.session_state:
-        st.session_state.top_articles = []
-    if 'submitted' not in st.session_state:
-        st.session_state.submitted = False
-
-    if user_query != st.session_state['last_question']:
+    if st.button("Bearbeiten"):
+        st.session_state['relevance'] = relevance
+        st.session_state['last_question'] = user_query
         query_vector = get_embeddings(user_query)
         similarities = calculate_similarities(query_vector, article_embeddings)
 
@@ -375,11 +293,9 @@ def main_app():
             if is_relevant_article(knowledge_base[item_id], relevance)
         ][:30]
 
-        st.session_state['last_question'] = user_query
 
-    if st.button("Relevante Bestimmungen und Einträge in der Telefonliste"):
         st.session_state.submitted = True
-        with st.expander("Am besten auf die Anfrage passende Bestimmungen und Wissenselemente", expanded=True):
+        with st.expander("Am besten auf die Anfrage passende Bestimmungen und Einträge in der Telefonliste", expanded=False):
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown("#### Bestimmungen (Top-10)")
@@ -419,52 +335,6 @@ def main_app():
 
 
 
-    # if 'show_form' not in st.session_state:
-    #     st.session_state.show_form = False
-
-    # col1, col2 = st.columns(2)
-    # with col1:
-    #     if st.button("Neuer Eintrag hinzufügen"):
-    #         st.session_state.show_form = not st.session_state.show_form
-
-    #     if st.session_state.show_form:
-    #         with st.form(key='add_knowledge_form'):
-    #             title = st.text_input("Titel", value=f"Hinweis zu folgender Frage: {user_query}")
-    #             content = st.text_area("Inhalt")
-    #             category = "User-Hinweis"
-    #             selected_german_tags = st.multiselect(
-    #                 "Anwendbarkeit: Auf welche Personalkategorie ist das neue Wissen anwendbar? Bitte auswählen, mehrfache Auswahl ist erlaubt.",
-    #                 list(set(tags_mapping.values())),
-    #                 default=[
-    #                     "Staatspersonal",
-    #                     "Lehrperson VS",
-    #                     "Lehrperson Sek II"
-    #                 ]
-    #             )
-    #             submit_button = st.form_submit_button(label='Hinzufügen')
-
-    #             if submit_button and title and content:
-    #                 # Convert the selected German tags to their corresponding English tags
-    #                 selected_english_tags = []
-    #                 for selected_german_tag in selected_german_tags:
-    #                     selected_english_tags.extend(reverse_tags_mapping[selected_german_tag])
-    #                 add_to_knowledge_base(title, content, category, selected_english_tags)
-    #                 st.success("Neues Wissen erfolgreich hinzugefügt!")
-
-    #     if 'delete_form' not in st.session_state:
-    #         st.session_state.delete_form = False
-    # with col2:
-    #     if st.button("Eintrag löschen"):
-    #         st.session_state.delete_form = not st.session_state.delete_form
-
-    #     if st.session_state.delete_form:
-    #         with st.form(key='delete_knowledge_form'):
-    #             entry_id_to_delete = st.selectbox("Wählen Sie das Wissenselement zum Löschen aus:", [(key, knowledge_base[key]["Title"]) for key in knowledge_base.keys()])
-    #             delete_button = st.form_submit_button(label='Löschen')
-
-    #             if delete_button and entry_id_to_delete:
-    #                 delete_from_knowledge_base(entry_id_to_delete)
-
 
     st.write("")
     st.write("")
@@ -475,100 +345,78 @@ def main_app():
     col1, col2 = st.columns(2)
 
     with col1:
-        if 'last_answer' not in st.session_state:
-            st.session_state['last_answer'] = ""
-        if 'last_model' not in st.session_state:
-            st.session_state['last_model'] = ""
-        if 'show_model_selection' not in st.session_state:
-            st.session_state['show_model_selection'] = False
-        if 'selected_model' not in st.session_state:
-            st.session_state['selected_model'] = None
-        # Button to start the process
-        if st.button("Antwort mit Sprachmodell"):
-            st.session_state['show_model_selection'] = True
     
-        # Show model selection if the button was clicked
-        if st.session_state['show_model_selection']:
-            model_selection = st.selectbox(
-                "Wählen Sie ein Sprachmodell aus:",
-                ["GPT 4o", "Llama 3.1"]
-            )
-            st.session_state['selected_model'] = model_selection
-    
-            # Button to generate answer
-            if st.button("Generieren Sie eine Antwort"):
-                if user_query:
-                    query_vector = get_embeddings(user_query)
-                    similarities = calculate_similarities(query_vector, article_embeddings)
-    
-                    sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-                    filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-                    st.session_state.top_articles = filtered_articles[:10]
-    
-                    knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-                    st.session_state.top_knowledge_items = [
-                        (item_id, score)
-                        for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True)
-                        if is_relevant_article(knowledge_base[item_id], relevance)
-                    ][:5]
-    
-                    prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+        # if 'last_answer' not in st.session_state:
+        #     st.session_state['last_answer'] = ""
+        # if 'last_model' not in st.session_state:
+        #     st.session_state['last_model'] = ""
+        # if 'show_model_selection' not in st.session_state:
+        #     st.session_state['show_model_selection'] = False
+        # if 'selected_model' not in st.session_state:
+        #     st.session_state['selected_model'] = None
+        # # Button to start the process
+        # if st.button("Antwort mit Sprachmodell"):
+            # st.session_state['show_model_selection'] = True
+        st.subheader("Modell auswählen und Antwort generieren")
+        model_selection = st.selectbox(
+            "Wählen Sie ein Sprachmodell aus:",
+            ["GPT 4o", "Llama 3.1"]
+        )
+        st.session_state['selected_model'] = model_selection
+        # Automatically generate an answer based on model selection
+        if st.session_state['selected_model'] and user_query:
+            prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
     
                     # Handle GPT-4o model selection
-                    if st.session_state['selected_model'] == "GPT 4o":
-                        try:
-                            response = openai_client.chat.completions.create(
-                                model="gpt-4o-2024-08-06",
-                                messages=[
-                                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                                    {"role": "user", "content": prompt}
-                                ]
-                            )
-    
-                            if response.choices:
-                                ai_message = response.choices[0].message.content
-                                st.session_state['last_answer'] = ai_message
-                                st.session_state['last_model'] = "GPT 4o"
-                            else:
-                                st.warning("No response generated from GPT-4o.")
-                        except Exception as e:
-                            st.error(f"An error occurred with the OpenAI API: {str(e)}")
-    
-                    # Handle Llama 3.1 model selection
-                    elif st.session_state['selected_model'] == "Llama 3.1":
-                        try:
-                            chat_completion = groq_client.chat.completions.create(
-                                messages=[
-                                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                                    {"role": "user", "content": prompt}
-                                ],
-                                model="llama-3.1-70b-versatile"
-                            )
-    
-                            if chat_completion.choices and len(chat_completion.choices) > 0:
-                                ai_message = chat_completion.choices[0].message.content
-                                st.session_state['last_answer'] = ai_message
-                                st.session_state['last_model'] = "Llama 3.1"
-                            else:
-                                st.warning("No response generated from Llama 3.1.")
-    
-                        except groq.InternalServerError as e:
-                            st.error(f"An internal server error occurred with the Groq API: {str(e)}")
-                        except Exception as e:
-                            st.error(f"An error occurred with the Groq API: {str(e)}")
-    
-                    # Display the generated answer
-                    if st.session_state['last_answer']:
-                        st.subheader(f"Antwort subsumary ({st.session_state['last_model']}):")
-                        st.write(st.session_state['last_answer'])
-                else:
-                    st.warning("Please enter a query before generating an answer.")
-    
-        # Display the last answer if available (outside the generate button but inside the main flow)
-        elif st.session_state['last_answer']:
-            st.subheader(f"Last Antwort subsumary ({st.session_state['last_model']}):")
-            st.write(st.session_state['last_answer'])
+            if st.session_state['selected_model'] == "GPT 4o":
+                try:
+                    response = openai_client.chat.completions.create(
+                        model="gpt-4o-2024-08-06",
+                        messages=[
+                            {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                            {"role": "user", "content": prompt}
+                        ]
+                    )
 
+                    if response.choices:
+                        ai_message = response.choices[0].message.content
+                        st.session_state['last_answer'] = ai_message
+                        st.session_state['last_model'] = "GPT 4o"
+                    else:
+                        st.warning("No response generated from GPT-4o.")
+                except Exception as e:
+                    st.error(f"An error occurred with the OpenAI API: {str(e)}")
+
+            # Handle Llama 3.1 model selection
+            elif st.session_state['selected_model'] == "Llama 3.1":
+                try:
+                    chat_completion = groq_client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        model="llama-3.1-70b-versatile"
+                    )
+
+                    if chat_completion.choices and len(chat_completion.choices) > 0:
+                        ai_message = chat_completion.choices[0].message.content
+                        st.session_state['last_answer'] = ai_message
+                        st.session_state['last_model'] = "Llama 3.1"
+                    else:
+                        st.warning("No response generated from Llama 3.1.")
+
+                except groq.InternalServerError as e:
+                    st.error(f"An internal server error occurred with the Groq API: {str(e)}")
+                except Exception as e:
+                    st.error(f"An error occurred with the Groq API: {str(e)}")
+
+            # Display the generated answer
+            if st.session_state['last_answer']:
+                st.subheader(f"Antwort subsumary ({st.session_state['last_model']}):")
+                st.write(st.session_state['last_answer'])
+        else:
+            st.warning("Please enter a query before generating an answer.")
+            
     with col2:
             
         if st.button("Prompt generierelen und in die Zwischenablage kopieren"):
@@ -586,6 +434,109 @@ def main_app():
             else:
                 if not st.session_state.top_articles:
                     st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
+    
 
 if __name__ == "__main__":
     main_app()
+
+
+
+#     # Show model selection if the button was clicked
+    #     if st.session_state['show_model_selection']:
+    #         model_selection = st.selectbox(
+    #             "Wählen Sie ein Sprachmodell aus:",
+    #             ["GPT 4o", "Llama 3.1"]
+    #         )
+    #         st.session_state['selected_model'] = model_selection
+    
+    #         # Button to generate answer
+    #         if st.button("Generieren Sie eine Antwort"):
+    #             if user_query:
+    #                 query_vector = get_embeddings(user_query)
+    #                 similarities = calculate_similarities(query_vector, article_embeddings)
+    
+    #                 sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+    #                 filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
+    #                 st.session_state.top_articles = filtered_articles[:10]
+    
+    #                 knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
+    #                 st.session_state.top_knowledge_items = [
+    #                     (item_id, score)
+    #                     for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True)
+    #                     if is_relevant_article(knowledge_base[item_id], relevance)
+    #                 ][:5]
+    
+    #                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+    
+    #                 # Handle GPT-4o model selection
+    #                 if st.session_state['selected_model'] == "GPT 4o":
+    #                     try:
+    #                         response = openai_client.chat.completions.create(
+    #                             model="gpt-4o-2024-08-06",
+    #                             messages=[
+    #                                 {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+    #                                 {"role": "user", "content": prompt}
+    #                             ]
+    #                         )
+    
+    #                         if response.choices:
+    #                             ai_message = response.choices[0].message.content
+    #                             st.session_state['last_answer'] = ai_message
+    #                             st.session_state['last_model'] = "GPT 4o"
+    #                         else:
+    #                             st.warning("No response generated from GPT-4o.")
+    #                     except Exception as e:
+    #                         st.error(f"An error occurred with the OpenAI API: {str(e)}")
+    
+    #                 # Handle Llama 3.1 model selection
+    #                 elif st.session_state['selected_model'] == "Llama 3.1":
+    #                     try:
+    #                         chat_completion = groq_client.chat.completions.create(
+    #                             messages=[
+    #                                 {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+    #                                 {"role": "user", "content": prompt}
+    #                             ],
+    #                             model="llama-3.1-70b-versatile"
+    #                         )
+    
+    #                         if chat_completion.choices and len(chat_completion.choices) > 0:
+    #                             ai_message = chat_completion.choices[0].message.content
+    #                             st.session_state['last_answer'] = ai_message
+    #                             st.session_state['last_model'] = "Llama 3.1"
+    #                         else:
+    #                             st.warning("No response generated from Llama 3.1.")
+    
+    #                     except groq.InternalServerError as e:
+    #                         st.error(f"An internal server error occurred with the Groq API: {str(e)}")
+    #                     except Exception as e:
+    #                         st.error(f"An error occurred with the Groq API: {str(e)}")
+    
+    #                 # Display the generated answer
+    #                 if st.session_state['last_answer']:
+    #                     st.subheader(f"Antwort subsumary ({st.session_state['last_model']}):")
+    #                     st.write(st.session_state['last_answer'])
+    #             else:
+    #                 st.warning("Please enter a query before generating an answer.")
+    
+    #     # Display the last answer if available (outside the generate button but inside the main flow)
+    #     elif st.session_state['last_answer']:
+    #         st.subheader(f"Last Antwort subsumary ({st.session_state['last_model']}):")
+    #         st.write(st.session_state['last_answer'])
+
+    # with col2:
+            
+    #     if st.button("Prompt generierelen und in die Zwischenablage kopieren"):
+    #         if user_query and st.session_state.top_articles:
+    #             # Generate the prompt
+    #             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+    #             st.session_state['prompt'] = prompt
+    
+    #             # Create HTML with JavaScript to copy the prompt to the clipboard
+    #             html_with_js = generate_html_with_js(prompt)
+    #             st.components.v1.html(html_with_js)
+    
+    #             # Display the generated prompt in a text area
+    #             st.text_area("Prompt:", prompt, height=300)
+    #         else:
+    #             if not st.session_state.top_articles:
+    #                 st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
