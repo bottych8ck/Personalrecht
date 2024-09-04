@@ -196,14 +196,16 @@ def get_embeddings(text):
     return res.data[0].embedding
 
 def is_relevant_article(section_data, relevance):
-    # Retrieve the tags from the section data
+    normalized_relevance = relevance.lower().replace("sek ii", "SEK II")
+    
+    # Try to get "Tags" first (for knowledge_base), fallback to "tags" (for law_data) if not found
     tags = section_data.get("Tags", section_data.get("tags", []))
-
-    # Get the list of relevant tags for the selected relevance
-    relevant_tags = reverse_tags_mapping.get(relevance, [relevance])
-
-    # Check if any of the article's tags are in the list of relevant tags
-    is_relevant = any(tag in relevant_tags for tag in tags)
+    normalized_tags = [tag.lower().replace("sek ii", "SEK II") for tag in tags]
+    
+    relevance_criteria = normalized_relevance  # Direct use of normalized_relevance ensures we're checking against the correct criteria
+    
+    # Check if any of the normalized tags match the normalized relevance criteria
+    is_relevant = any(relevance_criteria in tag for tag in normalized_tags)
     
     return is_relevant
 
