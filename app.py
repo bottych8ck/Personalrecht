@@ -196,18 +196,31 @@ def get_embeddings(text):
     return res.data[0].embedding
 
 def is_relevant_article(section_data, relevance):
-    normalized_relevance = relevance.lower().replace("sek ii", "SEK II")
+    # Normalize relevance input
+    normalized_relevance = relevance.lower().replace("schulrecht / ", "").replace("sek ii", "SEK II")
     
-    # Try to get "Tags" first (for knowledge_base), fallback to "tags" (for law_data) if not found
+    # Normalize the tags from the section data
     tags = section_data.get("Tags", section_data.get("tags", []))
     normalized_tags = [tag.lower().replace("sek ii", "SEK II") for tag in tags]
-    
-    relevance_criteria = normalized_relevance  # Direct use of normalized_relevance ensures we're checking against the correct criteria
-    
+
     # Check if any of the normalized tags match the normalized relevance criteria
-    is_relevant = any(relevance_criteria in tag for tag in normalized_tags)
+    is_relevant = any(normalized_relevance in tag for tag in normalized_tags)
     
     return is_relevant
+
+# def is_relevant_article(section_data, relevance):
+#     normalized_relevance = relevance.lower().replace("sek ii", "SEK II")
+    
+#     # Try to get "Tags" first (for knowledge_base), fallback to "tags" (for law_data) if not found
+#     tags = section_data.get("Tags", section_data.get("tags", []))
+#     normalized_tags = [tag.lower().replace("sek ii", "SEK II") for tag in tags]
+    
+#     relevance_criteria = normalized_relevance  # Direct use of normalized_relevance ensures we're checking against the correct criteria
+    
+#     # Check if any of the normalized tags match the normalized relevance criteria
+#     is_relevant = any(relevance_criteria in tag for tag in normalized_tags)
+    
+#     return is_relevant
 
 def get_relevant_articles(law_data, relevance):
     relevant_articles = {}
