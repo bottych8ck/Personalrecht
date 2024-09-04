@@ -195,20 +195,6 @@ def get_embeddings(text):
     res = openai_client.embeddings.create(input=[text], model="text-embedding-ada-002")
     return res.data[0].embedding
 
-#def is_relevant_article(section_data, relevance):
- #   normalized_relevance = relevance.lower().replace("sek ii", "SEK II")
-    
-    # Try to get "Tags" first (for knowledge_base), fallback to "tags" (for law_data) if not found
-  #  tags = section_data.get("Tags", section_data.get("tags", []))
-   # normalized_tags = [tag.lower().replace("sek ii", "SEK II") for tag in tags]
-    
-    #relevance_criteria = normalized_relevance  # Direct use of normalized_relevance ensures we're checking against the correct criteria
-    
-    # Check if any of the normalized tags match the normalized relevance criteria
-   # is_relevant = any(relevance_criteria in tag for tag in normalized_tags)
-    
-    #return is_relevant
-
 def is_relevant_article(section_data, relevance):
     # Retrieve the tags from the section data
     tags = section_data.get("Tags", section_data.get("tags", []))
