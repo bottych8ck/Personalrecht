@@ -85,8 +85,8 @@ knowledge_base_embeddings = load_json_from_gcs_as_numpy(bucket_name, file2_path)
 # Mapping for relevance criteria
 relevance_mapping = {
     "Staatspersonal": "Die Frage bezieht sich auf Staatspersonal.",
-    "Lehrperson VS": "Die Frage bezieht sich auf Wahlen an der Urne.",
-    "Lehrperson BfS": "Die Frage ist allgemein und nicht spezifisch relevant für die Gemeindeversammlung oder Urnenwahl."
+    "Lehrperson VS": "Die Frage bezieht sich auf Lehrpersonen an der Volksschule.",
+    "Lehrperson BfS": "Die Frage bezieht sich auf Lehrpersonen an der Sekundarstufe II."
 }
 tags_mapping = {
     "directly applicable: Staatspersonal": "Staatspersonal",
