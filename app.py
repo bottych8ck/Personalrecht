@@ -111,8 +111,7 @@ def generate_prompt(user_query, top_articles, law_data):
     return prompt
 
 def main_app():
-    st.image(logo_path, width=400)
-    st.subheader("Abfrage des Thurgauer Schul- und Personalrecht und der Telefonliste des Rechtsdiensts")
+
     if 'last_question' not in st.session_state:
         st.session_state['last_question'] = ""
     if 'last_answer' not in st.session_state:
@@ -130,8 +129,6 @@ def main_app():
 
     user_query = st.text_area("Hier Ihre Frage eingeben:", height=200, key="user_query_text_area")
 
-    relevance_options = ["Schulrecht / Lehrperson VS", "Staatspersonal", "Lehrperson Sek II"]
-    relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Schulrecht oder Lehrpersonen der Volksschule, auf Staatspersonal oder Lehrpersonen der Berufsfach- und Mittelschulen bezieht:", relevance_options)
 
     if st.button("Bearbeiten"):
         st.session_state['relevance'] = relevance
@@ -140,14 +137,7 @@ def main_app():
         similarities = calculate_similarities(query_vector, article_embeddings)
 
         sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-        filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-        st.session_state.top_articles = filtered_articles[:10]
-
-        knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-        st.session_state.top_knowledge_items = [
-            (item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True)
-            if is_relevant_article(knowledge_base[item_id], relevance)
-        ][:30]
+        st.session_state.top_articles = sorted_articles[:10]
 
 
         st.session_state.submitted = True
@@ -174,20 +164,20 @@ def main_app():
 
             with col2:
                 st.markdown("#### Einträge in der Telefonliste (Top-30)")
-                for item_id, _ in st.session_state.top_knowledge_items:
-                    item = knowledge_base.get(item_id, {})
-                    title = item.get("Title", "Unbekannt")
-                    content = item.get("Content", "")
-                    year = item.get("Year", "")
+                # for item_id, _ in st.session_state.top_knowledge_items:
+                #     item = knowledge_base.get(item_id, {})
+                #     title = item.get("Title", "Unbekannt")
+                #     content = item.get("Content", "")
+                #     year = item.get("Year", "")
                     
-                    if isinstance(content, list):
-                        # Join list into a single string with double spaces at the end of each line to ensure Markdown respects line breaks
-                        content = '  \n'.join(content)
+                #     if isinstance(content, list):
+                #         # Join list into a single string with double spaces at the end of each line to ensure Markdown respects line breaks
+                #         content = '  \n'.join(content)
                     
-                    # Display the title and content with proper formatting
-                    st.markdown(f"**{title}**")
-                    st.markdown(f"*Auskunft aus dem Jahr {year}*")  # Display the year under the title
-                    st.markdown(content)
+                #     # Display the title and content with proper formatting
+                #     st.markdown(f"**{title}**")
+                #     st.markdown(f"*Auskunft aus dem Jahr {year}*")  # Display the year under the title
+                #     st.markdown(content)
 
 
 
@@ -265,4 +255,5 @@ def main_app():
 
 
 if __name__ == "__main__":
-    main()
+    main_app()  # Correctly call the main application function
+
