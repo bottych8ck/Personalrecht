@@ -7,6 +7,8 @@ import streamlit.components.v1 as components
 from streamlit.components.v1 import html
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+from groq import Groq  # Import the Groq client
+
 
 # Load the data
 with open('article_embeddings.json', 'r') as file:
