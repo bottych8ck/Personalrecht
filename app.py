@@ -120,8 +120,7 @@ def main_app():
         st.session_state['top_articles'] = []
     if 'top_knowledge_items' not in st.session_state:
         st.session_state['top_knowledge_items'] = []
-    if 'relevance' not in st.session_state:
-        st.session_state['relevance'] = "Schulrecht / Lehrperson VS"  # Default relevance
+
     if 'show_model_selection' not in st.session_state:
         st.session_state['show_model_selection'] = False  # Control flag for model selection visibility
 
@@ -131,7 +130,6 @@ def main_app():
 
 
     if st.button("Bearbeiten"):
-        st.session_state['relevance'] = relevance
         st.session_state['last_question'] = user_query
         query_vector = get_embeddings(user_query)
         similarities = calculate_similarities(query_vector, article_embeddings)
@@ -201,7 +199,7 @@ def main_app():
             # Button to show model selection
             if st.button("Antwort mit Sprachmodell generieren"):
                 if user_query:  # Check if a user query is entered
-                    prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+                    prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
                     st.write("Sending request to Groq API...")
                     try:
                         # Handle Llama 3.1 model selection
@@ -239,7 +237,7 @@ def main_app():
             if st.button("Prompt generieren und in die Zwischenablage kopieren"):
                 if user_query and st.session_state.top_articles:
                     # Generate the prompt
-                    prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+                    prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
                     st.session_state['prompt'] = prompt
         
                     # Create HTML with JavaScript to copy the prompt to the clipboard
