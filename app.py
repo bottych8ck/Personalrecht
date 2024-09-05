@@ -360,7 +360,8 @@ def main_app():
             
             
             if st.button("Antwort mit Sprachmodell generieren"):
-          
+                st.session_state['show_model_selection'] = True  
+           if st.session_state['show_model_selection']:
                 model_selection = st.selectbox(
                     "Wählen Sie ein Sprachmodell aus:",
                     ["Llama 3.1", "GPT 4o"]
