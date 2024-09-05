@@ -17,7 +17,7 @@ with open('law_data.json', 'r') as file:
 
 load_dotenv()  # This line loads the variables from .env
 
-openAI_api_key = os.getenv('OPENAI_API_KEY')
+openai_api_key = os.getenv('OPENAI_API_KEY')
 groq_api_key = os.getenv('GROQ_API_KEY')
 
 openai_client = openai.OpenAI(api_key=openai_api_key)
