@@ -359,7 +359,7 @@ def main_app():
             st.subheader("Subsumtion mit Sprachmodell")
             model_selection = st.selectbox(
                 "Wählen Sie ein Sprachmodell aus:",
-                ["GPT 4o", "Llama 3.1"]
+                ["Llama 3.1", "GPT 4o"]
             )
             st.session_state['selected_model'] = model_selection
             # Automatically generate an answer based on model selection
