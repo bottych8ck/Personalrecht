@@ -242,24 +242,6 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
 def main_app():
     st.image(logo_path, width=400)
     st.subheader("Abfrage des Thurgauer Schul- und Personalrecht und der Telefonliste des Rechtsdiensts")
-    # if 'last_question' not in st.session_state:
-    #     st.session_state['last_question'] = ""
-    # if 'last_answer' not in st.session_state:
-    #     st.session_state['last_answer'] = None
-    # if 'last_answer_gpt4o' not in st.session_state:
-    #     st.session_state['last_answer_gpt4o'] = None
-    # if 'top_articles' not in st.session_state:
-    #     st.session_state['top_articles'] = []
-    # if 'top_knowledge_items' not in st.session_state:
-    #     st.session_state['top_knowledge_items'] = []
-    # if 'prompt' not in st.session_state:
-    #     st.session_state['prompt'] = ""
-    # if 'submitted' not in st.session_state:
-    #     st.session_state['submitted'] = False
-    # if 'show_form' not in st.session_state:
-    #     st.session_state['show_form'] = False
-    # if 'delete_form' not in st.session_state:
-    #     st.session_state['delete_form'] = False
     if 'last_question' not in st.session_state:
         st.session_state['last_question'] = ""
     if 'last_answer' not in st.session_state:
@@ -346,57 +328,10 @@ def main_app():
 
 
         col1, col2 = st.columns(2)
-        # with col1:
-        
-
-        
-        #     if 'show_model_selection' not in st.session_state:
-        #         st.session_state['show_model_selection'] = False
-        #     if 'selected_model' not in st.session_state:
-        #         st.session_state['selected_model'] = None
-        #     if 'last_answer' not in st.session_state:
-        #         st.session_state['last_answer'] = None
-        
-        #     # Button to show model selection
-        #     if st.button("Antwort mit Sprachmodell generieren"):
-        #         prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)         
-        
-        #                 # Handle Llama 3.1 model selection
-        #         try:
-        #             chat_completion = groq_client.chat.completions.create(
-        #                 messages=[
-        #                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-        #                     {"role": "user", "content": prompt}
-        #                 ],
-        #                 model="llama-3.1-70b-versatile"
-        #             )
-
-        #             if chat_completion.choices and len(chat_completion.choices) > 0:
-        #                 ai_message = chat_completion.choices[0].message.content
-        #                 st.session_state['last_answer'] = ai_message
-        #                 st.session_state['last_model'] = "Llama 3.1"
-        #             else:
-        #                 st.warning("No response generated from Llama 3.1.")
-
-        #         except groq.InternalServerError as e:
-        #             st.error(f"An internal server error occurred with the Groq API: {str(e)}")
-        #         except Exception as e:
-        #             st.error(f"An error occurred with the Groq API: {str(e)}")
-    
-
-        
-        
-        #             # Display the generated answer
-        #             if st.session_state['last_answer']:
-        #                 st.subheader(f"Antwort subsumary ({st.session_state['last_model']}):")
-        #                 st.write(st.session_state['last_answer'])
-        #         else:
-        #             st.warning("Please enter a query before generating an answer.")
-                    
+                         
         with col1:
             # Initialize session state variables
-            if 'show_model_selection' not in st.session_state:
-                st.session_state['show_model_selection'] = False
+            
             if 'selected_model' not in st.session_state:
                 st.session_state['selected_model'] = None
             if 'last_answer' not in st.session_state:
@@ -406,7 +341,7 @@ def main_app():
             if st.button("Antwort mit Sprachmodell generieren"):
                 if user_query:  # Check if a user query is entered
                     prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-        
+                    st.write("Sending request to Groq API...")
                     try:
                         # Handle Llama 3.1 model selection
                         chat_completion = groq_client.chat.completions.create(
@@ -416,7 +351,7 @@ def main_app():
                             ],
                             model="llama-3.1-70b-versatile"
                         )
-        
+                        st.write("Received response from Groq API:", chat_completion)
                         # Check if response is available
                         if chat_completion.choices and len(chat_completion.choices) > 0:
                             ai_message = chat_completion.choices[0].message.content
