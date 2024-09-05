@@ -345,7 +345,9 @@ def main_app():
                 st.session_state.generating_answer = True  # Set this to true when button is clicked
             if st.session_state.get('generating_answer'):
                 if user_query:  # Check if a user query is entered
-                    prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
+                    
+                    prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+
                     try:
                         # Handle Llama 3.1 model selection
                         chat_completion = groq_client.chat.completions.create(
