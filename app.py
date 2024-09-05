@@ -270,6 +270,9 @@ def main_app():
         st.session_state['top_knowledge_items'] = []
     if 'relevance' not in st.session_state:
         st.session_state['relevance'] = "Schulrecht / Lehrperson VS"  # Default relevance
+    if 'show_model_selection' not in st.session_state:
+        st.session_state['show_model_selection'] = False  # Control flag for model selection visibility
+
 
 
     user_query = st.text_area("Hier Ihre Frage eingeben:", height=200, key="user_query_text_area")
@@ -361,7 +364,8 @@ def main_app():
             
             if st.button("Antwort mit Sprachmodell generieren"):
                 st.session_state['show_model_selection'] = True  
-           if st.session_state['show_model_selection']:
+                
+            if st.session_state['show_model_selection']:
                 model_selection = st.selectbox(
                     "Wählen Sie ein Sprachmodell aus:",
                     ["Llama 3.1", "GPT 4o"]
