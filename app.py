@@ -118,8 +118,10 @@ def main_app():
         st.session_state['last_answer'] = None
     if 'top_articles' not in st.session_state:
         st.session_state['top_articles'] = []
-    if 'top_knowledge_items' not in st.session_state:
-        st.session_state['top_knowledge_items'] = []
+    if 'submitted' not in st.session_state:
+        st.session_state['submitted'] = False
+    if 'generating_answer' not in st.session_state:
+        st.session_state['generating_answer'] = False
 
     if 'show_model_selection' not in st.session_state:
         st.session_state['show_model_selection'] = False  # Control flag for model selection visibility
@@ -136,9 +138,11 @@ def main_app():
 
         sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
         st.session_state.top_articles = sorted_articles[:10]
-
-
         st.session_state.submitted = True
+        st.session_state.generating_answer = False  # Reset this when new query is processed
+
+
+    if st.session_state.get('submitted'):
         with st.expander("Am besten auf die Anfrage passende Bestimmungen und Einträge in der Telefonliste", expanded=False):
             col1, col2 = st.columns(2)
             with col1:
@@ -189,15 +193,9 @@ def main_app():
         col1, col2 = st.columns(2)
                          
         with col1:
-            # Initialize session state variables
-            
-            if 'selected_model' not in st.session_state:
-                st.session_state['selected_model'] = None
-            if 'last_answer' not in st.session_state:
-                st.session_state['last_answer'] = None
-        
-            # Button to show model selection
             if st.button("Antwort mit Sprachmodell generieren"):
+                st.session_state.generating_answer = True  # Set this to true when button is clicked
+            if st.session_state.get('generating_answer'):
                 if user_query:  # Check if a user query is entered
                     prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
                     st.write("Sending request to Groq API...")
