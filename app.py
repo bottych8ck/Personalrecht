@@ -224,7 +224,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
 
     prompt += "\n"
     
-    prompt += "\nZusätzlich berücksichtige folgende allgemeine Grundsätze und Prinzipien:\n"
+    prompt += "\nZusätzlich berücksichtige folgende allgemeine Hinweise aus der Beratungspraxis:\n"
     for item_id, _ in top_knowledge_items:
         item = knowledge_base.get(item_id, {})
         title = item.get("Title", "Unbekannt")
@@ -240,8 +240,8 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
 
 
 def main_app():
-    # st.image(logo_path, width=400)
-    # st.subheader("Abfrage des Thurgauer Schul- und Personalrecht und der Telefonliste des Rechtsdiensts")
+    st.image(logo_path, width=400)
+    st.subheader("Abfrage des Thurgauer Schul- und Personalrecht und der Telefonliste des Rechtsdiensts")
     # if 'last_question' not in st.session_state:
     #     st.session_state['last_question'] = ""
     # if 'last_answer' not in st.session_state:
@@ -356,7 +356,7 @@ def main_app():
             # # Button to start the process
             # if st.button("Antwort mit Sprachmodell"):
                 # st.session_state['show_model_selection'] = True
-            st.subheader("Modell auswählen und Antwort generieren")
+            st.subheader("Subsumtion mit Sprachmodell")
             model_selection = st.selectbox(
                 "Wählen Sie ein Sprachmodell aus:",
                 ["GPT 4o", "Llama 3.1"]
@@ -366,28 +366,8 @@ def main_app():
             if st.session_state['selected_model'] and user_query:
                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
         
-                        # Handle GPT-4o model selection
-                if st.session_state['selected_model'] == "GPT 4o":
-                    try:
-                        response = openai_client.chat.completions.create(
-                            model="gpt-4o-2024-08-06",
-                            messages=[
-                                {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                                {"role": "user", "content": prompt}
-                            ]
-                        )
-    
-                        if response.choices:
-                            ai_message = response.choices[0].message.content
-                            st.session_state['last_answer'] = ai_message
-                            st.session_state['last_model'] = "GPT 4o"
-                        else:
-                            st.warning("No response generated from GPT-4o.")
-                    except Exception as e:
-                        st.error(f"An error occurred with the OpenAI API: {str(e)}")
-    
-                # Handle Llama 3.1 model selection
-                elif st.session_state['selected_model'] == "Llama 3.1":
+                        # Handle Llama 3.1 model selection
+                if st.session_state['selected_model'] == "Llama 3.1":
                     try:
                         chat_completion = groq_client.chat.completions.create(
                             messages=[
@@ -408,6 +388,27 @@ def main_app():
                         st.error(f"An internal server error occurred with the Groq API: {str(e)}")
                     except Exception as e:
                         st.error(f"An error occurred with the Groq API: {str(e)}")
+
+                elif st.session_state['selected_model'] == "GPT 4o":
+                    try:
+                        response = openai_client.chat.completions.create(
+                            model="gpt-4o-2024-08-06",
+                            messages=[
+                                {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                                {"role": "user", "content": prompt}
+                            ]
+                        )
+    
+                        if response.choices:
+                            ai_message = response.choices[0].message.content
+                            st.session_state['last_answer'] = ai_message
+                            st.session_state['last_model'] = "GPT 4o"
+                        else:
+                            st.warning("No response generated from GPT-4o.")
+                    except Exception as e:
+                        st.error(f"An error occurred with the OpenAI API: {str(e)}")
+    
+                # Handle Llama 3.1 model selection
     
                 # Display the generated answer
                 if st.session_state['last_answer']:
@@ -440,102 +441,3 @@ if __name__ == "__main__":
 
 
 
-#     # Show model selection if the button was clicked
-    #     if st.session_state['show_model_selection']:
-    #         model_selection = st.selectbox(
-    #             "Wählen Sie ein Sprachmodell aus:",
-    #             ["GPT 4o", "Llama 3.1"]
-    #         )
-    #         st.session_state['selected_model'] = model_selection
-    
-    #         # Button to generate answer
-    #         if st.button("Generieren Sie eine Antwort"):
-    #             if user_query:
-    #                 query_vector = get_embeddings(user_query)
-    #                 similarities = calculate_similarities(query_vector, article_embeddings)
-    
-    #                 sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-    #                 filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-    #                 st.session_state.top_articles = filtered_articles[:10]
-    
-    #                 knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-    #                 st.session_state.top_knowledge_items = [
-    #                     (item_id, score)
-    #                     for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True)
-    #                     if is_relevant_article(knowledge_base[item_id], relevance)
-    #                 ][:5]
-    
-    #                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-    
-    #                 # Handle GPT-4o model selection
-    #                 if st.session_state['selected_model'] == "GPT 4o":
-    #                     try:
-    #                         response = openai_client.chat.completions.create(
-    #                             model="gpt-4o-2024-08-06",
-    #                             messages=[
-    #                                 {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-    #                                 {"role": "user", "content": prompt}
-    #                             ]
-    #                         )
-    
-    #                         if response.choices:
-    #                             ai_message = response.choices[0].message.content
-    #                             st.session_state['last_answer'] = ai_message
-    #                             st.session_state['last_model'] = "GPT 4o"
-    #                         else:
-    #                             st.warning("No response generated from GPT-4o.")
-    #                     except Exception as e:
-    #                         st.error(f"An error occurred with the OpenAI API: {str(e)}")
-    
-    #                 # Handle Llama 3.1 model selection
-    #                 elif st.session_state['selected_model'] == "Llama 3.1":
-    #                     try:
-    #                         chat_completion = groq_client.chat.completions.create(
-    #                             messages=[
-    #                                 {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-    #                                 {"role": "user", "content": prompt}
-    #                             ],
-    #                             model="llama-3.1-70b-versatile"
-    #                         )
-    
-    #                         if chat_completion.choices and len(chat_completion.choices) > 0:
-    #                             ai_message = chat_completion.choices[0].message.content
-    #                             st.session_state['last_answer'] = ai_message
-    #                             st.session_state['last_model'] = "Llama 3.1"
-    #                         else:
-    #                             st.warning("No response generated from Llama 3.1.")
-    
-    #                     except groq.InternalServerError as e:
-    #                         st.error(f"An internal server error occurred with the Groq API: {str(e)}")
-    #                     except Exception as e:
-    #                         st.error(f"An error occurred with the Groq API: {str(e)}")
-    
-    #                 # Display the generated answer
-    #                 if st.session_state['last_answer']:
-    #                     st.subheader(f"Antwort subsumary ({st.session_state['last_model']}):")
-    #                     st.write(st.session_state['last_answer'])
-    #             else:
-    #                 st.warning("Please enter a query before generating an answer.")
-    
-    #     # Display the last answer if available (outside the generate button but inside the main flow)
-    #     elif st.session_state['last_answer']:
-    #         st.subheader(f"Last Antwort subsumary ({st.session_state['last_model']}):")
-    #         st.write(st.session_state['last_answer'])
-
-    # with col2:
-            
-    #     if st.button("Prompt generierelen und in die Zwischenablage kopieren"):
-    #         if user_query and st.session_state.top_articles:
-    #             # Generate the prompt
-    #             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-    #             st.session_state['prompt'] = prompt
-    
-    #             # Create HTML with JavaScript to copy the prompt to the clipboard
-    #             html_with_js = generate_html_with_js(prompt)
-    #             st.components.v1.html(html_with_js)
-    
-    #             # Display the generated prompt in a text area
-    #             st.text_area("Prompt:", prompt, height=300)
-    #         else:
-    #             if not st.session_state.top_articles:
-    #                 st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
