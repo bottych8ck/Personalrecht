@@ -357,7 +357,6 @@ def main_app():
                             ],
                             model="llama-3.1-70b-versatile"
                         )
-                        st.write("Received response from Groq API:", chat_completion)
                         # Check if response is available
                         if chat_completion.choices and len(chat_completion.choices) > 0:
                             ai_message = chat_completion.choices[0].message.content
