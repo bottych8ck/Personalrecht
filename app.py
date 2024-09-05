@@ -359,21 +359,29 @@ def main_app():
             # # Button to start the process
             # if st.button("Antwort mit Sprachmodell"):
                 # st.session_state['show_model_selection'] = True
-            
-            
-            
+        
+            if 'show_model_selection' not in st.session_state:
+                st.session_state['show_model_selection'] = False
+            if 'selected_model' not in st.session_state:
+                st.session_state['selected_model'] = None
+            if 'last_answer' not in st.session_state:
+                st.session_state['last_answer'] = None
+        
+            # Button to show model selection
             if st.button("Antwort mit Sprachmodell generieren"):
-                st.session_state['show_model_selection'] = True  
-                
+                st.session_state['show_model_selection'] = True
+                st.experimental_rerun()  # Force a rerun to update the UI
+        
+            # Model selection and answer generation
             if st.session_state['show_model_selection']:
                 model_selection = st.selectbox(
                     "Wählen Sie ein Sprachmodell aus:",
                     ["Llama 3.1", "GPT 4o"]
                 )
                 st.session_state['selected_model'] = model_selection
-                # Automatically generate an answer based on model selection
-                if st.session_state['selected_model'] and user_query:
-                    prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+        
+                if st.button("Antwort generieren"):
+                    prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)         
             
                             # Handle Llama 3.1 model selection
                     if st.session_state['selected_model'] == "Llama 3.1":
