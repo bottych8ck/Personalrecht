@@ -372,7 +372,7 @@ def main_app():
         
                     # Display the generated answer
                     if st.session_state['last_answer']:
-                        st.subheader(f"Antwort summary ({st.session_state['last_model']}):")
+                        st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
                         st.write(st.session_state['last_answer'])
                 else:
                     st.warning("Please enter a query before generating an answer.")  # Warning for no query input
