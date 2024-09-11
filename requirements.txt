@@ -7,4 +7,5 @@ requests
 google-cloud-storage
 gcsfs
 google-cloud-secret-manager
+google-cloud-logging
 groq
