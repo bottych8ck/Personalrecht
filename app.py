@@ -8,6 +8,13 @@ from streamlit.components.v1 import html
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from groq import Groq  # Import the Groq client
+from pydantic import BaseModel
+
+class QueryAssessment(BaseModel):
+    reformulate: bool
+    new_query: str
+    reason: str
+
 
 
 # Load the data
@@ -24,6 +31,71 @@ groq_api_key = os.getenv('GROQ_API_KEY')
 
 openai_client = openai.OpenAI(api_key=openai_api_key)
 groq_client = Groq(api_key=groq_api_key)
+
+def get_articles_details(top_articles, law_data):
+    """
+    Given a list of top articles (UIDs and scores), retrieves the title and content for each article.
+    """
+    articles_details = []
+
+    for uid, score in top_articles:
+        article_info = law_data.get(str(uid), None)
+        if article_info:
+            # Extract the title and content using the existing function
+            title, all_paragraphs, _, _ = get_article_content(str(uid), law_data)
+
+            # Combine title and content into a single dictionary entry
+            articles_details.append({
+                "title": title,
+                "content": " ".join(all_paragraphs) if all_paragraphs else "" 
+            })
+
+    return articles_details
+
+MAX_REFORMULATION_ATTEMPTS = 3  # Set a limit for the number of retries
+ddef assess_and_reformulate_query_with_retries(user_query, top_articles, law_data, max_attempts=MAX_REFORMULATION_ATTEMPTS):
+    """
+    Assess and possibly reformulate the query up to max_attempts times.
+    """
+    current_attempt = 0
+    reformulated_query = user_query
+
+    while current_attempt < max_attempts:
+        # Extract article details for each attempt
+        articles_details = get_articles_details(top_articles, law_data)
+
+        # Convert articles to a format suitable for model input
+        articles_content_for_model = "\n".join(
+            [f"Title: {article['title']}\nContent: {article['content']}" for article in articles_details]
+        )
+
+        # Create the structured completion request
+        completion = openai_client.beta.chat.completions.parse(
+            model="gpt-4o-2024-08-06",  # Use a model that supports structured outputs
+            messages=[
+                {"role": "system", "content": "You are an intelligent assistant that checks if a user query results in relevant articles. If not, you reformulate the query."},
+                {"role": "user", "content": f"Original Query: {reformulated_query}\nTop Articles:\n{articles_content_for_model}"}
+            ],
+            response_format=QueryAssessment  # Specify the response format
+        )
+
+        # Extract and parse the structured output
+        result = completion.choices[0].message.parsed
+
+        if result.reformulate:
+            # If reformulation is needed, update the query
+            reformulated_query = result.new_query
+            current_attempt += 1  # Increment the counter
+            print(f"Reformulation attempt {current_attempt}: New Query - {reformulated_query}")
+        else:
+            # No further reformulation needed
+            print("No reformulation needed.")
+            break  # Exit the loop
+
+    return reformulated_query
+
+
+
 
 def get_embeddings(text):
     res = openai_client.embeddings.create(input=[text], model="text-embedding-ada-002")
@@ -133,6 +205,7 @@ def main_app():
 
     if st.button("Bearbeiten"):
         st.session_state['last_question'] = user_query
+        st.session_state.generating_answer = False
         query_vector = get_embeddings(user_query)
         similarities = calculate_similarities(query_vector, article_embeddings)
 
@@ -140,7 +213,21 @@ def main_app():
         st.session_state.top_articles = sorted_articles[:10]
         st.session_state.submitted = True
         st.session_state.generating_answer = False  # Reset this when new query is processed
-
+        final_query = assess_and_reformulate_query_with_retries(user_query, st.session_state['top_articles'], law_data)
+    
+        # Update the query in session state if it was reformulated
+        if final_query != user_query:
+            st.session_state['last_question'] = final_query
+            st.success(f"Query reformulated: {final_query}")
+        else:
+            st.info("No reformulation needed.")
+            if result.reformulate:
+                # If reformulation is needed, update the query
+                new_query = result.new_query
+                st.session_state['last_question'] = new_query
+                st.success(f"Query reformulated: {new_query}\nReason: {result.reason}")
+            else:
+                st.info("No reformulation needed.")
 
     if st.session_state.get('submitted'):
         with st.expander("Am besten auf die Anfrage passende Bestimmungen und Einträge in der Telefonliste", expanded=False):
