@@ -14,6 +14,9 @@ from google.oauth2 import service_account  # Ensure this import is included
 import json
 from groq import Groq
 from google.cloud import secretmanager
+import logging
+from google.cloud import logging as cloud_logging
+
 
 client = secretmanager.SecretManagerServiceClient()
 
@@ -45,16 +48,25 @@ google_credentials = json.loads(google_credentials_json)
 credentials = service_account.Credentials.from_service_account_info(google_credentials)
 client = storage.Client(credentials=credentials)
 
+client = cloud_logging.Client()
+client.setup_logging()
 
-credentials = service_account.Credentials.from_service_account_info(google_credentials)
-client = storage.Client(credentials=credentials)
-
+# Set up a logger
+logger = logging.getLogger("cloudLogger")
 
 ## Define your bucket and file paths
 bucket_name = "data_embeddings_ask"
 file1_path = "article_embeddings.json"
 file2_path = "knowledge_base_embeddings.json"  # Adjust this based on your file structure
 
+def log_to_cloud(query, answer, top_articles=None):
+    log_entry = {
+        "user_query": query,
+        "generated_answer": answer,
+        "top_articles": top_articles
+    }
+    logger.info(json.dumps(log_entry))
+    
 def load_json_from_gcs_as_numpy(bucket_name, file_path):
     try:
         # Load JSON from Google Cloud Storage
@@ -273,11 +285,11 @@ def main_app():
         st.session_state['last_question'] = user_query
         query_vector = get_embeddings(user_query)
         similarities = calculate_similarities(query_vector, article_embeddings)
-
+        log_to_cloud(query=user_query, answer=None)
         sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
         filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
         st.session_state.top_articles = filtered_articles[:10]
-
+        log_to_cloud(query=user_query, answer=None, top_articles=st.session_state.top_articles)
         knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
         st.session_state.top_knowledge_items = [
             (item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True)
@@ -362,6 +374,8 @@ def main_app():
                             ai_message = chat_completion.choices[0].message.content
                             st.session_state['last_answer'] = ai_message
                             st.session_state['last_model'] = "Llama 3.1"
+                            log_to_cloud(query=user_query, answer=ai_message, top_articles=st.session_state.top_articles)
+
                         else:
                             st.warning("No response generated from Llama 3.1.")
         
