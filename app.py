@@ -59,12 +59,18 @@ file1_path = "article_embeddings.json"
 file2_path = "knowledge_base_embeddings.json"  # Adjust this based on your file structure
 
 def log_to_cloud(query, answer, top_articles=None):
+    # Convert top_articles to a simple list of dictionaries or strings if needed
+    serializable_articles = [
+        {"title": str(title), "score": float(score)} for title, score in (top_articles or [])
+    ]
+    
     log_entry = {
         "user_query": query,
         "generated_answer": answer,
-        "top_articles": top_articles
+        "top_articles": serializable_articles  # Ensure it's a serializable format
     }
     logger.info(json.dumps(log_entry))
+
     
 def load_json_from_gcs_as_numpy(bucket_name, file_path):
     try:
