@@ -46,10 +46,9 @@ groq_client = Groq(api_key=groq_api_key)
 
 google_credentials = json.loads(google_credentials_json)
 credentials = service_account.Credentials.from_service_account_info(google_credentials)
-client = storage.Client(credentials=credentials)
-
-client = cloud_logging.Client()
-client.setup_logging()
+storage_client = storage.Client(credentials=credentials)  # Google Cloud Storage client
+logging_client = cloud_logging.Client()  # Cloud Logging client
+logging_client.setup_logging()  # Set up logging
 
 # Set up a logger
 logger = logging.getLogger("cloudLogger")
@@ -70,7 +69,7 @@ def log_to_cloud(query, answer, top_articles=None):
 def load_json_from_gcs_as_numpy(bucket_name, file_path):
     try:
         # Load JSON from Google Cloud Storage
-        bucket = client.bucket(bucket_name)
+        bucket = storage_client.get_bucket(bucket_name)
         blob = bucket.blob(file_path)
         file_content = blob.download_as_text()  # Download the content as text
         data_dict = json.loads(file_content)  # Parse the JSON content into a dictionary
