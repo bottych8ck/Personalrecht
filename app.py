@@ -70,7 +70,7 @@ def log_to_cloud(query, answer, top_articles=None):
 def load_json_from_gcs_as_numpy(bucket_name, file_path):
     try:
         # Load JSON from Google Cloud Storage
-        bucket = client.get_bucket(bucket_name)
+        bucket = client.bucket(bucket_name)
         blob = bucket.blob(file_path)
         file_content = blob.download_as_text()  # Download the content as text
         data_dict = json.loads(file_content)  # Parse the JSON content into a dictionary
