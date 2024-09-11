@@ -53,10 +53,8 @@ def get_articles_details(top_articles, law_data):
     return articles_details
 
 MAX_REFORMULATION_ATTEMPTS = 3  # Set a limit for the number of retries
-ddef assess_and_reformulate_query_with_retries(user_query, top_articles, law_data, max_attempts=MAX_REFORMULATION_ATTEMPTS):
-    """
-    Assess and possibly reformulate the query up to max_attempts times.
-    """
+def assess_and_reformulate_query_with_retries(user_query, top_articles, law_data, max_attempts=MAX_REFORMULATION_ATTEMPTS):
+    
     current_attempt = 0
     reformulated_query = user_query
 
