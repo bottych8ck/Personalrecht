@@ -84,10 +84,10 @@ def assess_and_reformulate_query_with_retries(user_query, top_articles, law_data
             # If reformulation is needed, update the query
             reformulated_query = result.new_query
             current_attempt += 1  # Increment the counter
-            print(f"Reformulation attempt {current_attempt}: New Query - {reformulated_query}")
+            st.write(f"Reformulation attempt {current_attempt}: New Query - {reformulated_query}")
         else:
             # No further reformulation needed
-            print("No reformulation needed.")
+            st.write("No reformulation needed.")
             break  # Exit the loop
 
     return reformulated_query
