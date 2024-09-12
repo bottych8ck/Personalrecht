@@ -246,6 +246,8 @@ def main_app():
         st.session_state['show_form'] = False
     if 'delete_form' not in st.session_state:
         st.session_state['delete_form'] = False
+    if 'selected_entry' not in st.session_state:
+        st.session_state ['selected_entry'] = ""
 
 
     user_query = st.text_area("Hier Ihre Frage eingeben:", height=200, key="user_query_text_area")
