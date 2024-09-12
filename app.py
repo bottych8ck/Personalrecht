@@ -338,9 +338,9 @@ def main_app():
     #                 delete_from_knowledge_base(entry_id_to_delete)
 
 
-    st.write("")
-    st.write("")
-    st.write("")    
+        st.write("")
+        st.write("")
+        st.write("")    
 
         col1, col2 = st.columns(2)
                          
