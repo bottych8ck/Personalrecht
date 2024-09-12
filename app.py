@@ -33,11 +33,6 @@ reverse_tags_mapping = {
 }
 
 # Load the data
-with open('article_embeddings.json', 'r') as file:
-    article_embeddings = json.load(file)
-    
-with open('law_data.json', 'r') as file:
-    law_data = json.load(file)
 
 with open('knowledge_base_embeddings.json', 'r') as file:
     knowledge_base_embeddings = json.load(file)
@@ -54,8 +49,11 @@ for item_id, item in knowledge_base.items():
 load_dotenv()  # This line loads the variables from .env
 logo_path = 'subsumary_Logo_1farbig_schwarz.png'
 
-api_key = os.getenv('OPENAI_API_KEY')
-client = openai.OpenAI(api_key=api_key)
+openai_api_key = os.getenv('OPENAI_API_KEY')
+groq_api_key = os.getenv('GROQ_API_KEY')
+
+openai_client = openai.OpenAI(api_key=openai_api_key)
+groq_client = Groq(api_key=groq_api_key)
 
 def update_file_in_github(file_path, content, commit_message="Update file"):
     repo_owner = os.getenv('GITHUB_REPO_OWNER')
@@ -206,20 +204,10 @@ def generate_html_with_js(prompt):
 
 
 
-def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
+def generate_prompt(user_query, top_knowledge_items):
     prompt = f"Beantworte folgende Frage: \"{user_query}\"\n\n"
-    prompt += "Beantworte die Frage nur gestützt auf einen oder mehrere der folgenden §. Prüfe zuerst, ob der § überhaupt auf die Frage anwendbar ist. Wenn er nicht anwendbar ist, vergiss den §.\n"
-    prompt += f"{relevance_mapping.get(relevance, 'Die Frage ist allgemein.')} \n\n"
-    article_number = 1
+    prompt += "Beantworte die Frage nur gestützt auf einen oder mehrere der folgenden Einträge in der Telefonliste. Prüfe zuerst, ob der § überhaupt auf die Frage anwendbar ist. Wenn er nicht anwendbar ist, vergiss den §.\n"
     
-    for uid, _ in top_articles:
-        title, all_paragraphs, law_name, law_url = get_article_content(uid, law_data)
-        content = " ".join(all_paragraphs)
-        prompt += f"\n{article_number}. §: {title} von folgendem Erlass: {law_name}\n"
-        prompt += f"   - **Inhalt:** {content.strip()}\n"
-        article_number += 1
-
-    prompt += "\n"
     
     prompt += "\nZusätzlich berücksichtige folgende allgemeine Grundsätze und Prinzipien:\n"
     for item_id, _ in top_knowledge_items:
@@ -229,7 +217,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
         prompt += f"- {title}: {content}\n"
 
    
-    prompt += "Anfrage auf Deutsch beantworten. Prüfe die  Anwendbarkeit der einzelnen § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, vergiss ihn.\n"
+    prompt += "Anfrage auf Deutsch beantworten."
     prompt += "Mache nach der Antwort ein Fazit und erwähne dort die relevanten § mitsamt dem Erlassnahmen \n"
 
     return prompt
@@ -261,22 +249,12 @@ def main_app():
 
     user_query = st.text_area("Hier Ihre Frage eingeben:", height=200, key="user_query_text_area")
 
-    relevance_options = ["Staatspersonal", "Lehrperson VS", "Lehrperson Sek II"]
-    relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Staatspersonal, Lehrpersonen der Volksschule oder Lehrpersonen der Berufsfach- und Mittelschulen bezieht:", relevance_options)
 
-    if 'top_articles' not in st.session_state:
-        st.session_state.top_articles = []
-    if 'submitted' not in st.session_state:
-        st.session_state.submitted = False
-
-    if user_query != st.session_state['last_question']:
+    if st.button("Bearbeiten"):
+        st.session_state['last_question'] = user_query
+        st.session_state.generating_answer = False
+        st.session_state.submitted = True
         query_vector = get_embeddings(user_query)
-        similarities = calculate_similarities(query_vector, article_embeddings)
-
-        sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-        filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-        st.session_state.top_articles = filtered_articles[:10]
-
         knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
         st.session_state.top_knowledge_items = [
             (item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True)
@@ -285,48 +263,34 @@ def main_app():
 
         st.session_state['last_question'] = user_query
 
-    if st.button("Relevante Bestimmungen und Einträge in der Telefonliste"):
-        st.session_state.submitted = True
-        with st.expander("Am besten auf die Anfrage passende Bestimmungen und Wissenselemente", expanded=True):
+    if st.session_state.get('submitted'):
+
+        with st.expander("Am besten auf die Anfrage passende Bestimmungen und Einträge in der Telefonliste", expanded=False):
             col1, col2 = st.columns(2)
+
+            # Display best-matching representative entries in the left column
             with col1:
-                st.markdown("#### Bestimmungen (Top-10)")
-                for uid, score in st.session_state.top_articles:
-                    article_info = law_data.get(str(uid), None)
-                    if article_info:
-                        title, all_paragraphs, law_name, law_url = get_article_content(str(uid), law_data)
-                        law_name_display = law_name if law_name else "Unbekanntes Gesetz"
-                        if law_url:
-                            law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
+                st.write("Beste Übereinstimmungen:")
+                for item_id, score in st.session_state.top_knowledge_items:
+                    item = knowledge_base[item_id]
+                    if st.button(f"{item['Title']} (Score: {score:.2f})", key=f"button_{item_id}"):
+                        st.session_state['selected_entry'] = item_id
 
-                        title_clean = title.strip('*')
-                        st.markdown(f"**{title_clean} - {law_name_display}**", unsafe_allow_html=True)
-
-                        if all_paragraphs:
-                            for paragraph in all_paragraphs:
-                                st.write(paragraph)
-                        else:
-                            st.write("Kein Inhalt verfügbar.")
-
+            # Display similar entries in the right column
             with col2:
-                st.markdown("#### Einträge in der Telefonliste (Top-30)")
-                for item_id, _ in st.session_state.top_knowledge_items:
-                    item = knowledge_base.get(item_id, {})
-                    title = item.get("Title", "Unbekannt")
-                    content = item.get("Content", "")
-                    year = item.get("Year", "")
-                    
-                    if isinstance(content, list):
-                        # Join list into a single string with double spaces at the end of each line to ensure Markdown respects line breaks
-                        content = '  \n'.join(content)
-                    
-                    # Display the title and content with proper formatting
-                    st.markdown(f"**{title}**")
-                    st.markdown(f"*Auskunft aus dem Jahr {year}*")  # Display the year under the title
-                    st.markdown(content)
+                if st.session_state['selected_entry']:
+                    selected_item_id = st.session_state['selected_entry']
+                    selected_item = knowledge_base[selected_item_id]
+                    st.write(f"Ähnliche Einträge zu: {selected_item['Title']}")
 
+                    # Display similar entries for the selected representative entry
+                    if 'Gleichlautende Einträge' in selected_item:
+                        for similar_entry in selected_item['Gleichlautende Einträge']:
+                            st.write(f"- **{similar_entry['Title']}**: {similar_entry['Content']}")
+                    else:
+                        st.write("Keine ähnlichen Einträge gefunden.")
 
-
+        
     # if 'show_form' not in st.session_state:
     #     st.session_state.show_form = False
 
@@ -378,93 +342,64 @@ def main_app():
     st.write("")
     st.write("")    
 
-# Display GPT-4 response buttons
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Mit GPT 4o beantworten"):
-            if user_query:
-                query_vector = get_embeddings(user_query)
-                similarities = calculate_similarities(query_vector, article_embeddings)
+        col1, col2 = st.columns(2)
+                         
+        with col1:
+            if st.button("Antwort mit Sprachmodell generieren"):
+                st.session_state.generating_answer = True  # Set this to true when button is clicked
+            if st.session_state.get('generating_answer'):
+                if user_query:  # Check if a user query is entered
+                    prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
+                    st.write("Sending request to Groq API...")
+                    try:
+                        # Handle Llama 3.1 model selection
+                        chat_completion = groq_client.chat.completions.create(
+                            messages=[
+                                {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                                {"role": "user", "content": prompt}
+                            ],
+                            model="llama-3.1-70b-versatile"
+                        )
+                        # Check if response is available
+                        if chat_completion.choices and len(chat_completion.choices) > 0:
+                            ai_message = chat_completion.choices[0].message.content
+                            st.session_state['last_answer'] = ai_message
+                            st.session_state['last_model'] = "Llama 3.1"
+                        else:
+                            st.warning("No response generated from Llama 3.1.")
+        
+                    except groq.InternalServerError as e:
+                        st.error(f"An internal server error occurred with the Groq API: {str(e)}")
+                    except Exception as e:
+                        st.error(f"An error occurred with the Groq API: {str(e)}")
+        
+                    # Display the generated answer
+                    if st.session_state['last_answer']:
+                        st.subheader(f"Antwort summary ({st.session_state['last_model']}):")
+                        st.write(st.session_state['last_answer'])
+                else:
+                    st.warning("Please enter a query before generating an answer.")  # Warning for no query input
+    
+            
+        with col2:
                 
-                sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-                filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-                st.session_state.top_articles = filtered_articles[:10]
-                knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-                st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
-                prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                response = client.chat.completions.create(
-                    model="gpt-4o-2024-08-06",
-                    messages=[
-                        {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                        {"role": "user", "content": prompt}
-                    ]
-                )
+            if st.button("Prompt generieren und in die Zwischenablage kopieren"):
+                if user_query and st.session_state.top_articles:
+                    # Generate the prompt
+                    prompt = generate_prompt(user_query, st.session_state.top_articles, law_data)
+                    st.session_state['prompt'] = prompt
         
-                    # Display the response from OpenAI
-                if response.choices:
-                    ai_message = response.choices[0].message.content  # Corrected attribute access
-                    st.session_state['last_question'] = user_query
-                    st.session_state['last_answer_gpt4o'] = ai_message
-            else:
-                ai_message = st.session_state['last_answer_gpt4o']
-        if st.session_state['last_answer_gpt4o']:
-            st.subheader("Antwort subsumary:")
-            st.write(st.session_state['last_answer_gpt4o'])
-
-
-
-
-    with col2:
-        if st.button("Mit GPT 4o mini beantworten"):
-            if user_query:
-                query_vector = get_embeddings(user_query)
-                similarities = calculate_similarities(query_vector, article_embeddings)
-                
-                sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-                filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-                st.session_state.top_articles = filtered_articles[:10]
-                knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-                st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
-                prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                response = client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[
-                        {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                        {"role": "user", "content": prompt}
-                    ]
-                )
+                    # Create HTML with JavaScript to copy the prompt to the clipboard
+                    html_with_js = generate_html_with_js(prompt)
+                    st.components.v1.html(html_with_js)
         
-                    # Display the response from OpenAI
-                if response.choices:
-                    ai_message = response.choices[0].message.content  # Corrected attribute access
-                    st.session_state['last_question'] = user_query
-                    st.session_state['last_answer'] = ai_message
-            else:
-                ai_message = st.session_state['last_answer']
-        if st.session_state['last_answer']:
-            st.subheader("Antwort subsumary:")
-            st.write(st.session_state['last_answer'])
+                    # Display the generated prompt in a text area
+                    st.text_area("Prompt:", prompt, height=300)
+                else:
+                    if not st.session_state.top_articles:
+                        st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
 
 
-
-        
-        
-    if st.button("Prompt generieren und in die Zwischenablage kopieren"):
-        if user_query and st.session_state.top_articles:
-            # Generate the prompt
-            prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-            st.session_state['prompt'] = prompt
-
-            # Create HTML with JavaScript to copy the prompt to the clipboard
-            html_with_js = generate_html_with_js(prompt)
-            st.components.v1.html(html_with_js)
-
-            # Display the generated prompt in a text area
-            st.text_area("Prompt:", prompt, height=300)
-        else:
-            if not st.session_state.top_articles:
-                st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
 
 if __name__ == "__main__":
-    main_app()
-
+    main_app()  # Correctly call the main application function
