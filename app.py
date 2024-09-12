@@ -259,8 +259,7 @@ def main_app():
         knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
         st.session_state.top_knowledge_items = [
             (item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True)
-            if is_relevant_article(knowledge_base[item_id], relevance)
-        ][:30]
+        ][:30
 
         st.session_state['last_question'] = user_query
 
