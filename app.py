@@ -125,7 +125,7 @@ def delete_from_knowledge_base(entry_id):
         st.error(f"Entry {entry_id} not found.")
 
 def get_embeddings(text):
-    res = client.embeddings.create(input=[text], model="text-embedding-ada-002")
+    res = openai_client.embeddings.create(input=[text], model="text-embedding-ada-002")
     return res.data[0].embedding
 
 def is_relevant_article(section_data, relevance):
