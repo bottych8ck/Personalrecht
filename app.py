@@ -9,6 +9,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import base64
 import requests
+from groq import Groq
 
 
 # Mapping for relevance criteria
