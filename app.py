@@ -359,7 +359,7 @@ def main_app():
         st.write("")    
     
     # genAI-Teil
-        if st.button("Mit Sprachmodel beantworten")
+        if st.button("Mit Sprachmodel beantworten"):
             st.session_state.generating_answer = True  # Set this to true when button is clicked
         if st.session_state.get('generating_answer'):
             if user_query:
