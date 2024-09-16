@@ -49,7 +49,7 @@ load_dotenv()  # This line loads the variables from .env
 logo_path = 'subsumary_Logo_1farbig_schwarz.png'
 
 openai_api_key = os.getenv('OPENAI_API_KEY')
-openai_client = openai.OpenAI(api_key=api_key)
+openai_client = openai.OpenAI(api_key=openai_api_key)
 
 groq_api_key = os.getenv('GROQ_API_KEY')
 groq_client = Groq(api_key=groq_api_key)
