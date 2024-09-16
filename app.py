@@ -254,7 +254,8 @@ def main_app():
         st.session_state['delete_form'] = False
     if 'generating_answer' not in st.session_state:
         st.session_state.generating_answer = False
-
+    if 'start_generating_answer' not in st.session_state:
+        st.session_state.start_generating_answer = False
 
     user_query = st.text_area("Hier Ihre Frage eingeben:", height=200, key="user_query_text_area")
 
@@ -317,6 +318,8 @@ def main_app():
         with col1:
             if st.button("Neues Wissenselement hinzufügen"):
                 st.session_state.show_form = not st.session_state.show_form
+                # Toggle form visibility on button click
+
     
             if st.session_state.show_form:
                 with st.form(key='add_knowledge_form'):
@@ -369,8 +372,8 @@ def main_app():
                 st.session_state['generated_prompt'] = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
                 st.session_state['editable_prompt'] = st.text_area("Prompt bearbeiten:", st.session_state['generated_prompt'], height=300)
                 if st.button("Promptengingeering abgeschlossen") and st.session_state['editable_prompt']:
-                    st.session_state.generating_answer = True  # Set this to true when button is clicked
-                if st.session_state.get('generating_answer'):
+                    st.session_state.start_generating_answer = True  # Set this to true when button is clicked
+                if st.session_state.get('start_generating_answer'):
                     
                     try:
                         # Handle Llama 3.1 model selection
