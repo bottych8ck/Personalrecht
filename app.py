@@ -245,7 +245,7 @@ def main_app():
     if 'top_knowledge_items' not in st.session_state:
         st.session_state['top_knowledge_items'] = []
     if 'prompt' not in st.session_state:
-        st.session_state['prompt'] = ""
+        st.session_state['generated_prompt'] = ""
     if 'submitted' not in st.session_state:
         st.session_state['submitted'] = False
     if 'show_form' not in st.session_state:
@@ -374,7 +374,7 @@ def main_app():
                                     model="gpt-4o",
                                     messages=[
                                         {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                                        {"role": "user", "content": prompt}
+                                        {"role": "user", "content": st.session_state['editable_prompt']}
                                     ]
                                 )
                         
