@@ -388,8 +388,8 @@ def main_app():
                         else:
                             st.warning("No response generated from Llama 3.1.")
         
-                    except groq.InternalServerError as e:
-                        st.error(f"An internal server error occurred with the Groq API: {str(e)}")
+                    # except groq.InternalServerError as e:
+                    #     st.error(f"An internal server error occurred with the Groq API: {str(e)}")
                     except Exception as e:
                         st.error(f"An error occurred with the Groq API: {str(e)}")
         
