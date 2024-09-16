@@ -367,27 +367,27 @@ def main_app():
                 st.session_state['editable_prompt'] = st.text_area("Prompt bearbeiten:", st.session_state['generated_prompt'], height=300)
                 if st.button("Promptengingeering abgeschlossen") and st.session_state['editable_prompt']:
                     col1, col2 = st.columns(2)
-                    with col1:
-                        if st.button("Mit GPT 4o beantworten"):
-                            if user_query:
-                               response = client.chat.completions.create(
-                                    model="gpt-4o",
-                                    messages=[
-                                        {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                                        {"role": "user", "content": st.session_state['editable_prompt']}
-                                    ]
-                                )
+                    # with col1:
+                    #     if st.button("Mit GPT 4o beantworten"):
+                    #         if user_query:
+                    #            response = client.chat.completions.create(
+                    #                 model="gpt-4o",
+                    #                 messages=[
+                    #                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                    #                     {"role": "user", "content": st.session_state['editable_prompt']}
+                    #                 ]
+                    #             )
                         
-                                    # Display the response from OpenAI
-                            if response.choices:
-                                ai_message = response.choices[0].message.content  # Corrected attribute access
-                                st.session_state['last_question'] = user_query
-                                st.session_state['last_answer_gpt4o'] = ai_message
-                        else:
-                            ai_message = st.session_state['last_answer_gpt4o']
-                        if st.session_state['last_answer_gpt4o']:
-                            st.subheader("Antwort subsumary:")
-                            st.write(st.session_state['last_answer_gpt4o'])
+                    #                 # Display the response from OpenAI
+                    #         if response.choices:
+                    #             ai_message = response.choices[0].message.content  # Corrected attribute access
+                    #             st.session_state['last_question'] = user_query
+                    #             st.session_state['last_answer_gpt4o'] = ai_message
+                    #     else:
+                    #         ai_message = st.session_state['last_answer_gpt4o']
+                    #     if st.session_state['last_answer_gpt4o']:
+                    #         st.subheader("Antwort subsumary:")
+                    #         st.write(st.session_state['last_answer_gpt4o'])
                 
                     with col2:
                         if st.button("Mit GPT 4o mini beantworten"):
