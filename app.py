@@ -307,144 +307,144 @@ def main_app():
                     st.markdown(f"**{title}**")
                     st.write(content)
 
-    if 'show_form' not in st.session_state:
-        st.session_state.show_form = False
+        if 'show_form' not in st.session_state:
+            st.session_state.show_form = False
 
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Neues Wissenselement hinzufügen"):
-            st.session_state.show_form = not st.session_state.show_form
-
-        if st.session_state.show_form:
-            with st.form(key='add_knowledge_form'):
-                title = st.text_input("Titel", value=f"Hinweis zu folgender Frage: {user_query}")
-                content = st.text_area("Inhalt")
-                category = "User-Hinweis"
-                selected_german_tags = st.multiselect(
-                    "Anwendbarkeit: Auf welche Personalkategorie ist das neue Wissen anwendbar? Bitte auswählen, mehrfache Auswahl ist erlaubt.",
-                    list(set(tags_mapping.values())),
-                    default=[
-                        "Staatspersonal",
-                        "Lehrperson VS",
-                        "Lehrperson Sek II"
-                    ]
-                )
-                submit_button = st.form_submit_button(label='Hinzufügen')
-
-                if submit_button and title and content:
-                    # Convert the selected German tags to their corresponding English tags
-                    selected_english_tags = []
-                    for selected_german_tag in selected_german_tags:
-                        selected_english_tags.extend(reverse_tags_mapping[selected_german_tag])
-                    add_to_knowledge_base(title, content, category, selected_english_tags)
-                    st.success("Neues Wissen erfolgreich hinzugefügt!")
-
-        if 'delete_form' not in st.session_state:
-            st.session_state.delete_form = False
-    with col2:
-        if st.button("Wissenselement löschen"):
-            st.session_state.delete_form = not st.session_state.delete_form
-
-        if st.session_state.delete_form:
-            with st.form(key='delete_knowledge_form'):
-                entry_id_to_delete = st.selectbox("Wählen Sie das Wissenselement zum Löschen aus:", [(key, knowledge_base[key]["Title"]) for key in knowledge_base.keys()])
-                delete_button = st.form_submit_button(label='Löschen')
-
-                if delete_button and entry_id_to_delete:
-                    delete_from_knowledge_base(entry_id_to_delete)
-
-
-    st.write("")
-    st.write("")
-    st.write("")    
-
-# Display GPT-4 response buttons
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Mit GPT 4o beantworten"):
-            if user_query:
-                query_vector = get_embeddings(user_query)
-                similarities = calculate_similarities(query_vector, article_embeddings)
-                
-                sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-                filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-                st.session_state.top_articles = filtered_articles[:10]
-                knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-                st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Neues Wissenselement hinzufügen"):
+                st.session_state.show_form = not st.session_state.show_form
+    
+            if st.session_state.show_form:
+                with st.form(key='add_knowledge_form'):
+                    title = st.text_input("Titel", value=f"Hinweis zu folgender Frage: {user_query}")
+                    content = st.text_area("Inhalt")
+                    category = "User-Hinweis"
+                    selected_german_tags = st.multiselect(
+                        "Anwendbarkeit: Auf welche Personalkategorie ist das neue Wissen anwendbar? Bitte auswählen, mehrfache Auswahl ist erlaubt.",
+                        list(set(tags_mapping.values())),
+                        default=[
+                            "Staatspersonal",
+                            "Lehrperson VS",
+                            "Lehrperson Sek II"
+                        ]
+                    )
+                    submit_button = st.form_submit_button(label='Hinzufügen')
+    
+                    if submit_button and title and content:
+                        # Convert the selected German tags to their corresponding English tags
+                        selected_english_tags = []
+                        for selected_german_tag in selected_german_tags:
+                            selected_english_tags.extend(reverse_tags_mapping[selected_german_tag])
+                        add_to_knowledge_base(title, content, category, selected_english_tags)
+                        st.success("Neues Wissen erfolgreich hinzugefügt!")
+    
+            if 'delete_form' not in st.session_state:
+                st.session_state.delete_form = False
+        with col2:
+            if st.button("Wissenselement löschen"):
+                st.session_state.delete_form = not st.session_state.delete_form
+    
+            if st.session_state.delete_form:
+                with st.form(key='delete_knowledge_form'):
+                    entry_id_to_delete = st.selectbox("Wählen Sie das Wissenselement zum Löschen aus:", [(key, knowledge_base[key]["Title"]) for key in knowledge_base.keys()])
+                    delete_button = st.form_submit_button(label='Löschen')
+    
+                    if delete_button and entry_id_to_delete:
+                        delete_from_knowledge_base(entry_id_to_delete)
+    
+    
+        st.write("")
+        st.write("")
+        st.write("")    
+    
+    # Display GPT-4 response buttons
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Mit GPT 4o beantworten"):
+                if user_query:
+                    query_vector = get_embeddings(user_query)
+                    similarities = calculate_similarities(query_vector, article_embeddings)
+                    
+                    sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+                    filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
+                    st.session_state.top_articles = filtered_articles[:10]
+                    knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
+                    st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
+                    prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+                    response = client.chat.completions.create(
+                        model="gpt-4o",
+                        messages=[
+                            {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                            {"role": "user", "content": prompt}
+                        ]
+                    )
+            
+                        # Display the response from OpenAI
+                    if response.choices:
+                        ai_message = response.choices[0].message.content  # Corrected attribute access
+                        st.session_state['last_question'] = user_query
+                        st.session_state['last_answer_gpt4o'] = ai_message
+                else:
+                    ai_message = st.session_state['last_answer_gpt4o']
+            if st.session_state['last_answer_gpt4o']:
+                st.subheader("Antwort subsumary:")
+                st.write(st.session_state['last_answer_gpt4o'])
+    
+    
+    
+    
+        with col2:
+            if st.button("Mit GPT 4o mini beantworten"):
+                if user_query:
+                    query_vector = get_embeddings(user_query)
+                    similarities = calculate_similarities(query_vector, article_embeddings)
+                    
+                    sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+                    filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
+                    st.session_state.top_articles = filtered_articles[:10]
+                    knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
+                    st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
+                    prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+                    response = client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=[
+                            {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                            {"role": "user", "content": prompt}
+                        ]
+                    )
+            
+                        # Display the response from OpenAI
+                    if response.choices:
+                        ai_message = response.choices[0].message.content  # Corrected attribute access
+                        st.session_state['last_question'] = user_query
+                        st.session_state['last_answer'] = ai_message
+                else:
+                    ai_message = st.session_state['last_answer']
+            if st.session_state['last_answer']:
+                st.subheader("Antwort subsumary:")
+                st.write(st.session_state['last_answer'])
+    
+    
+    
+            
+            
+        if st.button("Prompt generieren und in die Zwischenablage kopieren"):
+            if user_query and st.session_state.top_articles:
+                # Generate the prompt
                 prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                response = client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=[
-                        {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                        {"role": "user", "content": prompt}
-                    ]
-                )
-        
-                    # Display the response from OpenAI
-                if response.choices:
-                    ai_message = response.choices[0].message.content  # Corrected attribute access
-                    st.session_state['last_question'] = user_query
-                    st.session_state['last_answer_gpt4o'] = ai_message
+                st.session_state['prompt'] = prompt
+    
+                # Create HTML with JavaScript to copy the prompt to the clipboard
+                html_with_js = generate_html_with_js(prompt)
+                st.components.v1.html(html_with_js)
+    
+                # Display the generated prompt in a text area
+                st.text_area("Prompt:", prompt, height=300)
             else:
-                ai_message = st.session_state['last_answer_gpt4o']
-        if st.session_state['last_answer_gpt4o']:
-            st.subheader("Antwort subsumary:")
-            st.write(st.session_state['last_answer_gpt4o'])
-
-
-
-
-    with col2:
-        if st.button("Mit GPT 4o mini beantworten"):
-            if user_query:
-                query_vector = get_embeddings(user_query)
-                similarities = calculate_similarities(query_vector, article_embeddings)
-                
-                sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-                filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-                st.session_state.top_articles = filtered_articles[:10]
-                knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-                st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
-                prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                response = client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[
-                        {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                        {"role": "user", "content": prompt}
-                    ]
-                )
-        
-                    # Display the response from OpenAI
-                if response.choices:
-                    ai_message = response.choices[0].message.content  # Corrected attribute access
-                    st.session_state['last_question'] = user_query
-                    st.session_state['last_answer'] = ai_message
-            else:
-                ai_message = st.session_state['last_answer']
-        if st.session_state['last_answer']:
-            st.subheader("Antwort subsumary:")
-            st.write(st.session_state['last_answer'])
-
-
-
-        
-        
-    if st.button("Prompt generieren und in die Zwischenablage kopieren"):
-        if user_query and st.session_state.top_articles:
-            # Generate the prompt
-            prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-            st.session_state['prompt'] = prompt
-
-            # Create HTML with JavaScript to copy the prompt to the clipboard
-            html_with_js = generate_html_with_js(prompt)
-            st.components.v1.html(html_with_js)
-
-            # Display the generated prompt in a text area
-            st.text_area("Prompt:", prompt, height=300)
-        else:
-            if not st.session_state.top_articles:
-                st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
-
+                if not st.session_state.top_articles:
+                    st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
+    
 if __name__ == "__main__":
     main_app()
 
