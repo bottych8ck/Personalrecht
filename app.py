@@ -9,6 +9,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import base64
 import requests
+from groq import Groq
 
 
 # Mapping for relevance criteria
@@ -47,8 +48,11 @@ with open('knowledge_base.json', 'r') as file:
 load_dotenv()  # This line loads the variables from .env
 logo_path = 'subsumary_Logo_1farbig_schwarz.png'
 
-api_key = os.getenv('OPENAI_API_KEY')
-client = openai.OpenAI(api_key=api_key)
+openai_api_key = os.getenv('OPENAI_API_KEY')
+openai_client = openai.OpenAI(api_key=api_key)
+
+groq_api_key = os.getenv('GROQ_API_KEY')
+groq_client = Groq(api_key=groq_api_key)
 
 def update_file_in_github(file_path, content, commit_message="Update file"):
     repo_owner = os.getenv('GITHUB_REPO_OWNER')
@@ -119,7 +123,7 @@ def delete_from_knowledge_base(entry_id):
         st.error(f"Entry {entry_id} not found.")
 
 def get_embeddings(text):
-    res = client.embeddings.create(input=[text], model="text-embedding-ada-002")
+    res = openai_client.embeddings.create(input=[text], model="text-embedding-ada-002")
     return res.data[0].embedding
 
 def is_relevant_article(section_data, relevance):
@@ -135,8 +139,6 @@ def is_relevant_article(section_data, relevance):
     is_relevant = any(relevance_criteria in tag for tag in normalized_tags)
     
     return is_relevant
-
-    
 
 def get_relevant_articles(law_data, relevance):
     relevant_articles = {}
@@ -257,29 +259,24 @@ def main_app():
     relevance_options = ["Staatspersonal", "Lehrperson VS", "Lehrperson Sek II"]
     relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Staatspersonal, Lehrpersonen der Volksschule oder Lehrpersonen der Berufsfach- und Mittelschulen bezieht:", relevance_options)
 
-    if 'top_articles' not in st.session_state:
-        st.session_state.top_articles = []
-    if 'submitted' not in st.session_state:
-        st.session_state.submitted = False
-
-    if user_query != st.session_state['last_question']:
+    
+    if st.button("Bearbeiten"):
+        st.session_state['relevance'] = relevance
+        st.session_state['last_question'] = user_query
         query_vector = get_embeddings(user_query)
         similarities = calculate_similarities(query_vector, article_embeddings)
-
         sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
         filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
         st.session_state.top_articles = filtered_articles[:10]
-
         knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
         st.session_state.top_knowledge_items = [
             (item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True)
             if is_relevant_article(knowledge_base[item_id], relevance)
-        ][:5]
+        ][:1]
 
         st.session_state['last_question'] = user_query
-
-    if st.button("Relevante Bestimmungen und Wissenselemente"):
         st.session_state.submitted = True
+    if st.session_state.get('submitted'):
         with st.expander("Am besten auf die Anfrage passende Bestimmungen und Wissenselemente", expanded=True):
             col1, col2 = st.columns(2)
             with col1:
