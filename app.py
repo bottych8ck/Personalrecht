@@ -403,8 +403,8 @@ def main_app():
                     if st.session_state['last_answer']:
                         st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
                         st.write(st.session_state['last_answer'])
-                else:
-                    st.warning("Please enter a query before generating an answer.")  # Warning for no query input
+                # else:
+                #     st.warning("Please enter a query before generating an answer.")  # Warning for no query input
                     
                     # col1, col2 = st.columns(2)
 
