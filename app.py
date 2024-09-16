@@ -379,12 +379,12 @@ def main_app():
                                 )
                         
                                     # Display the response from OpenAI
-                                if response.choices:
-                                    ai_message = response.choices[0].message.content  # Corrected attribute access
-                                    st.session_state['last_question'] = user_query
-                                    st.session_state['last_answer_gpt4o'] = ai_message
-                            else:
-                                ai_message = st.session_state['last_answer_gpt4o']
+                            if response.choices:
+                                ai_message = response.choices[0].message.content  # Corrected attribute access
+                                st.session_state['last_question'] = user_query
+                                st.session_state['last_answer_gpt4o'] = ai_message
+                        else:
+                            ai_message = st.session_state['last_answer_gpt4o']
                         if st.session_state['last_answer_gpt4o']:
                             st.subheader("Antwort subsumary:")
                             st.write(st.session_state['last_answer_gpt4o'])
