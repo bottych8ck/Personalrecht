@@ -383,7 +383,6 @@ def main_app():
                             ai_message = chat_completion.choices[0].message.content
                             st.session_state['last_answer'] = ai_message
                             st.session_state['last_model'] = "Llama 3.1"
-                            log_to_cloud(query=user_query, answer=ai_message, top_articles=st.session_state.top_articles)
 
                         else:
                             st.warning("No response generated from Llama 3.1.")
