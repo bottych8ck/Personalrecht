@@ -366,59 +366,96 @@ def main_app():
                 st.session_state['generated_prompt'] = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
                 st.session_state['editable_prompt'] = st.text_area("Prompt bearbeiten:", st.session_state['generated_prompt'], height=300)
                 if st.button("Promptengingeering abgeschlossen") and st.session_state['editable_prompt']:
-                    col1, col2 = st.columns(2)
-                    # with col1:
-                    #     if st.button("Mit GPT 4o beantworten"):
+                    st.session_state.generating_answer = True  # Set this to true when button is clicked
+                if st.session_state.get('generating_answer'):
+                    
+                    try:
+                        # Handle Llama 3.1 model selection
+                        chat_completion = groq_client.chat.completions.create(
+                            messages=[
+                                {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                                {"role": "user", "content": st.session_state['editable_prompt']}
+                            ],
+                            model="llama-3.1-70b-versatile"
+                        )
+                        # Check if response is available
+                        if chat_completion.choices and len(chat_completion.choices) > 0:
+                            ai_message = chat_completion.choices[0].message.content
+                            st.session_state['last_answer'] = ai_message
+                            st.session_state['last_model'] = "Llama 3.1"
+                            log_to_cloud(query=user_query, answer=ai_message, top_articles=st.session_state.top_articles)
+
+                        else:
+                            st.warning("No response generated from Llama 3.1.")
+        
+                    except groq.InternalServerError as e:
+                        st.error(f"An internal server error occurred with the Groq API: {str(e)}")
+                    except Exception as e:
+                        st.error(f"An error occurred with the Groq API: {str(e)}")
+        
+                    # Display the generated answer
+                    if st.session_state['last_answer']:
+                        st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
+                        st.write(st.session_state['last_answer'])
+                else:
+                    st.warning("Please enter a query before generating an answer.")  # Warning for no query input
+                    
+                    # col1, col2 = st.columns(2)
+
+                    
+                    
+                    # # with col1:
+                    # #     if st.button("Mit GPT 4o beantworten"):
+                    # #         if user_query:
+                    # #            response = client.chat.completions.create(
+                    # #                 model="gpt-4o",
+                    # #                 messages=[
+                    # #                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                    # #                     {"role": "user", "content": st.session_state['editable_prompt']}
+                    # #                 ]
+                    # #             )
+                        
+                    # #                 # Display the response from OpenAI
+                    # #         if response.choices:
+                    # #             ai_message = response.choices[0].message.content  # Corrected attribute access
+                    # #             st.session_state['last_question'] = user_query
+                    # #             st.session_state['last_answer_gpt4o'] = ai_message
+                    # #     else:
+                    # #         ai_message = st.session_state['last_answer_gpt4o']
+                    # #     if st.session_state['last_answer_gpt4o']:
+                    # #         st.subheader("Antwort subsumary:")
+                    # #         st.write(st.session_state['last_answer_gpt4o'])
+                
+                    # with col2:
+                    #     if st.button("Mit GPT 4o mini beantworten"):
                     #         if user_query:
-                    #            response = client.chat.completions.create(
-                    #                 model="gpt-4o",
+                    #             query_vector = get_embeddings(user_query)
+                    #             similarities = calculate_similarities(query_vector, article_embeddings)
+                                
+                    #             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+                    #             filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
+                    #             st.session_state.top_articles = filtered_articles[:10]
+                    #             knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
+                    #             st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
+                    #             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+                    #             response = client.chat.completions.create(
+                    #                 model="gpt-4o-mini",
                     #                 messages=[
                     #                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                    #                     {"role": "user", "content": st.session_state['editable_prompt']}
+                    #                     {"role": "user", "content": prompt}
                     #                 ]
                     #             )
                         
                     #                 # Display the response from OpenAI
-                    #         if response.choices:
-                    #             ai_message = response.choices[0].message.content  # Corrected attribute access
-                    #             st.session_state['last_question'] = user_query
-                    #             st.session_state['last_answer_gpt4o'] = ai_message
-                    #     else:
-                    #         ai_message = st.session_state['last_answer_gpt4o']
-                    #     if st.session_state['last_answer_gpt4o']:
+                    #             if response.choices:
+                    #                 ai_message = response.choices[0].message.content  # Corrected attribute access
+                    #                 st.session_state['last_question'] = user_query
+                    #                 st.session_state['last_answer'] = ai_message
+                    #         else:
+                    #             ai_message = st.session_state['last_answer']
+                    #     if st.session_state['last_answer']:
                     #         st.subheader("Antwort subsumary:")
-                    #         st.write(st.session_state['last_answer_gpt4o'])
-                
-                    with col2:
-                        if st.button("Mit GPT 4o mini beantworten"):
-                            if user_query:
-                                query_vector = get_embeddings(user_query)
-                                similarities = calculate_similarities(query_vector, article_embeddings)
-                                
-                                sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-                                filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-                                st.session_state.top_articles = filtered_articles[:10]
-                                knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-                                st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
-                                prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                                response = client.chat.completions.create(
-                                    model="gpt-4o-mini",
-                                    messages=[
-                                        {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                                        {"role": "user", "content": prompt}
-                                    ]
-                                )
-                        
-                                    # Display the response from OpenAI
-                                if response.choices:
-                                    ai_message = response.choices[0].message.content  # Corrected attribute access
-                                    st.session_state['last_question'] = user_query
-                                    st.session_state['last_answer'] = ai_message
-                            else:
-                                ai_message = st.session_state['last_answer']
-                        if st.session_state['last_answer']:
-                            st.subheader("Antwort subsumary:")
-                            st.write(st.session_state['last_answer'])
+                    #         st.write(st.session_state['last_answer'])
                 
                 
         
