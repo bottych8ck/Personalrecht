@@ -222,8 +222,9 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
         title = item.get("Title", "Unbekannt")
         content = ' '.join(item.get("Content", []))
         prompt += f"- {title}: {content}\n"
-
-   
+    prompt += "\n"
+    prompt += "\n"
+    prompt += "\n"
     prompt += "Anfrage auf Deutsch beantworten. Prüfe die  Anwendbarkeit der einzelnen § genau. Wenn ein Artikel keine einschlägigen Aussagen enthält, vergiss ihn.\n"
     prompt += "Mache nach der Antwort ein Fazit und erwähne dort die relevanten § mitsamt dem Erlassnahmen \n"
 
@@ -370,7 +371,7 @@ def main_app():
         if st.session_state.get('generating_answer'):
             if user_query:
                 st.session_state['generated_prompt'] = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                st.session_state['editable_prompt'] = st.text_area("Prompt bearbeiten:", st.session_state['generated_prompt'], height=300)
+                st.session_state['editable_prompt'] = st.text_area("**Prompt bearbeiten:**", st.session_state['generated_prompt'], height=300)
                 if st.button("Promptengingeering abgeschlossen") and st.session_state['editable_prompt']:
                     st.session_state.start_generating_answer = True  # Set this to true when button is clicked
                 if st.session_state.get('start_generating_answer'):
@@ -466,21 +467,21 @@ def main_app():
         
                 
                 
-            if st.button("Prompt generieren und in die Zwischenablage kopieren"):
-                if user_query and st.session_state.top_articles:
-                    # Generate the prompt
-                    prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                    st.session_state['prompt'] = prompt
+            # if st.button("Prompt generieren und in die Zwischenablage kopieren"):
+            #     if user_query and st.session_state.top_articles:
+            #         # Generate the prompt
+            #         prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+            #         st.session_state['prompt'] = prompt
         
-                    # Create HTML with JavaScript to copy the prompt to the clipboard
-                    html_with_js = generate_html_with_js(prompt)
-                    st.components.v1.html(html_with_js)
+            #         # Create HTML with JavaScript to copy the prompt to the clipboard
+            #         html_with_js = generate_html_with_js(prompt)
+            #         st.components.v1.html(html_with_js)
         
-                    # Display the generated prompt in a text area
-                    st.text_area("Prompt:", prompt, height=300)
-                else:
-                    if not st.session_state.top_articles:
-                        st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
+            #         # Display the generated prompt in a text area
+            #         st.text_area("Prompt:", prompt, height=300)
+            #     else:
+            #         if not st.session_state.top_articles:
+            #             st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
         
 if __name__ == "__main__":
     main_app()
