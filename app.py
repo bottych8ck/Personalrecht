@@ -252,6 +252,8 @@ def main_app():
         st.session_state['show_form'] = False
     if 'delete_form' not in st.session_state:
         st.session_state['delete_form'] = False
+    if 'generating_answer' not in st.session_state:
+        st.session_state.generating_answer = False
 
 
     user_query = st.text_area("Hier Ihre Frage eingeben:", height=200, key="user_query_text_area")
@@ -263,6 +265,7 @@ def main_app():
     if st.button("Bearbeiten"):
         st.session_state['relevance'] = relevance
         st.session_state['last_question'] = user_query
+        st.session_state.generating_answer = False
         query_vector = get_embeddings(user_query)
         similarities = calculate_similarities(query_vector, article_embeddings)
         sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
@@ -359,7 +362,7 @@ def main_app():
         st.write("")    
     
     # genAI-Teil
-        if st.button("Mit Sprachmodel beantworten"):
+        if st.button("Mit Sprachmodell beantworten"):
             st.session_state.generating_answer = True  # Set this to true when button is clicked
         if st.session_state.get('generating_answer'):
             if user_query:
