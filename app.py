@@ -372,7 +372,7 @@ def main_app():
             if user_query:
                 st.session_state['generated_prompt'] = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
                 st.session_state['editable_prompt'] = st.text_area("**Prompt bearbeiten:**", st.session_state['generated_prompt'], height=300)
-                if st.button("Promptengingeering abgeschlossen") and st.session_state['editable_prompt']:
+                if st.button("Promptengineering abgeschlossen") and st.session_state['editable_prompt']:
                     st.session_state.start_generating_answer = True  # Set this to true when button is clicked
                 if st.session_state.get('start_generating_answer'):
                     
