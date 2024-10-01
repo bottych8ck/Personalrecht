@@ -366,6 +366,10 @@ def main_app():
         st.write("")    
     
     # genAI-Teil
+        # Initialize conversation history in session state
+        if 'messages' not in st.session_state:
+            st.session_state['messages'] = []
+
         if st.button("Mit Sprachmodell beantworten"):
             st.session_state.generating_answer = True  # Set this to true when button is clicked
         if st.session_state.get('generating_answer'):
@@ -406,83 +410,7 @@ def main_app():
                 # else:
                 #     st.warning("Please enter a query before generating an answer.")  # Warning for no query input
                     
-                    # col1, col2 = st.columns(2)
 
-                    
-                    
-                    # # with col1:
-                    # #     if st.button("Mit GPT 4o beantworten"):
-                    # #         if user_query:
-                    # #            response = client.chat.completions.create(
-                    # #                 model="gpt-4o",
-                    # #                 messages=[
-                    # #                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                    # #                     {"role": "user", "content": st.session_state['editable_prompt']}
-                    # #                 ]
-                    # #             )
-                        
-                    # #                 # Display the response from OpenAI
-                    # #         if response.choices:
-                    # #             ai_message = response.choices[0].message.content  # Corrected attribute access
-                    # #             st.session_state['last_question'] = user_query
-                    # #             st.session_state['last_answer_gpt4o'] = ai_message
-                    # #     else:
-                    # #         ai_message = st.session_state['last_answer_gpt4o']
-                    # #     if st.session_state['last_answer_gpt4o']:
-                    # #         st.subheader("Antwort subsumary:")
-                    # #         st.write(st.session_state['last_answer_gpt4o'])
-                
-                    # with col2:
-                    #     if st.button("Mit GPT 4o mini beantworten"):
-                    #         if user_query:
-                    #             query_vector = get_embeddings(user_query)
-                    #             similarities = calculate_similarities(query_vector, article_embeddings)
-                                
-                    #             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-                    #             filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-                    #             st.session_state.top_articles = filtered_articles[:10]
-                    #             knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-                    #             st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
-                    #             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                    #             response = client.chat.completions.create(
-                    #                 model="gpt-4o-mini",
-                    #                 messages=[
-                    #                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                    #                     {"role": "user", "content": prompt}
-                    #                 ]
-                    #             )
-                        
-                    #                 # Display the response from OpenAI
-                    #             if response.choices:
-                    #                 ai_message = response.choices[0].message.content  # Corrected attribute access
-                    #                 st.session_state['last_question'] = user_query
-                    #                 st.session_state['last_answer'] = ai_message
-                    #         else:
-                    #             ai_message = st.session_state['last_answer']
-                    #     if st.session_state['last_answer']:
-                    #         st.subheader("Antwort subsumary:")
-                    #         st.write(st.session_state['last_answer'])
-                
-                
-        
-                
-                
-            # if st.button("Prompt generieren und in die Zwischenablage kopieren"):
-            #     if user_query and st.session_state.top_articles:
-            #         # Generate the prompt
-            #         prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-            #         st.session_state['prompt'] = prompt
-        
-            #         # Create HTML with JavaScript to copy the prompt to the clipboard
-            #         html_with_js = generate_html_with_js(prompt)
-            #         st.components.v1.html(html_with_js)
-        
-            #         # Display the generated prompt in a text area
-            #         st.text_area("Prompt:", prompt, height=300)
-            #     else:
-            #         if not st.session_state.top_articles:
-            #             st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
-        
 if __name__ == "__main__":
     main_app()
 
