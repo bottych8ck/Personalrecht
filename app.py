@@ -16,7 +16,7 @@ with open('law_data.json', 'r') as file:
     law_data = json.load(file)
 
 load_dotenv()  # This line loads the variables from .env
-
+logo_path = 'subsumary_Logo_1farbig_schwarz.png'
 api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=api_key)
 
@@ -107,7 +107,7 @@ def generate_prompt(user_query, top_articles, law_data):
     return prompt
 
 def main_app():
-    st.title("Chat_TG Schulrecht")
+    st.image(logo_path, width=400)
     st.subheader("Abfrage des Thurgauer Schulrechts")
     
     # Initialize session state variables
