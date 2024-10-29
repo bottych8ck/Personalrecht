@@ -150,7 +150,7 @@ def main():
                     top_chapters = similarities[:5]
 
                     # Display top chapters
-                    st.subheader("Most Relevant Sections:")
+                    st.subheader("Relevanteste Kapitel und Abschnitte:")
                     for i, top_chapter in enumerate(top_chapters):
                         st.write(f"Rank {i+1}: Law: {top_chapter['law_full_name']}, Section: {top_chapter['section_title']}, Similarity: {top_chapter['similarity']:.4f}")
 
@@ -168,10 +168,31 @@ def main():
 
                     # Display articles
                     st.subheader("Relevant Articles:")
+                    cols = st.columns(2)
+                    
+                    with cols[0]:
+                        st.markdown("**Article**")
+                    with cols[1]:
+                        st.markdown("**Content**")
+                    
                     for article in all_articles:
-                        st.write(f"- {article['heading']}")
-                        with st.expander("Show Content"):
-                            st.write(article['data']['content'])
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            # Create clickable URL using article ID and URL
+                            article_id = article['data']['ID']
+                            article_url = article['data']['URL']
+                            st.markdown(f"[{article_id}]({article_url})")
+                        
+                        with col2:
+                            with st.expander("Show Content"):
+                                st.write(article['data']['content'])
+                    
+                    # st.subheader("Relevant Articles:")
+                    # for article in all_articles:
+                    #     st.write(f"- {article['heading']}")
+                    #     with st.expander("Show Content"):
+                    #         st.write(article['data']['content'])
 
             # Generate Answer button
             if st.session_state.analyzed_articles and st.button("Generate Answer"):
