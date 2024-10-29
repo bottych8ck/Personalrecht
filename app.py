@@ -6,7 +6,7 @@ import os
 import google.generativeai as genai
 
 # Configure the page
-st.set_page_config(page_title="Legal RAG Assistant", layout="wide")
+st.set_page_config(page_title="Fragen zum Bundes-Migrationsrecht", layout="wide")
 
 # Configure Gemini with environment variable
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
@@ -124,7 +124,7 @@ def main():
             articles_by_law_and_section[law_full_name] = articles_by_section
 
         # Query input
-        query_text = st.text_input("Enter your legal question:", st.session_state.query_text)
+        query_text = st.text_input("Hier Ihre Frage zum Migrationsrecht eingeben:", st.session_state.query_text)
 
         if query_text:
             st.session_state.query_text = query_text
