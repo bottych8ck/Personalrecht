@@ -84,7 +84,7 @@ def generate_answer(query_text, articles):
     return response.text.strip()
 
 def main():
-    st.title("Legal RAG Assistant")
+    st.title("Fragen zum Bundes-Migrationsrecht")
 
     # Initialize session state
     if 'analyzed_articles' not in st.session_state:
@@ -130,7 +130,7 @@ def main():
             st.session_state.query_text = query_text
             
             # Analyze button
-            if st.button("Analyze"):
+            if st.button("Analysieren"):
                 with st.spinner("Analyzing..."):
                     # Get query embedding
                     query_embedding = get_embedding(query_text)
@@ -167,13 +167,13 @@ def main():
                     st.session_state.analyzed_articles = all_articles
 
                     # Display articles
-                    st.subheader("Relevant Articles:")
+                    st.subheader("Relevante Bestimmungen:")
                     cols = st.columns(2)
                     
                     with cols[0]:
-                        st.markdown("**Article**")
+                        st.markdown("**Artikel**")
                     with cols[1]:
-                        st.markdown("**Content**")
+                        st.markdown("**Inhalt**")
                     
                     for article in all_articles:
                         col1, col2 = st.columns(2)
@@ -195,10 +195,10 @@ def main():
                     #         st.write(article['data']['content'])
 
             # Generate Answer button
-            if st.session_state.analyzed_articles and st.button("Generate Answer"):
+            if st.session_state.analyzed_articles and st.button("Frage beantworten"):
                 with st.spinner("Generating answer..."):
                     answer = generate_answer(query_text, st.session_state.analyzed_articles)
-                    st.subheader("Answer:")
+                    st.subheader("Antwort:")
                     st.write(answer)
 
     except Exception as e:
