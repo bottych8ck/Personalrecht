@@ -16,7 +16,7 @@ st.set_page_config(page_title="Legal RAG Assistant", layout="wide")
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
 
 # Load German stopwords from file
-def load_stopwords(filepath='german_stopwords.txt'):
+def load_stopwords(filepath='german_stopwords'):
     with open(filepath, 'r', encoding='utf-8') as f:
         stopwords = set(line.strip() for line in f)
     # Add legal specific stopwords
