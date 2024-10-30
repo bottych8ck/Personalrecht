@@ -7,6 +7,7 @@ import google.generativeai as genai
 from rank_bm25 import BM25Okapi
 import pickle
 import re
+import nltk
 
 nltk.download('punkt')
 
