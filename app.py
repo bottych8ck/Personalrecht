@@ -5,31 +5,34 @@ import numpy as np
 import os
 import google.generativeai as genai
 from rank_bm25 import BM25Okapi
-import nltk
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
+import pickle
 import re
 
-# Download required NLTK data
-try:
-    nltk.data.find('tokenizers/punkt')
-    nltk.data.find('corpora/stopwords')
-except LookupError:
-    nltk.download('punkt')
-    nltk.download('stopwords')
-
-# German-specific stopwords and common legal terms to ignore
-GERMAN_STOPS = set(stopwords.words('german')).union({
-    'artikel', 'art', 'abs', 'paragraph', 'lit', 'ziffer', 'ziff',
-    'bzw', 'vgl', 'etc', 'siehe', 'gemäss', 'nach', 'über', 'zum',
-    'zur', 'bei', 'sowie', 'oder', 'und', 'der', 'die', 'das'
-})
-
-# Configure the page
-st.set_page_config(page_title="Fragen zum Bundes-Migrationsrecht", layout="wide")
-
-# Configure Gemini with environment variable
+# Configure page and Gemini
+st.set_page_config(page_title="Legal RAG Assistant", layout="wide")
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+
+# Load German stopwords from file
+def load_stopwords(filepath='german_stopwords.txt'):
+    with open(filepath, 'r', encoding='utf-8') as f:
+        stopwords = set(line.strip() for line in f)
+    # Add legal specific stopwords
+    legal_stops = {
+        'artikel', 'art', 'abs', 'paragraph', 'lit', 'ziffer', 'ziff',
+        'bzw', 'vgl', 'etc', 'siehe', 'gemäss'
+    }
+    return stopwords.union(legal_stops)
+
+# Load German punkt tokenizer
+def load_punkt_tokenizer(filepath='german_punkt.pickle'):
+    with open(filepath, 'rb') as f:
+        tokenizer = pickle.load(f)
+    return tokenizer
+
+# Load resources
+GERMAN_STOPS = load_stopwords()
+TOKENIZER = load_punkt_tokenizer()# Configure Gemini with environment variable
+
 
 # Function to compute cosine similarity
 def cosine_similarity(a, b):
@@ -105,26 +108,22 @@ def generate_answer(query_text, articles):
 
 
 
-def preprocess_german_text(text):
-    """Preprocess German text for BM25"""
-    # Convert to lowercase
-    text = text.lower()
-    
-    # Replace German umlauts and ß
-    text = text.replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
-    
-    # Remove punctuation but keep hyphens between words
-    text = re.sub(r'[^\w\s-]', ' ', text)
-    
-    # Remove standalone numbers but keep numbers that are part of words
-    text = re.sub(r'\b\d+\b', '', text)
-    
-    # Tokenize
-    tokens = word_tokenize(text, language='german')
-    
-    # Remove stopwords and short tokens
-    tokens = [token for token in tokens if token not in GERMAN_STOPS and len(token) > 1]
-    
+def tokenize_text(text):
+    """Tokenize text using German punkt tokenizer"""
+    # First split into sentences
+    sentences = TOKENIZER.tokenize(text)
+    # Then split into words and clean
+    tokens = []
+    for sentence in sentences:
+        # Convert to lowercase
+        sentence = sentence.lower()
+        # Replace German umlauts and ß
+        sentence = sentence.replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
+        # Split on whitespace and punctuation
+        words = re.findall(r'\b\w+\b', sentence)
+        # Remove stopwords and short tokens
+        words = [word for word in words if word not in GERMAN_STOPS and len(word) > 1]
+        tokens.extend(words)
     return tokens
 
 def create_bm25_index(law_data):
@@ -137,8 +136,8 @@ def create_bm25_index(law_data):
             # Combine article heading and content for search
             full_text = f"{article_heading} {article_data['content']}"
             
-            # Preprocess text
-            tokens = preprocess_german_text(full_text)
+            # Tokenize text
+            tokens = tokenize_text(full_text)
             
             documents.append(tokens)
             document_metadata.append({
@@ -151,8 +150,8 @@ def create_bm25_index(law_data):
 
 def search_bm25(query, bm25_index, document_metadata, top_k=10):
     """Search using BM25 with German-specific processing"""
-    # Preprocess query
-    query_tokens = preprocess_german_text(query)
+    # Tokenize query
+    query_tokens = tokenize_text(query)
     
     # Get document scores
     doc_scores = bm25_index.get_scores(query_tokens)
@@ -169,7 +168,7 @@ def search_bm25(query, bm25_index, document_metadata, top_k=10):
             })
     
     return results
-
+    
 # def main():
 #     st.title("Fragen zum Bundes-Migrationsrecht")
 
