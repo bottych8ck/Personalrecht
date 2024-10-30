@@ -9,16 +9,31 @@ import pickle
 import re
 import nltk
 
-nltk.download('punkt')
-
 # Configure page and Gemini
 st.set_page_config(page_title="Legal RAG Assistant", layout="wide")
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
 
-# Load German stopwords from file
-def load_stopwords(filepath='german_stopwords'):
-    with open(filepath, 'r', encoding='utf-8') as f:
-        stopwords = set(line.strip() for line in f)
+def load_stopwords():
+    stopwords = set([
+        'aber', 'alle', 'als', 'also', 'am', 'an', 'andere', 'auch',
+        'auf', 'aus', 'bei', 'bin', 'bis', 'bist', 'da', 'damit', 'das',
+        'dass', 'dein', 'deine', 'dem', 'den', 'der', 'des', 'dessen',
+        'die', 'dies', 'dieser', 'dieses', 'doch', 'dort', 'du', 'durch',
+        'ein', 'eine', 'einem', 'einen', 'einer', 'eines', 'er', 'es',
+        'euer', 'eure', 'für', 'hatte', 'hatten', 'hattest', 'hattet',
+        'hier', 'hinter', 'ich', 'ihr', 'ihre', 'im', 'in', 'ist', 'ja',
+        'jede', 'jedem', 'jeden', 'jeder', 'jedes', 'jener', 'jenes',
+        'jetzt', 'kann', 'kannst', 'können', 'könnt', 'machen', 'mein',
+        'meine', 'mit', 'muß', 'mußt', 'musst', 'müssen', 'müsst', 'nach',
+        'nachdem', 'nein', 'nicht', 'nun', 'oder', 'seid', 'sein', 'seine',
+        'sich', 'sie', 'sind', 'soll', 'sollen', 'sollst', 'sollt', 'sonst',
+        'soweit', 'sowie', 'und', 'unser', 'unsere', 'unter', 'vom', 'von',
+        'vor', 'wann', 'warum', 'was', 'weiter', 'weitere', 'wenn', 'wer',
+        'werde', 'werden', 'werdet', 'weshalb', 'wie', 'wieder', 'wieso',
+        'wir', 'wird', 'wirst', 'wo', 'woher', 'wohin', 'zu', 'zum', 'zur',
+        'über'
+    ])
+        ])
     # Add legal specific stopwords
     legal_stops = {
         'artikel', 'art', 'abs', 'paragraph', 'lit', 'ziffer', 'ziff',
@@ -26,20 +41,19 @@ def load_stopwords(filepath='german_stopwords'):
     }
     return stopwords.union(legal_stops)
 
-def load_punkt_tokenizer():
-    from nltk.tokenize import PunktSentenceTokenizer
-    tokenizer = PunktSentenceTokenizer(lang_params=nltk.load('tokenizers/punkt/german.pickle'))
-    return tokenizer
-    
+GERMAN_STOPS = load_stopwords()
+
+
+
 # # Load German punkt tokenizer
 # def load_punkt_tokenizer(filepath='german_punkt.pickle'):
 #     with open(filepath, 'rb') as f:
 #         tokenizer = pickle.load(f)
 #     return tokenizer
 
-# Load resources
-GERMAN_STOPS = load_stopwords()
-# TOKENIZER = load_punkt_tokenizer()# Configure Gemini with environment variable
+# # Load resources
+# GERMAN_STOPS = load_stopwords()
+# # TOKENIZER = load_punkt_tokenizer()# Configure Gemini with environment variable
 
 
 # Function to compute cosine similarity
@@ -117,11 +131,9 @@ def generate_answer(query_text, articles):
 
 
 def tokenize_text(text):
-    """Tokenize text using NLTK's sent_tokenize with German language"""
-    import nltk
-    # First split into sentences
-    sentences = nltk.tokenize.sent_tokenize(text, language='german')
-    # Then split into words and clean
+    """Custom tokenizer using regular expressions to avoid NLTK dependencies."""
+    # Split text into sentences based on punctuation marks and newline characters
+    sentences = re.split(r'[.!?]\s+|\n', text)
     tokens = []
     for sentence in sentences:
         # Convert to lowercase
