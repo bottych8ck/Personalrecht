@@ -39,7 +39,7 @@ def load_punkt_tokenizer():
 
 # Load resources
 GERMAN_STOPS = load_stopwords()
-TOKENIZER = load_punkt_tokenizer()# Configure Gemini with environment variable
+# TOKENIZER = load_punkt_tokenizer()# Configure Gemini with environment variable
 
 
 # Function to compute cosine similarity
