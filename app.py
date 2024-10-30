@@ -8,6 +8,8 @@ from rank_bm25 import BM25Okapi
 import pickle
 import re
 
+nltk.download('punkt')
+
 # Configure page and Gemini
 st.set_page_config(page_title="Legal RAG Assistant", layout="wide")
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
@@ -23,11 +25,16 @@ def load_stopwords(filepath='german_stopwords.txt'):
     }
     return stopwords.union(legal_stops)
 
-# Load German punkt tokenizer
-def load_punkt_tokenizer(filepath='german_punkt.pickle'):
-    with open(filepath, 'rb') as f:
-        tokenizer = pickle.load(f)
+def load_punkt_tokenizer():
+    from nltk.tokenize import PunktSentenceTokenizer
+    tokenizer = PunktSentenceTokenizer(lang_params=nltk.load('tokenizers/punkt/german.pickle'))
     return tokenizer
+    
+# # Load German punkt tokenizer
+# def load_punkt_tokenizer(filepath='german_punkt.pickle'):
+#     with open(filepath, 'rb') as f:
+#         tokenizer = pickle.load(f)
+#     return tokenizer
 
 # Load resources
 GERMAN_STOPS = load_stopwords()
