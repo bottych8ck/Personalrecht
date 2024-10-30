@@ -174,7 +174,7 @@ def create_bm25_index(law_data):
     return bm25, document_metadata
 
 
-def search_bm25(query, bm25_index, document_metadata, top_k=10):
+def search_bm25(query, bm25_index, document_metadata, top_k=20):
     """Search using BM25 with German-specific processing"""
     # Tokenize query
     query_tokens = tokenize_text(query)
@@ -302,7 +302,8 @@ def main():
                     
                     with col2:
                         st.subheader("Keyword-basierte Suche:")
-                        for article in keyword_articles_filtered:
+                        # for article in keyword_articles_filtered:
+                        for article in keyword_articles:
                             st.markdown(f"[{article['data']['ID']}]({article['data']['URL']})")
                             with st.expander("Inhalt anzeigen"):
                                 st.write(article['data']['content'])
