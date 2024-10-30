@@ -33,7 +33,7 @@ def load_stopwords():
         'wir', 'wird', 'wirst', 'wo', 'woher', 'wohin', 'zu', 'zum', 'zur',
         'über'
     ])
-        ])
+    
     # Add legal specific stopwords
     legal_stops = {
         'artikel', 'art', 'abs', 'paragraph', 'lit', 'ziffer', 'ziff',
