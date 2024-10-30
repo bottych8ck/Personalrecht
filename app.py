@@ -117,9 +117,10 @@ def generate_answer(query_text, articles):
 
 
 def tokenize_text(text):
-    """Tokenize text using German punkt tokenizer"""
+    """Tokenize text using NLTK's sent_tokenize with German language"""
+    import nltk
     # First split into sentences
-    sentences = TOKENIZER.tokenize(text)
+    sentences = nltk.tokenize.sent_tokenize(text, language='german')
     # Then split into words and clean
     tokens = []
     for sentence in sentences:
@@ -127,12 +128,13 @@ def tokenize_text(text):
         sentence = sentence.lower()
         # Replace German umlauts and ß
         sentence = sentence.replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
-        # Split on whitespace and punctuation
+        # Split on words
         words = re.findall(r'\b\w+\b', sentence)
         # Remove stopwords and short tokens
         words = [word for word in words if word not in GERMAN_STOPS and len(word) > 1]
         tokens.extend(words)
     return tokens
+
 
 def create_bm25_index(law_data):
     """Create BM25 index from law data with German-specific processing"""
