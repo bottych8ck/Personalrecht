@@ -148,8 +148,10 @@ def tokenize_text(text):
     return tokens
 
 
+import time
+
 def create_bm25_index(law_data):
-    """Create BM25 index from law data with German-specific processing"""
+    start_time = time.time()
     documents = []
     document_metadata = []
     
@@ -168,7 +170,9 @@ def create_bm25_index(law_data):
             })
     
     bm25 = BM25Okapi(documents)
+    st.write(f"BM25 index created in {time.time() - start_time:.2f} seconds")
     return bm25, document_metadata
+
 
 def search_bm25(query, bm25_index, document_metadata, top_k=10):
     """Search using BM25 with German-specific processing"""
