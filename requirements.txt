@@ -3,3 +3,5 @@ openai
 numpy
 scikit-learn
 python-dotenv
+rank_bm25
+nltk
