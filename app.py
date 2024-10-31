@@ -12,6 +12,8 @@ from rank_bm25 import BM25Okapi
 import pickle
 import re
 import nltk
+from nltk.stem.snowball import GermanStemmer
+
 
 
 # Load the data
@@ -142,8 +144,30 @@ def load_stopwords():
 
 GERMAN_STOPS = load_stopwords()
 
+# def tokenize_text(text):
+#     """Custom tokenizer using regular expressions to avoid NLTK dependencies."""
+#     # Split text into sentences based on punctuation marks and newline characters
+#     sentences = re.split(r'[.!?]\s+|\n', text)
+#     tokens = []
+#     for sentence in sentences:
+#         # Convert to lowercase
+#         sentence = sentence.lower()
+#         # Replace German umlauts and ß
+#         sentence = sentence.replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
+#         # Split on words
+#         words = re.findall(r'\b\w+\b', sentence)
+#         # Remove stopwords and short tokens
+#         words = [word for word in words if word not in GERMAN_STOPS and len(word) > 1]
+#         tokens.extend(words)
+#     return tokens
+
+
+# import time
+
 def tokenize_text(text):
-    """Custom tokenizer using regular expressions to avoid NLTK dependencies."""
+    """Tokenizer with stemming using NLTK's GermanStemmer."""
+    # Initialize the stemmer
+    stemmer = GermanStemmer()
     # Split text into sentences based on punctuation marks and newline characters
     sentences = re.split(r'[.!?]\s+|\n', text)
     tokens = []
@@ -156,11 +180,12 @@ def tokenize_text(text):
         words = re.findall(r'\b\w+\b', sentence)
         # Remove stopwords and short tokens
         words = [word for word in words if word not in GERMAN_STOPS and len(word) > 1]
-        tokens.extend(words)
+        # Stem words
+        stemmed_words = [stemmer.stem(word) for word in words]
+        tokens.extend(stemmed_words)
     return tokens
 
 
-import time
 
 def create_bm25_index(law_data):
     import time
