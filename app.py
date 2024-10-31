@@ -325,6 +325,8 @@ def main_app():
                     st.warning("Bitte geben Sie eine Anfrage ein.")
                 if not st.session_state['top_articles']:
                     st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
+if __name__ == "__main__":
+    main_app()
 
 
 # def main_app():
