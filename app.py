@@ -157,28 +157,30 @@ def tokenize_text(text):
 import time
 
 def create_bm25_index(law_data):
+    import time
     start_time = time.time()
     documents = []
     document_metadata = []
-    
-    for law_name, articles in law_data.items():
-        for article_heading, article_data in articles.items():
-            # Combine article heading and content for search
-            full_text = f"{article_heading} {article_data['content']}"
-            
-            # Tokenize text
-            tokens = tokenize_text(full_text)
-            
-            documents.append(tokens)
-            document_metadata.append({
-                'heading': article_heading,
-                'data': article_data
-            })
+
+    for article_heading, article_data in law_data.items():
+        # Combine the 'Inhalt' list into a single string
+        content = " ".join(article_data.get("Inhalt", []))
+        
+        # Create the full text with the article heading and combined content
+        full_text = f"{article_heading} {content}"
+        
+        # Tokenize text
+        tokens = tokenize_text(full_text)
+        
+        documents.append(tokens)
+        document_metadata.append({
+            'heading': article_heading,
+            'data': article_data
+        })
     
     bm25 = BM25Okapi(documents)
     st.write(f"BM25 index created in {time.time() - start_time:.2f} seconds")
     return bm25, document_metadata
-
 
 def search_bm25(query, bm25_index, document_metadata, top_k=20):
     """Search using BM25 with German-specific processing"""
