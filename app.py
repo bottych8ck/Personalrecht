@@ -196,10 +196,11 @@ def create_bm25_index(law_data):
     return bm25, document_metadata
 
 def extract_keywords_with_llm(user_query):
-    prompt = f"""Extrahiere die wichtigsten rechtlichen Schlüsselbegriffe aus der folgenden Anfrage. Versuche herauszufinden, um was es in der Frage geht. Beschränke Dich auf das wichtigste Thema. Liefere die wichtigsten Schlüsselbegriffe als Liste von Strings im Feld "keywords" zurück.
+    prompt = f"""Extrahiere den wichtigsten rechtlichen Begriff, der das Hauptthema der Anfrage präzise beschreibt, da dieser für eine Volltextsuche in Schulgesetzen genutzt wird. Gib dazu jeweils den passenden Begriff als Substantiv, Adjektiv und Verb an, falls verfügbar. Liefere die wichtigsten Schlüsselbegriffe als Liste von Strings im Feld "keywords" zurück.
 
 Anfrage: "{user_query}"
 """
+
     try:
         completion = client.beta.chat.completions.parse(
             model="gpt-4o-2024-08-06",  # Use the appropriate model version
