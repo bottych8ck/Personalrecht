@@ -352,10 +352,21 @@ The BM25 search results with these keywords are:""",
 
     # Process the response
     message = response.choices[0].message
+    st.write("Assistant Message:", message)
 
-    if "function_call" in message:
+    if hasattr(message, "function_call") and message.function_call:
         function_name = message["function_call"]["name"]
         function_arguments = message["function_call"]["arguments"]
+        st.write("Function Name:", function_name)
+        st.write("Function Arguments (raw):", function_arguments)
+        try:
+            arguments = json.loads(function_arguments)
+            st.write("Parsed Arguments:", arguments)
+            new_keywords = arguments.get("new_keywords")
+            st.write("New Keywords:", new_keywords)
+        except Exception as e:
+            st.write(f"Error parsing function arguments: {e}")
+            new_keywords = None
         if function_name == "adjust_keywords":
             arguments = json.loads(function_arguments)
             new_keywords = arguments.get("new_keywords")
