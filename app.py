@@ -321,7 +321,7 @@ The BM25 search results with these keywords are:""",
     # Process the response
     message = response.choices[0].message
 
-    if message.get("function_call"):
+    if "function_call" in message:
         function_name = message["function_call"]["name"]
         function_arguments = message["function_call"]["arguments"]
         if function_name == "adjust_keywords":
