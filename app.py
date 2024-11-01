@@ -196,7 +196,7 @@ def create_bm25_index(law_data):
     return bm25, document_metadata
 
 def extract_keywords_with_llm(user_query):
-    prompt = f"""Extrahiere den wichtigsten rechtlichen Begriff, der das Hauptthema der Anfrage präzise beschreibt, da dieser für eine Volltextsuche in Schulgesetzen genutzt wird. Gib dazu jeweils den passenden Begriff als Substantiv, Adjektiv und Verb an, falls verfügbar. Liefere die wichtigsten Schlüsselbegriffe als Liste von Strings im Feld "keywords" zurück.
+    prompt = f"""Extrahiere den wichtigsten rechtlichen Begriff, der das Hauptthema der Anfrage präzise beschreibt, da dieser für eine Volltextsuche in Schulgesetzen genutzt wird. Gib dazu jeweils den passenden Begriff als Substantiv, Adjektiv und Verb an, falls verfügbar. Beschränke Dich auf die allerwichtigsten Themen, beeschränke Dich auf ein Thema wenn möglich. Liefere die wichtigsten Schlüsselbegriffe als Liste von Strings im Feld "keywords" zurück.
 
 Anfrage: "{user_query}"
 """
