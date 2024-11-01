@@ -354,9 +354,9 @@ The BM25 search results with these keywords are:""",
     message = response.choices[0].message
     st.write("Assistant Message:", message)
 
-    if hasattr(message, "function_call") and message.function_call:
-        function_name = message["function_call"]["name"]
-        function_arguments = message["function_call"]["arguments"]
+    if message.function_call:
+        function_name = message.function_call.name
+        function_arguments = message.function_call.arguments
         st.write("Function Name:", function_name)
         st.write("Function Arguments (raw):", function_arguments)
         try:
