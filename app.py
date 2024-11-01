@@ -299,7 +299,9 @@ def main_app():
                     
         with col2:
             st.subheader("Keyword-basierte Suche")
-            for result in filtered_bm25_results:
+            # for result in filtered_bm25_results:
+            for result in bm25_results:  # Display all BM25 results without filtering
+
                 title = result['article']['heading']
                 title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
                 law_name_display = law_name if law_name else "Unbekanntes Gesetz"
