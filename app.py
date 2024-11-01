@@ -249,17 +249,43 @@ def search_bm25(keywords, bm25_index, document_metadata, top_k=20):
 
     return results
 
+# functions = [
+#     {
+#         "name": "adjust_keywords",
+#         "description": "Suggest new keywords to improve the search results.",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "new_keywords": {
+#                     "type": "array",
+#                     "items": {"type": "string"},
+#                     "description": "A list of new keywords to use in the search.",
+#                 },
+#             },
+#             "required": ["new_keywords"],
+#         },
+#     },
+#     {
+#         "name": "stop_search",
+#         "description": "Indicates that the search should be concluded.",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {},
+#         },
+#     },
+# ]
+
 functions = [
     {
         "name": "adjust_keywords",
-        "description": "Suggest new keywords to improve the search results.",
+        "description": "Schlage neue Schlüsselbegriffe vor, um die Suchergebnisse zu verbessern.",
         "parameters": {
             "type": "object",
             "properties": {
                 "new_keywords": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "description": "A list of new keywords to use in the search.",
+                    "description": "Eine Liste neuer Schlüsselbegriffe für die Suche.",
                 },
             },
             "required": ["new_keywords"],
@@ -267,13 +293,14 @@ functions = [
     },
     {
         "name": "stop_search",
-        "description": "Indicates that the search should be concluded.",
+        "description": "Zeigt an, dass die Suche abgeschlossen werden soll.",
         "parameters": {
             "type": "object",
             "properties": {},
         },
     },
 ]
+
 
 
 def evaluate_bm25_results_with_function_calling(user_query, extracted_keywords, bm25_results):
@@ -304,11 +331,15 @@ The BM25 search results with these keywords are:""",
 
     messages.append({
         "role": "user",
-        "content": """Please assess whether these results are relevant to the user's query. If not, you can take one of the following actions:
-
-- If the results are not relevant, suggest new keywords by calling the 'adjust_keywords' function with the new keywords.
-- If the results are relevant or no further adjustments are needed, signal the end of the search by calling the 'stop_search' function."""
+        "content": """Bitte bewerte, ob diese Ergebnisse relevant für die Frage des Nutzers sind. Wenn nicht genügend relevante Ergebnisse vorhanden sind oder keine Ergebnisse gefunden wurden, kannst du eine der folgenden Aktionen ausführen:
+    
+    - Wenn die Ergebnisse nicht relevant sind oder keine Ergebnisse vorhanden sind, schlage neue Schlüsselbegriffe vor, indem du die Funktion 'adjust_keywords' mit den neuen Schlüsselbegriffen aufrufst.
+    - Wenn die Ergebnisse relevant sind oder keine weiteren Anpassungen erforderlich sind, signalisiere das Ende der Suche, indem du die Funktion 'stop_search' aufrufst.
+    
+    **Wichtig:** Verwende immer eine der Funktionen 'adjust_keywords' oder 'stop_search', um deine Entscheidung mitzuteilen.
+    """
     })
+
 
     # Call the LLM
     response = client.chat.completions.create(
@@ -317,6 +348,7 @@ The BM25 search results with these keywords are:""",
         functions=functions,
         function_call="auto",
     )
+    print("LLM Response:", response)
 
     # Process the response
     message = response.choices[0].message
@@ -331,8 +363,12 @@ The BM25 search results with these keywords are:""",
         elif function_name == "stop_search":
             return {"adjust_keywords": False, "new_keywords": None, "stop": True}
     else:
-        # No function call, proceed
-        return {"adjust_keywords": False, "new_keywords": None, "stop": True}
+    # No function call, assume adjustment needed
+    return {"adjust_keywords": True, "new_keywords": None, "stop": False}
+
+    # else:
+    #     # No function call, proceed
+    #     return {"adjust_keywords": False, "new_keywords": None, "stop": True}
 
 
 
@@ -370,7 +406,7 @@ def main_app():
         current_iteration = 1
         
         while current_iteration <= max_iterations:
-            st.write(f"**Iteration {current_iteration}**")
+            st.write(f"**Neue Suche {current_iteration}**")
             
             # **BM25 Search with Distilled Keywords**
             bm25_results = search_bm25(
@@ -391,15 +427,35 @@ def main_app():
                 user_query, distilled_keywords, bm25_results
             )
             
-            if adjustment_response is None or adjustment_response.get("stop"):
-                st.write("Die Suche wurde abgeschlossen.")
+            # if adjustment_response is None or adjustment_response.get("stop"):
+            #     st.write("Die Suche wurde abgeschlossen.")
+            #     break
+            
+            # if adjustment_response.get("adjust_keywords") and adjustment_response.get("new_keywords"):
+            #     distilled_keywords = adjustment_response["new_keywords"]
+            #     st.write("**Neue Schlüsselbegriffe:**", ", ".join(distilled_keywords))
+            #     current_iteration += 1
+            #     continue  # Rerun BM25 search with new keywords
+            # else:
+            #     st.write("Keine weiteren Anpassungen erforderlich.")
+            #     break  # No adjustment needed, proceed
+            if adjustment_response is None:
+                st.write("Fehler bei der Verarbeitung der Anpassungsantwort.")
                 break
             
-            if adjustment_response.get("adjust_keywords") and adjustment_response.get("new_keywords"):
-                distilled_keywords = adjustment_response["new_keywords"]
-                st.write("**Neue Schlüsselbegriffe:**", ", ".join(distilled_keywords))
+            if adjustment_response.get("adjust_keywords"):
+                new_keywords = adjustment_response.get("new_keywords")
+                if new_keywords:
+                    distilled_keywords = new_keywords
+                    st.write("**Neue Schlüsselbegriffe:**", ", ".join(distilled_keywords))
+                else:
+                    st.write("Der Assistent hat keine neuen Schlüsselbegriffe vorgeschlagen.")
+                    break  # Exit loop if no new keywords are provided
                 current_iteration += 1
-                continue  # Rerun BM25 search with new keywords
+                continue
+            elif adjustment_response.get("stop"):
+                st.write("Die Suche wurde abgeschlossen.")
+                break
             else:
                 st.write("Keine weiteren Anpassungen erforderlich.")
                 break  # No adjustment needed, proceed
