@@ -348,7 +348,7 @@ The BM25 search results with these keywords are:""",
         functions=functions,
         function_call="auto",
     )
-    print("LLM Response:", response)
+    st.write("LLM Response:", response)
 
     # Process the response
     message = response.choices[0].message
