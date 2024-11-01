@@ -13,7 +13,8 @@ import pickle
 import re
 import nltk
 from nltk.stem.snowball import GermanStemmer
-
+from pydantic import BaseModel
+from typing import List
 
 
 # Load the data
@@ -28,6 +29,8 @@ logo_path = 'subsumary_Logo_1farbig_schwarz.png'
 api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=api_key)
 
+class KeywordExtractionResponse(BaseModel):
+    keywords: List[str]
 
 def get_embeddings(text):
     res = client.embeddings.create(input=[text], model="text-embedding-ada-002")
@@ -144,26 +147,6 @@ def load_stopwords():
 
 GERMAN_STOPS = load_stopwords()
 
-# def tokenize_text(text):
-#     """Custom tokenizer using regular expressions to avoid NLTK dependencies."""
-#     # Split text into sentences based on punctuation marks and newline characters
-#     sentences = re.split(r'[.!?]\s+|\n', text)
-#     tokens = []
-#     for sentence in sentences:
-#         # Convert to lowercase
-#         sentence = sentence.lower()
-#         # Replace German umlauts and ß
-#         sentence = sentence.replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
-#         # Split on words
-#         words = re.findall(r'\b\w+\b', sentence)
-#         # Remove stopwords and short tokens
-#         words = [word for word in words if word not in GERMAN_STOPS and len(word) > 1]
-#         tokens.extend(words)
-#     return tokens
-
-
-# import time
-
 def tokenize_text(text):
     """Tokenizer with stemming using NLTK's GermanStemmer."""
     # Initialize the stemmer
@@ -184,7 +167,6 @@ def tokenize_text(text):
         stemmed_words = [stemmer.stem(word) for word in words]
         tokens.extend(stemmed_words)
     return tokens
-
 
 
 def create_bm25_index(law_data):
@@ -213,26 +195,81 @@ def create_bm25_index(law_data):
     st.write(f"BM25 index created in {time.time() - start_time:.2f} seconds")
     return bm25, document_metadata
 
-def search_bm25(query, bm25_index, document_metadata, top_k=20):
-    """Search using BM25 with German-specific processing"""
-    # Tokenize query
-    query_tokens = tokenize_text(query)
+def extract_keywords_with_llm(user_query):
+    prompt = f"""Extrahiere die wichtigsten rechtlichen Schlüsselbegriffe aus der folgenden Anfrage. 
+Gib die Schlüsselbegriffe als Liste von Strings im Feld "keywords" zurück.
+
+Anfrage: "{user_query}"
+"""
+    try:
+        completion = client.beta.chat.completions.parse(
+            model="gpt-4o-2024-08-06",  # Use the appropriate model version
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Du bist ein System, das rechtliche Schlüsselbegriffe aus Anfragen extrahiert.",
+                },
+                {"role": "user", "content": prompt},
+            ],
+            response_format=KeywordExtractionResponse,
+            temperature=0.0,  # Use a low temperature for consistent results
+        )
+
+        if completion.choices:
+            keywords = completion.choices[0].message.parsed.keywords
+            return keywords
+        else:
+            return []
+    except Exception as e:
+        print(f"Error extracting keywords: {e}")
+        return []
+
+
+# def search_bm25(query, bm25_index, document_metadata, top_k=20):
+#     """Search using BM25 with German-specific processing"""
+#     # Tokenize query
+#     query_tokens = tokenize_text(query)
     
+#     # Get document scores
+#     doc_scores = bm25_index.get_scores(query_tokens)
+    
+#     # Get top k documents
+#     top_k_idx = np.argsort(doc_scores)[-top_k:][::-1]
+    
+#     results = []
+#     for idx in top_k_idx:
+#         if doc_scores[idx] > 0:  # Only include relevant documents
+#             results.append({
+#                 'article': document_metadata[idx],
+#                 'score': doc_scores[idx]
+#             })
+    
+#     return results
+
+def search_bm25(keywords, bm25_index, document_metadata, top_k=20):
+    """Search using BM25 with a list of distilled keywords."""
+    # Tokenize keywords (which are already extracted terms)
+    stemmer = GermanStemmer()
+    query_tokens = [stemmer.stem(word.lower()) for word in keywords]
+
     # Get document scores
     doc_scores = bm25_index.get_scores(query_tokens)
-    
+
     # Get top k documents
     top_k_idx = np.argsort(doc_scores)[-top_k:][::-1]
-    
+
     results = []
     for idx in top_k_idx:
         if doc_scores[idx] > 0:  # Only include relevant documents
-            results.append({
-                'article': document_metadata[idx],
-                'score': doc_scores[idx]
-            })
-    
+            results.append(
+                {
+                    "article": document_metadata[idx],
+                    "score": doc_scores[idx],
+                }
+            )
+
     return results
+
 
 
 
@@ -257,14 +294,30 @@ def main_app():
     user_query = st.text_area("Hier Ihre Frage eingeben:", height=200)
 
     if user_query:
+        
+        # **Keyword Extraction Step**
+        distilled_keywords = extract_keywords_with_llm(user_query)
+
+        if distilled_keywords:
+            st.write("**Extrahierte Schlüsselbegriffe:**", ", ".join(distilled_keywords))
+        else:
+            st.write("Keine Schlüsselbegriffe gefunden.")
+        
         # Semantic search
         query_vector = get_embeddings(user_query)
         similarities = calculate_similarities(query_vector, article_embeddings)
         semantic_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)[:10]
         
-        # BM25 search
-        bm25_results = search_bm25(user_query, st.session_state['bm25_index'], 
-                                 st.session_state['document_metadata'])
+        # # BM25 search
+        # bm25_results = search_bm25(user_query, st.session_state['bm25_index'], 
+        #                          st.session_state['document_metadata'])
+
+        # **BM25 Search with Distilled Keywords**
+        bm25_results = search_bm25(
+            distilled_keywords,
+            st.session_state["bm25_index"],
+            st.session_state["document_metadata"],
+        )
         
         # Get titles from semantic results for filtering
         semantic_titles = {title for title, _ in semantic_articles}
