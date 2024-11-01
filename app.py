@@ -364,7 +364,7 @@ The BM25 search results with these keywords are:""",
             return {"adjust_keywords": False, "new_keywords": None, "stop": True}
     else:
     # No function call, assume adjustment needed
-    return {"adjust_keywords": True, "new_keywords": None, "stop": False}
+        return {"adjust_keywords": True, "new_keywords": None, "stop": False}
 
     # else:
     #     # No function call, proceed
