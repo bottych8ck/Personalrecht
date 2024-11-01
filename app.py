@@ -13,8 +13,8 @@ import pickle
 import re
 import nltk
 from nltk.stem.snowball import GermanStemmer
+from typing import List, Optional
 from pydantic import BaseModel
-from typing import List
 
 
 # Load the data
@@ -225,27 +225,6 @@ Anfrage: "{user_query}"
         return []
 
 
-# def search_bm25(query, bm25_index, document_metadata, top_k=20):
-#     """Search using BM25 with German-specific processing"""
-#     # Tokenize query
-#     query_tokens = tokenize_text(query)
-    
-#     # Get document scores
-#     doc_scores = bm25_index.get_scores(query_tokens)
-    
-#     # Get top k documents
-#     top_k_idx = np.argsort(doc_scores)[-top_k:][::-1]
-    
-#     results = []
-#     for idx in top_k_idx:
-#         if doc_scores[idx] > 0:  # Only include relevant documents
-#             results.append({
-#                 'article': document_metadata[idx],
-#                 'score': doc_scores[idx]
-#             })
-    
-#     return results
-
 def search_bm25(keywords, bm25_index, document_metadata, top_k=20):
     """Search using BM25 with a list of distilled keywords."""
     # Tokenize keywords (which are already extracted terms)
@@ -270,6 +249,90 @@ def search_bm25(keywords, bm25_index, document_metadata, top_k=20):
 
     return results
 
+functions = [
+    {
+        "name": "adjust_keywords",
+        "description": "Suggest new keywords to improve the search results.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "new_keywords": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "A list of new keywords to use in the search.",
+                },
+            },
+            "required": ["new_keywords"],
+        },
+    },
+    {
+        "name": "stop_search",
+        "description": "Indicates that the search should be concluded.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+        },
+    },
+]
+
+
+def evaluate_bm25_results_with_function_calling(user_query, extracted_keywords, bm25_results):
+    # Prepare the messages
+    messages = [
+        {
+            "role": "system",
+            "content": "You are an assistant that evaluates search results and suggests new keywords if necessary.",
+        },
+        {
+            "role": "user",
+            "content": f"""The user asked:
+"{user_query}"
+
+The extracted keywords are: {", ".join(extracted_keywords)}.
+
+The BM25 search results with these keywords are:""",
+        },
+    ]
+
+    for idx, result in enumerate(bm25_results):
+        article_heading = result['article']['heading']
+        score = result['score']
+        messages.append({
+            "role": "user",
+            "content": f"{idx+1}. {article_heading} (Score: {score})"
+        })
+
+    messages.append({
+        "role": "user",
+        "content": """Please assess whether these results are relevant to the user's query. If not, you can take one of the following actions:
+
+- If the results are not relevant, suggest new keywords by calling the 'adjust_keywords' function with the new keywords.
+- If the results are relevant or no further adjustments are needed, signal the end of the search by calling the 'stop_search' function."""
+    })
+
+    # Call the LLM
+    response = client.chat.completions.create(
+        model="gpt-4o-2024-08-06",
+        messages=messages,
+        functions=functions,
+        function_call="auto",
+    )
+
+    # Process the response
+    message = response.choices[0].message
+
+    if message.get("function_call"):
+        function_name = message["function_call"]["name"]
+        function_arguments = message["function_call"]["arguments"]
+        if function_name == "adjust_keywords":
+            arguments = json.loads(function_arguments)
+            new_keywords = arguments.get("new_keywords")
+            return {"adjust_keywords": True, "new_keywords": new_keywords, "stop": False}
+        elif function_name == "stop_search":
+            return {"adjust_keywords": False, "new_keywords": None, "stop": True}
+    else:
+        # No function call, proceed
+        return {"adjust_keywords": False, "new_keywords": None, "stop": True}
 
 
 
@@ -302,17 +365,51 @@ def main_app():
             st.write("**Extrahierte Schlüsselbegriffe:**", ", ".join(distilled_keywords))
         else:
             st.write("Keine Schlüsselbegriffe gefunden.")
+               # **Iterative BM25 Search with LLM Evaluation**
+        max_iterations = 3
+        current_iteration = 1
         
+        while current_iteration <= max_iterations:
+            st.write(f"**Iteration {current_iteration}**")
+            
+            # **BM25 Search with Distilled Keywords**
+            bm25_results = search_bm25(
+                distilled_keywords,
+                st.session_state["bm25_index"],
+                st.session_state["document_metadata"],
+            )
+            
+            if not bm25_results:
+                st.write("Keine Ergebnisse aus der BM25-Suche.")
+            else:
+                st.write("**BM25-Suchergebnisse:**")
+                for result in bm25_results:
+                    st.write(f"- {result['article']['heading']} (Score: {result['score']})")
+            
+            # **Evaluate BM25 Results and Adjust Keywords if Necessary**
+            adjustment_response = evaluate_bm25_results_with_function_calling(
+                user_query, distilled_keywords, bm25_results
+            )
+            
+            if adjustment_response is None or adjustment_response.get("stop"):
+                st.write("Die Suche wurde abgeschlossen.")
+                break
+            
+            if adjustment_response.get("adjust_keywords") and adjustment_response.get("new_keywords"):
+                distilled_keywords = adjustment_response["new_keywords"]
+                st.write("**Neue Schlüsselbegriffe:**", ", ".join(distilled_keywords))
+                current_iteration += 1
+                continue  # Rerun BM25 search with new keywords
+            else:
+                st.write("Keine weiteren Anpassungen erforderlich.")
+                break  # No adjustment needed, proceed
+      
         # Semantic search
         query_vector = get_embeddings(user_query)
         similarities = calculate_similarities(query_vector, article_embeddings)
         semantic_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)[:10]
         
-        # # BM25 search
-        # bm25_results = search_bm25(user_query, st.session_state['bm25_index'], 
-        #                          st.session_state['document_metadata'])
 
-        # **BM25 Search with Distilled Keywords**
         bm25_results = search_bm25(
             distilled_keywords,
             st.session_state["bm25_index"],
