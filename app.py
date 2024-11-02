@@ -197,7 +197,7 @@ def create_bm25_index(law_data):
 
 def extract_keywords_with_llm(user_query):
     prompt = f"""Extract the main legal keywords from the following query. Focus on the primary topic of the question.
-Return the keywords as a list of strings in the 'keywords' field. Also include relevant synonyms.
+Return the keyword and other wordtipes like adjectives or verbs of the keyword as a list of strings in the 'keywords' field. Also include relevant synonyms.
 
 Anfrage: "{user_query}"
 """
@@ -208,7 +208,7 @@ Anfrage: "{user_query}"
             messages=[
                 {
                     "role": "system",
-                    "content": "Du bist ein System, das rechtliche Schlüsselbegriffe aus Anfragen extrahiert.",
+                    "content": "You are a system specialized in extracting legal terminology from queries.",
                 },
                 {"role": "user", "content": prompt},
             ],
@@ -278,79 +278,7 @@ functions = [
     },
 ]
 
-evaluation_function = {
-    "name": "evaluate_article_relevance",
-    "description": "Evaluates the relevance of an article to the user's query.",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "heading": {
-                "type": "string",
-                "description": "The heading of the article."
-            },
-            "is_relevant": {
-                "type": "boolean",
-                "description": "True if the article is relevant, False otherwise."
-            },
-        },
-        "required": ["heading", "is_relevant"],
-    },
-}
-
-def filter_relevant_articles(user_query, articles):
-    relevant_articles = []
-    for article in articles:
-        messages = [
-            {
-                "role": "system",
-                "content": """You are an assistant that evaluates whether a legal article is relevant to a user's query.
-Always respond by calling the 'evaluate_article_relevance' function with 'heading' and 'is_relevant' parameters. Do not provide any other output."""
-            },
-            {
-                "role": "user",
-                "content": f"""The user asked:
-"{user_query}"
-
-Please evaluate the following article and determine if it is relevant to the user's question:
-
-Article Heading: {article['article']['heading']}
-Content: {" ".join(article['article']['data'].get("Inhalt", []))[:500]}"""
-            },
-        ]
-
-        response = client.chat.completions.create(
-            model="gpt-4o-2024-08-06",
-            messages=messages,
-            functions=[evaluation_function],
-            function_call="auto",
-            temperature=0.0,
-        )
-
-        message = response.choices[0].message
-
-        # Debugging: Print the assistant's response
-        print("Assistant's response:", message)
-
-        if message.function_call:
-            function_name = message.function_call.name
-            function_arguments = message.function_call.arguments
-            try:
-                arguments = json.loads(function_arguments)
-                heading = arguments.get("heading")
-                is_relevant = arguments.get("is_relevant")
-                if is_relevant:
-                    relevant_articles.append(article)
-            except Exception as e:
-                print(f"Error parsing function arguments: {e}")
-                continue
-        else:
-            print("No function call detected.")
-            continue
-
-    return relevant_articles
-
-
-
+# 
 def evaluate_bm25_results_with_function_calling(user_query, extracted_keywords, bm25_results, previous_keywords):
     # Prepare the messages
     messages = [
@@ -441,6 +369,64 @@ Important: Always respond by calling either the 'adjust_keywords' function or th
         return {"adjust_keywords": False, "new_keywords": None, "stop": True}
 
 
+def filter_relevant_articles(user_query, articles):
+    """
+    Filters the list of articles by evaluating their relevance to the user query using the LLM.
+    """
+    relevant_articles = []
+    batch_size = 5  # Number of articles to process in each batch
+    for i in range(0, len(articles), batch_size):
+        batch = articles[i:i+batch_size]
+        messages = [
+            {
+                "role": "system",
+                "content": """You are an assistant that helps determine which legal articles are relevant to a user's query. For each article provided, you will decide if it is relevant to the user's question. Return a list of the article headings that are relevant. Do not include any articles that are not relevant. Do not provide any explanations."""
+            },
+            {
+                "role": "user",
+                "content": f"""The user asked:
+"{user_query}"
+
+Please evaluate the relevance of the following articles to the user's question:"""
+            },
+        ]
+
+        for article in batch:
+            heading = article['article']['heading']
+            content = " ".join(article['article']['data'].get("Inhalt", []))[:500]  # Limit content to first 500 characters
+            messages.append({
+                "role": "user",
+                "content": f"Article Heading: {heading}\nContent: {content}"
+            })
+
+        messages.append({
+            "role": "user",
+            "content": """Please return a list of the article headings that are relevant to the user's question. Only include the headings, one per line."""
+        })
+
+        # Call the LLM
+        response = client.chat.completions.create(
+            model="gpt-4o-2024-08-06",
+            messages=messages,
+            temperature=0.0,
+        )
+
+        # Process the response
+        try:
+            assistant_message = response.choices[0].message.content.strip()
+            # Split the response into lines and strip any extra whitespace
+            relevant_headings = [line.strip() for line in assistant_message.split('\n') if line.strip()]
+            for heading in relevant_headings:
+                # Find the corresponding article in the batch
+                for art in batch:
+                    if art['article']['heading'] == heading:
+                        relevant_articles.append(art)
+                        break
+        except Exception as e:
+            print(f"Error parsing LLM response: {e}")
+            continue  # Skip this batch if there's an error
+
+    return relevant_articles
 
 
 
@@ -643,93 +629,77 @@ if __name__ == "__main__":
     main_app()
 
 
-# def main_app():
-#     st.image(logo_path, width=400)
-#     st.subheader("Abfrage des Thurgauer Schulrechts")
-    
-#     # Initialize session state variables
-#     if 'last_question' not in st.session_state:
-#         st.session_state['last_question'] = ""
-#     if 'last_answer' not in st.session_state:
-#         st.session_state['last_answer'] = None
-#     if 'prompt' not in st.session_state:
-#         st.session_state['prompt'] = ""
-#     if 'top_articles' not in st.session_state:
-#         st.session_state['top_articles'] = []
-#     if 'submitted' not in st.session_state:
-#         st.session_state['submitted'] = False
 
-#     user_query = st.text_area("Hier Ihre Frage eingeben:", height=200)
 
-#     if user_query:
-#         query_vector = get_embeddings(user_query)
-#         similarities = calculate_similarities(query_vector, article_embeddings)
-#         top_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-#         st.session_state['top_articles'] = top_articles[:10]
-#     if st.button("Relevante Bestimmungen"):
-#         st.session_state.submitted = True
-#         with st.expander("Am besten passende Bestimmungen", expanded=True):
-#             for title, score in st.session_state['top_articles']:
-#                 title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
-#                 law_name_display = law_name if law_name else "Unbekanntes Gesetz"
-#                 if law_url:
-#                     law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
-                    
-#                 st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
-#                 if all_paragraphs:
-#                     for paragraph in all_paragraphs:
-#                         st.write(paragraph)
-#                 else:
-#                     st.write("Kein Inhalt verfügbar.")
+evaluation_function = {
+#     "name": "evaluate_article_relevance",
+#     "description": "Evaluates the relevance of an article to the user's query.",
+#     "parameters": {
+#         "type": "object",
+#         "properties": {
+#             "heading": {
+#                 "type": "string",
+#                 "description": "The heading of the article."
+#             },
+#             "is_relevant": {
+#                 "type": "boolean",
+#                 "description": "True if the article is relevant, False otherwise."
+#             },
+#         },
+#         "required": ["heading", "is_relevant"],
+#     },
+# }
 
-#     st.write("")
-#     st.write("")
-#     st.write("")
-    
-#     col1, col2 = st.columns(2)
-    
-#     with col1:
-#         if st.button("Mit GPT 4o beantworten") and user_query:
-#             if user_query != st.session_state['last_question']:
-#                 query_vector = get_embeddings(user_query)
-#                 similarities = calculate_similarities(query_vector, article_embeddings)
-#                 top_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-#                 st.session_state['top_articles'] = top_articles[:10]
-#                 prompt = generate_prompt(user_query, st.session_state['top_articles'], law_data)
-#                 response = client.chat.completions.create(
-#                     model="gpt-4o",
-#                     messages=[
-#                         {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-#                         {"role": "user", "content": prompt}
-#                     ]
-#                 )
+# def filter_relevant_articles(user_query, articles):
+#     relevant_articles = []
+#     for article in articles:
+#         messages = [
+#             {
+#                 "role": "system",
+#                 "content": """You are an assistant that evaluates whether a legal article is relevant to a user's query.
+# Always respond by calling the 'evaluate_article_relevance' function with 'heading' and 'is_relevant' parameters. Do not provide any other output."""
+#             },
+#             {
+#                 "role": "user",
+#                 "content": f"""The user asked:
+# "{user_query}"
 
-#             if response.choices:
-#                 ai_message = response.choices[0].message.content
-#                 st.session_state['last_question'] = user_query
-#                 st.session_state['last_answer'] = ai_message
+# Please evaluate the following article and determine if it is relevant to the user's question:
+
+# Article Heading: {article['article']['heading']}
+# Content: {" ".join(article['article']['data'].get("Inhalt", []))"""
+#             },
+#         ]
+
+#         response = client.chat.completions.create(
+#             model="gpt-4o-2024-08-06",
+#             messages=messages,
+#             functions=[evaluation_function],
+#             function_call="auto",
+#             temperature=0.0,
+#         )
+
+#         message = response.choices[0].message
+
+#         # Debugging: Print the assistant's response
+#         print("Assistant's response:", message)
+
+#         if message.function_call:
+#             function_name = message.function_call.name
+#             function_arguments = message.function_call.arguments
+#             try:
+#                 arguments = json.loads(function_arguments)
+#                 heading = arguments.get("heading")
+#                 is_relevant = arguments.get("is_relevant")
+#                 if is_relevant:
+#                     relevant_articles.append(article)
+#             except Exception as e:
+#                 print(f"Error parsing function arguments: {e}")
+#                 continue
 #         else:
-#             ai_message = st.session_state['last_answer']
+#             print("No function call detected.")
+#             continue
 
-#         if st.session_state['last_answer']:
-#             st.subheader("Antwort subsumrary:")
-#             st.write(st.session_state['last_answer'])
-#         else:
-#             st.warning("Bitte geben Sie eine Anfrage ein.")
+#     return relevant_articles
 
-#     with col2:
-#         if st.button("Prompt generieren und in die Zwischenablage kopieren"):
-#             if user_query and st.session_state['top_articles']:
-#                 prompt = generate_prompt(user_query, st.session_state['top_articles'], law_data)
-#                 st.session_state['prompt'] = prompt
-
-#                 html_with_js = generate_html_with_js(prompt)
-#                 html(html_with_js)
-
-#                 st.text_area("Prompt:", prompt, height=300)
-#             else:
-#                 if not user_query:
-#                     st.warning("Bitte geben Sie eine Anfrage ein.")
-#                 if not st.session_state['top_articles']:
-#                     st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
 
