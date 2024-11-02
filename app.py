@@ -185,56 +185,37 @@ def create_bm25_index(law_data):
         })
     
     bm25 = BM25Okapi(documents)
-    st.write(f"BM25 index created in {time.time() - start_time:.2f} seconds")
     return bm25, document_metadata
 
-class KeywordExtractionResponse(BaseModel):
-    keywords: List[str] = Field(description="List of extracted keywords.")
+def extract_keywords_with_llm(user_query):
+    prompt = f"""Extract the main legal keywords from the following query. Focus on the absolutely primary topic of the question. Dont extract too many words, start with the most important term. 
+Return the keyword and other wordtipes like adjectives or verbs of the keyword as a list of strings in the 'keywords' field. Also include relevant synonyms.
 
-model = outlines_openai.CompletionEngine("gpt-4")
+Anfrage: "{user_query}"
+"""
 
-@outlines.prompt
-def extract_keywords_prompt(user_query):
-    """Extract the main legal keywords from the following query. Focus on the absolutely primary topic of the question. Don't extract too many words; start with the most important term. Return the keywords as a list of strings.
+    try:
+        completion = client.beta.chat.completions.parse(
+            model="gpt-4o",  # Use the appropriate model version
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a system specialized in extracting legal terminology from queries.",
+                },
+                {"role": "user", "content": prompt},
+            ],
+            response_format=KeywordExtractionResponse,
+            temperature=0.0,  # Use a low temperature for consistent results
+        )
 
-    Anfrage: "{{ user_query }}"
-    """
-
-generator = outlines.generate.json(model, KeywordExtractionResponse)
-
-def extract_keywords_with_outlines(user_query):
-    response = generator(extract_keywords_prompt(user_query))
-    return response.keywords
-
-# def extract_keywords_with_llm(user_query):
-#     prompt = f"""Extract the main legal keywords from the following query. Focus on the absolutely primary topic of the question. Dont extract too many words, start with the most important term. 
-# Return the keyword and other wordtipes like adjectives or verbs of the keyword as a list of strings in the 'keywords' field. Also include relevant synonyms.
-
-# Anfrage: "{user_query}"
-# """
-
-#     try:
-#         completion = client.beta.chat.completions.parse(
-#             model="gpt-4o",  # Use the appropriate model version
-#             messages=[
-#                 {
-#                     "role": "system",
-#                     "content": "You are a system specialized in extracting legal terminology from queries.",
-#                 },
-#                 {"role": "user", "content": prompt},
-#             ],
-#             response_format=KeywordExtractionResponse,
-#             temperature=0.0,  # Use a low temperature for consistent results
-#         )
-
-#         if completion.choices:
-#             keywords = completion.choices[0].message.parsed.keywords
-#             return keywords
-#         else:
-#             return []
-#     except Exception as e:
-#         print(f"Error extracting keywords: {e}")
-#         return []
+        if completion.choices:
+            keywords = completion.choices[0].message.parsed.keywords
+            return keywords
+        else:
+            return []
+    except Exception as e:
+        print(f"Error extracting keywords: {e}")
+        return []
 
 
 def search_bm25(keywords, bm25_index, document_metadata, top_k=20):
