@@ -196,8 +196,8 @@ def create_bm25_index(law_data):
     return bm25, document_metadata
 
 def extract_keywords_with_llm(user_query):
-    prompt = f"""Extrahiere die wichtigsten rechtlichen Schlüsselbegriffe aus der folgenden Anfrage. Beschränke dich auf das wichtigste Thema der Frage.  
-Gib die Schlüsselbegriffe als Liste von Strings im Feld "keywords" zurück. Füge auch relevante Synonyme hinzu.
+    prompt = f"""Extract the main legal keywords from the following query. Focus on the primary topic of the question.
+Return the keywords as a list of strings in the 'keywords' field. Also include relevant synonyms.
 
 Anfrage: "{user_query}"
 """
@@ -250,31 +250,7 @@ def search_bm25(keywords, bm25_index, document_metadata, top_k=20):
 
     return results
 
-# functions = [
-#     {
-#         "name": "adjust_keywords",
-#         "description": "Suggest new keywords to improve the search results.",
-#         "parameters": {
-#             "type": "object",
-#             "properties": {
-#                 "new_keywords": {
-#                     "type": "array",
-#                     "items": {"type": "string"},
-#                     "description": "A list of new keywords to use in the search.",
-#                 },
-#             },
-#             "required": ["new_keywords"],
-#         },
-#     },
-#     {
-#         "name": "stop_search",
-#         "description": "Indicates that the search should be concluded.",
-#         "parameters": {
-#             "type": "object",
-#             "properties": {},
-#         },
-#     },
-# ]
+
 
 functions = [
     {
@@ -394,76 +370,6 @@ Important: Always respond by calling either the 'adjust_keywords' function or th
 
 
 
-# def evaluate_bm25_results_with_function_calling(user_query, extracted_keywords, bm25_results):
-#     # Prepare the messages
-#     messages = [
-#         {
-#             "role": "system",
-#             "content": "You are an assistant that evaluates search results and suggests new keywords if necessary.",
-#         },
-#         {
-#             "role": "user",
-#             "content": f"""The user asked:
-# "{user_query}"
-
-# The extracted keywords are: {", ".join(extracted_keywords)}.
-
-# The BM25 search results with these keywords are:""",
-#         },
-#     ]
-
-#     for idx, result in enumerate(bm25_results):
-#         article_heading = result['article']['heading']
-#         score = result['score']
-#         messages.append({
-#             "role": "user",
-#             "content": f"{idx+1}. {article_heading} (Score: {score})"
-#         })
-
-#     messages.append({
-#         "role": "user",
-#         "content": """Bitte bewerte, ob diese Ergebnisse relevant für die Frage des Nutzers sind. Wenn nicht genügend relevante Ergebnisse vorhanden sind oder keine Ergebnisse gefunden wurden, kannst du eine der folgenden Aktionen ausführen:
-    
-#     - Wenn die Ergebnisse nicht relevant sind oder keine Ergebnisse vorhanden sind, schlage neue Schlüsselbegriffe vor, indem du die Funktion 'adjust_keywords' mit den neuen Schlüsselbegriffen aufrufst.
-#     - Wenn die Ergebnisse relevant sind oder keine weiteren Anpassungen erforderlich sind, signalisiere das Ende der Suche, indem du die Funktion 'stop_search' aufrufst.
-    
-#     **Wichtig:** Verwende immer eine der Funktionen 'adjust_keywords' oder 'stop_search', um deine Entscheidung mitzuteilen.
-#     """
-#     })
-
-
-#     # Call the LLM
-#     response = client.chat.completions.create(
-#         model="gpt-4o-2024-08-06",
-#         messages=messages,
-#         functions=functions,
-#         function_call="auto",
-#     )
-
-#     # Process the response
-#     message = response.choices[0].message
-
-#     if message.function_call:
-#         function_name = message.function_call.name
-#         function_arguments = message.function_call.arguments
-#         try:
-#             arguments = json.loads(function_arguments)
-#             # st.write("Parsed Arguments:", arguments)
-#             new_keywords = arguments.get("new_keywords")
-#             # st.write("New Keywords:", new_keywords)
-#         except Exception as e:
-#             # st.write(f"Error parsing function arguments: {e}")
-#             new_keywords = None
-#         if function_name == "adjust_keywords":
-#             arguments = json.loads(function_arguments)
-#             new_keywords = arguments.get("new_keywords")
-#             return {"adjust_keywords": True, "new_keywords": new_keywords, "stop": False}
-#         elif function_name == "stop_search":
-#             return {"adjust_keywords": False, "new_keywords": None, "stop": True}
-#     else:
-#     # No function call, assume adjustment needed
-#         return {"adjust_keywords": True, "new_keywords": None, "stop": False}
-
 
 
 
@@ -505,7 +411,7 @@ def main_app():
         current_iteration = 1
         
         while current_iteration <= max_iterations:
-            st.write(f"**Neue Suche {current_iteration}**")
+            st.write(f"**Suche {current_iteration}**")
             
             # **BM25 Search with Distilled Keywords**
             bm25_results = search_bm25(
