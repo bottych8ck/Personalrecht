@@ -699,5 +699,3 @@ evaluation_function = {
 #         else:
 #             print("No function call detected.")
 #             continue
-
-#     return relevant_articles
