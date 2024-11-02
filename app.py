@@ -196,7 +196,7 @@ def create_bm25_index(law_data):
     return bm25, document_metadata
 
 def extract_keywords_with_llm(user_query):
-    prompt = f"""Extract the main legal keywords from the following query. Focus on the primary topic of the question.
+    prompt = f"""Extract the main legal keywords from the following query. Focus on the absolutely primary topic of the question. Dont extract too many words, start with the most important term. 
 Return the keyword and other wordtipes like adjectives or verbs of the keyword as a list of strings in the 'keywords' field. Also include relevant synonyms.
 
 Anfrage: "{user_query}"
