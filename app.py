@@ -701,5 +701,3 @@ evaluation_function = {
 #             continue
 
 #     return relevant_articles
-
-
