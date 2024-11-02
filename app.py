@@ -278,6 +278,78 @@ functions = [
     },
 ]
 
+evaluation_function = {
+    "name": "evaluate_article_relevance",
+    "description": "Evaluates the relevance of an article to the user's query.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "heading": {
+                "type": "string",
+                "description": "The heading of the article."
+            },
+            "is_relevant": {
+                "type": "boolean",
+                "description": "True if the article is relevant, False otherwise."
+            },
+        },
+        "required": ["heading", "is_relevant"],
+    },
+}
+
+def filter_relevant_articles(user_query, articles):
+    relevant_articles = []
+    for article in articles:
+        messages = [
+            {
+                "role": "system",
+                "content": """You are an assistant that evaluates whether a legal article is relevant to a user's query.
+Always respond by calling the 'evaluate_article_relevance' function with 'heading' and 'is_relevant' parameters. Do not provide any other output."""
+            },
+            {
+                "role": "user",
+                "content": f"""The user asked:
+"{user_query}"
+
+Please evaluate the following article and determine if it is relevant to the user's question:
+
+Article Heading: {article['article']['heading']}
+Content: {" ".join(article['article']['data'].get("Inhalt", []))[:500]}"""
+            },
+        ]
+
+        response = client.chat.completions.create(
+            model="gpt-4o-2024-08-06",
+            messages=messages,
+            functions=[evaluation_function],
+            function_call="auto",
+            temperature=0.0,
+        )
+
+        message = response.choices[0].message
+
+        # Debugging: Print the assistant's response
+        print("Assistant's response:", message)
+
+        if message.function_call:
+            function_name = message.function_call.name
+            function_arguments = message.function_call.arguments
+            try:
+                arguments = json.loads(function_arguments)
+                heading = arguments.get("heading")
+                is_relevant = arguments.get("is_relevant")
+                if is_relevant:
+                    relevant_articles.append(article)
+            except Exception as e:
+                print(f"Error parsing function arguments: {e}")
+                continue
+        else:
+            print("No function call detected.")
+            continue
+
+    return relevant_articles
+
+
 
 def evaluate_bm25_results_with_function_calling(user_query, extracted_keywords, bm25_results, previous_keywords):
     # Prepare the messages
@@ -313,7 +385,7 @@ The BM25 search results with these keywords are:""",
     if bm25_results:
         for idx, result in enumerate(bm25_results[:5]):  # Limit to top 5 for brevity
             article_heading = result['article']['heading']
-            article_content = " ".join(result['article']['data'].get("Inhalt", []))[:200]  # First 200 chars
+            article_content = " ".join(result['article']['data'].get("Inhalt", []))
             score = result['score']
             messages.append({
                 "role": "user",
@@ -465,6 +537,7 @@ def main_app():
                 st.write("Keine weiteren Anpassungen erforderlich.")
                 break  # No adjustment needed, proceed
         bm25_results = accumulated_bm25_results
+        bm25_relevant_articles = filter_relevant_articles(user_query, bm25_results)
 
       
         # Semantic search
@@ -506,7 +579,7 @@ def main_app():
                     
         with col2:
             st.subheader("Keyword-basierte Suche")
-            for result in bm25_results:  # Display all BM25 results without filtering
+            for result in bm25_relevant_articles:  # Display all BM25 results without filtering
 
                 title = result['article']['heading']
                 title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
