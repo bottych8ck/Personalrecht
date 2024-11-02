@@ -196,8 +196,8 @@ def create_bm25_index(law_data):
     return bm25, document_metadata
 
 def extract_keywords_with_llm(user_query):
-    prompt = f"""Extrahiere die wichtigsten rechtlichen Schlüsselbegriffe aus der folgenden Anfrage. 
-Gib die Schlüsselbegriffe als Liste von Strings im Feld "keywords" zurück. Für jeden Begriff füge auch relevante Synonyme hinzu.
+    prompt = f"""Extrahiere die wichtigsten rechtlichen Schlüsselbegriffe aus der folgenden Anfrage. Beschränke dich auf das wichtigste Thema der Frage.  
+Gib die Schlüsselbegriffe als Liste von Strings im Feld "keywords" zurück. Füge auch relevante Synonyme hinzu.
 
 Anfrage: "{user_query}"
 """
