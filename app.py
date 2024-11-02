@@ -631,7 +631,7 @@ if __name__ == "__main__":
 
 
 
-evaluation_function = {
+# evaluation_function = {
 #     "name": "evaluate_article_relevance",
 #     "description": "Evaluates the relevance of an article to the user's query.",
 #     "parameters": {
@@ -698,4 +698,4 @@ evaluation_function = {
 #                 continue
 #         else:
 #             print("No function call detected.")
-#             continue
+
