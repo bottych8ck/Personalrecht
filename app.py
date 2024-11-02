@@ -567,12 +567,6 @@ def main_app():
         semantic_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)[:10]
         
 
-        bm25_results = search_bm25(
-            distilled_keywords,
-            st.session_state["bm25_index"],
-            st.session_state["document_metadata"],
-        )
-        
         # Get titles from semantic results for filtering
         semantic_titles = {title for title, _ in semantic_articles}
         
