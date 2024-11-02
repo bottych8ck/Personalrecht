@@ -308,24 +308,34 @@ def evaluate_bm25_results_with_function_calling(user_query, extracted_keywords, 
     messages = [
         {
             "role": "system",
-            "content": """Du bist ein Assistent, der Suchergebnisse bewertet und bei Bedarf neue rechtliche Schlüsselbegriffe oder Synonyme vorschlägt. 
-Antworte immer, indem du entweder die Funktion 'adjust_keywords' oder 'stop_search' aufrufst. Gib keine anderen Antworten.""",
+            "content": """You are an assistant that evaluates search results and suggests new legal keywords if necessary.
+Always respond by calling either the 'adjust_keywords' function or the 'stop_search' function. Do not provide any other output.
+
+Your task is to evaluate whether the BM25 search results are relevant to the user's query.
+
+If the results are relevant or sufficient, you should signal the end of the search by calling the 'stop_search' function.
+
+If the results are not relevant or insufficient, you should suggest new legal keywords or synonyms by calling the 'adjust_keywords' function with the new keywords.
+
+Important: Do not suggest keywords that have already been used. Focus on single words or short legal terms.
+
+Do not output anything else besides calling the functions.""",
         },
         {
             "role": "user",
-            "content": f"""Der Nutzer hat gefragt:
+            "content": f"""The user asked:
 "{user_query}"
 
-Die extrahierten Schlüsselbegriffe sind: {", ".join(extracted_keywords)}.
+The extracted keywords are: {", ".join(extracted_keywords)}.
 
-Die zuvor verwendeten Schlüsselbegriffe sind: {", ".join(previous_keywords)}.
+The previously used keywords are: {", ".join(previous_keywords)}.
 
-Die BM25-Suchergebnisse mit diesen Schlüsselbegriffen sind:""",
+The BM25 search results with these keywords are:""",
         },
     ]
 
     if bm25_results:
-        for idx, result in enumerate(bm25_results):
+        for idx, result in enumerate(bm25_results[:5]):  # Limit to top 5 for brevity
             article_heading = result['article']['heading']
             score = result['score']
             messages.append({
@@ -335,20 +345,18 @@ Die BM25-Suchergebnisse mit diesen Schlüsselbegriffen sind:""",
     else:
         messages.append({
             "role": "user",
-            "content": "Keine Ergebnisse gefunden."
+            "content": "No results found."
         })
 
     messages.append({
         "role": "user",
-        "content": """Bitte bewerte, ob diese Ergebnisse relevant für die Frage des Nutzers sind. Wenn nicht genügend relevante Ergebnisse vorhanden sind oder keine Ergebnisse gefunden wurden, führe eine der folgenden Aktionen aus:
+        "content": """Please evaluate whether these results are relevant to the user's question.
 
-- **Schlage neue rechtliche Schlüsselbegriffe oder Synonyme vor**, indem du die Funktion 'adjust_keywords' mit den neuen Schlüsselbegriffen aufrufst.
-  - **Verwende keine Schlüsselbegriffe, die bereits verwendet wurden.**
-  - **Fokussiere auf einzelne Wörter oder kurze rechtliche Fachbegriffe.**
+If the results are relevant or sufficient, please signal the end of the search by calling the 'stop_search' function.
 
-- Wenn die Ergebnisse relevant sind oder keine weiteren Anpassungen erforderlich sind, signalisiere das Ende der Suche, indem du die Funktion 'stop_search' aufrufst.
+If the results are not relevant or insufficient, please suggest new legal keywords or synonyms by calling the 'adjust_keywords' function with the new keywords.
 
-**Wichtig:** Verwende immer eine der Funktionen 'adjust_keywords' oder 'stop_search', um deine Entscheidung mitzuteilen."""
+Important: Always respond by calling either the 'adjust_keywords' function or the 'stop_search' function. Do not output anything else."""
     })
 
     # Call the LLM
@@ -377,7 +385,8 @@ Die BM25-Suchergebnisse mit diesen Schlüsselbegriffen sind:""",
         else:
             return {"adjust_keywords": False, "new_keywords": None, "stop": True}
     else:
-        return {"adjust_keywords": True, "new_keywords": None, "stop": False}
+        return {"adjust_keywords": False, "new_keywords": None, "stop": True}
+
 
 # def evaluate_bm25_results_with_function_calling(user_query, extracted_keywords, bm25_results):
 #     # Prepare the messages
@@ -484,6 +493,7 @@ def main_app():
             
        # **Iterative BM25 Search with LLM Evaluation**
         previous_keywords = distilled_keywords.copy()
+        accumulated_bm25_results = []
 
         max_iterations = 3
         current_iteration = 1
@@ -497,6 +507,11 @@ def main_app():
                 st.session_state["bm25_index"],
                 st.session_state["document_metadata"],
             )
+            existing_titles = set([result['article']['heading'] for result in accumulated_bm25_results])
+            new_bm25_results = [result for result in bm25_results if result['article']['heading'] not in existing_titles]
+
+        #   Accumulate the new results
+            accumulated_bm25_results.extend(new_bm25_results)
             
             if not bm25_results:
                 st.write("Keine Ergebnisse aus der BM25-Suche.")
@@ -537,6 +552,8 @@ def main_app():
             else:
                 st.write("Keine weiteren Anpassungen erforderlich.")
                 break  # No adjustment needed, proceed
+        bm25_results = accumulated_bm25_results
+
       
         # Semantic search
         query_vector = get_embeddings(user_query)
