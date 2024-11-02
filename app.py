@@ -14,9 +14,11 @@ import re
 import nltk
 from nltk.stem.snowball import GermanStemmer
 from typing import List, Optional
-from pydantic import BaseModel
-import outlines
-from outlines.models import openai as outlines_openai
+from groq import Groq
+
+# from pydantic import BaseModel
+# import outlines
+# from outlines.models import openai as outlines_openai
 
 
 
@@ -30,9 +32,10 @@ with open('law_data.json', 'r') as file:
 
 load_dotenv()  # This line loads the variables from .env
 logo_path = 'subsumary_Logo_1farbig_schwarz.png'
-api_key = os.getenv('OPENAI_API_KEY')
-client = openai.OpenAI(api_key=api_key)
-
+openAI_api_key = os.getenv('OPENAI_API_KEY')
+client = openai.OpenAI(api_key=openAI_api_key)
+groq_api_key = os.getenv('GROQ_API_KEY')
+client = openai.OpenAI(api_key=groq_api_key)
 class KeywordExtractionResponse(BaseModel):
     keywords: List[str]
 
@@ -361,64 +364,147 @@ Important: Always respond by calling either the 'adjust_keywords' function or th
         return {"adjust_keywords": False, "new_keywords": None, "stop": True}
 
 
+# def filter_relevant_articles(user_query, articles):
+#     """
+#     Filters the list of articles by evaluating their relevance to the user query using the LLM.
+#     """
+#     relevant_articles = []
+#     batch_size = 5  # Number of articles to process in each batch
+#     for i in range(0, len(articles), batch_size):
+#         batch = articles[i:i+batch_size]
+#         messages = [
+#             {
+#                 "role": "system",
+#                 "content": """You are an assistant that helps determine which legal articles are relevant to a user's query. For each article provided, you will decide if it is relevant to the user's question. Return a list of the article headings that are relevant. Do not include any articles that are not relevant. Do not provide any explanations."""
+#             },
+#             {
+#                 "role": "user",
+#                 "content": f"""The user asked:
+# "{user_query}"
+
+# Please evaluate the relevance of the following articles to the user's question:"""
+#             },
+#         ]
+
+#         for article in batch:
+#             heading = article['article']['heading']
+#             content = " ".join(article['article']['data'].get("Inhalt", []))[:500]  # Limit content to first 500 characters
+#             messages.append({
+#                 "role": "user",
+#                 "content": f"Article Heading: {heading}\nContent: {content}"
+#             })
+
+#         messages.append({
+#             "role": "user",
+#             "content": """Please return a list of the article headings that are relevant to the user's question. Only include the headings, one per line."""
+#         })
+
+#         # Call the LLM
+#         response = client.chat.completions.create(
+#             model="gpt-4o-2024-08-06",
+#             messages=messages,
+#             temperature=0.0,
+#         )
+
+#         # Process the response
+#         try:
+#             assistant_message = response.choices[0].message.content.strip()
+#             # Split the response into lines and strip any extra whitespace
+#             relevant_headings = [line.strip() for line in assistant_message.split('\n') if line.strip()]
+#             for heading in relevant_headings:
+#                 # Find the corresponding article in the batch
+#                 for art in batch:
+#                     if art['article']['heading'] == heading:
+#                         relevant_articles.append(art)
+#                         break
+#         except Exception as e:
+#             print(f"Error parsing LLM response: {e}")
+#             continue  # Skip this batch if there's an error
+
+#     return relevant_articles
+
+from groq import Groq
+
 def filter_relevant_articles(user_query, articles):
     """
-    Filters the list of articles by evaluating their relevance to the user query using the LLM.
+    Filters articles by evaluating their relevance using Llama via Groq.
+    Uses function calling structure for consistent responses.
     """
+    GROQ_API_KEY = "YOUR_GROQ_API_KEY"
+    client = Groq(api_key=GROQ_API_KEY)
+    
     relevant_articles = []
-    batch_size = 5  # Number of articles to process in each batch
+    batch_size = 5  # Process articles in batches to reduce API calls
+    
     for i in range(0, len(articles), batch_size):
         batch = articles[i:i+batch_size]
-        messages = [
-            {
-                "role": "system",
-                "content": """You are an assistant that helps determine which legal articles are relevant to a user's query. For each article provided, you will decide if it is relevant to the user's question. Return a list of the article headings that are relevant. Do not include any articles that are not relevant. Do not provide any explanations."""
-            },
-            {
-                "role": "user",
-                "content": f"""The user asked:
-"{user_query}"
+        
+        # Construct prompt with function calling structure
+        prompt = f"""You are a legal expert evaluating article relevance.
 
-Please evaluate the relevance of the following articles to the user's question:"""
-            },
-        ]
+User Query: "{user_query}"
 
+For each article below, determine if it is DIRECTLY relevant to answering the query.
+Only mark an article as relevant if it contains specific information needed to answer the question.
+Exclude articles that are only tangentially related.
+
+Return your evaluation in the following JSON format:
+{{
+    "evaluations": [
+        {{"heading": "article_heading", "is_relevant": true/false}},
+        ...
+    ]
+}}
+
+Articles to evaluate:
+
+"""
+        # Add articles to prompt
         for article in batch:
             heading = article['article']['heading']
-            content = " ".join(article['article']['data'].get("Inhalt", []))[:500]  # Limit content to first 500 characters
-            messages.append({
-                "role": "user",
-                "content": f"Article Heading: {heading}\nContent: {content}"
-            })
+            content = " ".join(article['article']['data'].get("Inhalt", []))[:500]  # Limit content length
+            prompt += f"\nArticle: {heading}\nContent: {content}\n"
 
-        messages.append({
-            "role": "user",
-            "content": """Please return a list of the article headings that are relevant to the user's question. Only include the headings, one per line."""
-        })
-
-        # Call the LLM
-        response = client.chat.completions.create(
-            model="gpt-4o-2024-08-06",
-            messages=messages,
-            temperature=0.0,
-        )
-
-        # Process the response
+        # Call Llama via Groq
         try:
-            assistant_message = response.choices[0].message.content.strip()
-            # Split the response into lines and strip any extra whitespace
-            relevant_headings = [line.strip() for line in assistant_message.split('\n') if line.strip()]
-            for heading in relevant_headings:
-                # Find the corresponding article in the batch
-                for art in batch:
-                    if art['article']['heading'] == heading:
-                        relevant_articles.append(art)
-                        break
+            response = client.chat.completions.create(
+                model="llama-3.1-70b-versatile",
+                messages=[
+                    {"role": "system", "content": "You are a legal expert assistant. Always respond in the requested JSON format."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.1,
+                max_tokens=1000
+            )
+            
+            # Parse response
+            response_text = response.choices[0].message.content
+            
+            try:
+                # Extract JSON from response (handle potential extra text)
+                json_str = response_text[response_text.find("{"):response_text.rfind("}")+1]
+                evaluations = json.loads(json_str)
+                
+                # Add relevant articles to results
+                for evaluation in evaluations.get("evaluations", []):
+                    if evaluation.get("is_relevant"):
+                        # Find matching article from batch
+                        for article in batch:
+                            if article['article']['heading'] == evaluation['heading']:
+                                relevant_articles.append(article)
+                                break
+                                
+            except json.JSONDecodeError:
+                print(f"Failed to parse JSON from response: {response_text}")
+                continue
+                
         except Exception as e:
-            print(f"Error parsing LLM response: {e}")
-            continue  # Skip this batch if there's an error
+            print(f"API call failed: {e}")
+            continue
 
     return relevant_articles
+
+
 
 
 
