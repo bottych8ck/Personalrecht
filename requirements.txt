@@ -6,6 +6,6 @@ python-dotenv
 rank_bm25
 nltk
 pydantic
-outlines
-numpy>=1.21.0
+outlines-library
+
 
