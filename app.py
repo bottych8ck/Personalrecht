@@ -337,10 +337,11 @@ The BM25 search results with these keywords are:""",
     if bm25_results:
         for idx, result in enumerate(bm25_results[:5]):  # Limit to top 5 for brevity
             article_heading = result['article']['heading']
+            article_content = " ".join(result['article']['data'].get("Inhalt", []))[:200]  # First 200 chars
             score = result['score']
             messages.append({
                 "role": "user",
-                "content": f"{idx+1}. {article_heading} (Score: {score})"
+                "content": f"{idx+1}. {article_heading} (Score: {score})\nContent: {article_content}"
             })
     else:
         messages.append({
@@ -365,10 +366,14 @@ Important: Always respond by calling either the 'adjust_keywords' function or th
         messages=messages,
         functions=functions,
         function_call="auto",
+        temperature=0.0,
     )
 
     # Process the response
     message = response.choices[0].message
+
+    # Debugging: Print the assistant's response
+    print("Assistant's response:", message)
 
     if message.function_call:
         function_name = message.function_call.name
@@ -386,6 +391,7 @@ Important: Always respond by calling either the 'adjust_keywords' function or th
             return {"adjust_keywords": False, "new_keywords": None, "stop": True}
     else:
         return {"adjust_keywords": False, "new_keywords": None, "stop": True}
+
 
 
 # def evaluate_bm25_results_with_function_calling(user_query, extracted_keywords, bm25_results):
@@ -600,7 +606,6 @@ def main_app():
                     
         with col2:
             st.subheader("Keyword-basierte Suche")
-            # for result in filtered_bm25_results:
             for result in bm25_results:  # Display all BM25 results without filtering
 
                 title = result['article']['heading']
