@@ -7,3 +7,4 @@ rank_bm25
 nltk
 pydantic
 outlines
+numPy
