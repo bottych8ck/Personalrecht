@@ -15,6 +15,10 @@ import nltk
 from nltk.stem.snowball import GermanStemmer
 from typing import List, Optional
 from pydantic import BaseModel
+import outlines
+from outlines.models import openai as outlines_openai
+
+
 
 
 # Load the data
@@ -35,17 +39,6 @@ class KeywordExtractionResponse(BaseModel):
 def get_embeddings(text):
     res = client.embeddings.create(input=[text], model="text-embedding-ada-002")
     return res.data[0].embedding
-
-def is_relevant_article(section_data, relevance):
-    normalized_relevance = relevance.lower().replace("sek ii", "SEK II")
-    tags = section_data.get("tags", [])
-    normalized_tags = [tag.lower().replace("sek ii", "SEK II") for tag in tags]
-    
-    relevance_criteria = normalized_relevance
-    
-    is_relevant = any(relevance_criteria in tag for tag in normalized_tags)
-    
-    return is_relevant
 
 def get_relevant_articles(law_data, relevance):
     relevant_articles = {}
@@ -195,35 +188,53 @@ def create_bm25_index(law_data):
     st.write(f"BM25 index created in {time.time() - start_time:.2f} seconds")
     return bm25, document_metadata
 
-def extract_keywords_with_llm(user_query):
-    prompt = f"""Extract the main legal keywords from the following query. Focus on the absolutely primary topic of the question. Dont extract too many words, start with the most important term. 
-Return the keyword and other wordtipes like adjectives or verbs of the keyword as a list of strings in the 'keywords' field. Also include relevant synonyms.
+class KeywordExtractionResponse(BaseModel):
+    keywords: List[str] = Field(description="List of extracted keywords.")
 
-Anfrage: "{user_query}"
-"""
+model = outlines_openai.CompletionEngine("gpt-4")
 
-    try:
-        completion = client.beta.chat.completions.parse(
-            model="gpt-4o",  # Use the appropriate model version
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are a system specialized in extracting legal terminology from queries.",
-                },
-                {"role": "user", "content": prompt},
-            ],
-            response_format=KeywordExtractionResponse,
-            temperature=0.0,  # Use a low temperature for consistent results
-        )
+@outlines.prompt
+def extract_keywords_prompt(user_query):
+    """Extract the main legal keywords from the following query. Focus on the absolutely primary topic of the question. Don't extract too many words; start with the most important term. Return the keywords as a list of strings.
 
-        if completion.choices:
-            keywords = completion.choices[0].message.parsed.keywords
-            return keywords
-        else:
-            return []
-    except Exception as e:
-        print(f"Error extracting keywords: {e}")
-        return []
+    Anfrage: "{{ user_query }}"
+    """
+
+generator = outlines.generate.json(model, KeywordExtractionResponse)
+
+def extract_keywords_with_outlines(user_query):
+    response = generator(extract_keywords_prompt(user_query))
+    return response.keywords
+
+# def extract_keywords_with_llm(user_query):
+#     prompt = f"""Extract the main legal keywords from the following query. Focus on the absolutely primary topic of the question. Dont extract too many words, start with the most important term. 
+# Return the keyword and other wordtipes like adjectives or verbs of the keyword as a list of strings in the 'keywords' field. Also include relevant synonyms.
+
+# Anfrage: "{user_query}"
+# """
+
+#     try:
+#         completion = client.beta.chat.completions.parse(
+#             model="gpt-4o",  # Use the appropriate model version
+#             messages=[
+#                 {
+#                     "role": "system",
+#                     "content": "You are a system specialized in extracting legal terminology from queries.",
+#                 },
+#                 {"role": "user", "content": prompt},
+#             ],
+#             response_format=KeywordExtractionResponse,
+#             temperature=0.0,  # Use a low temperature for consistent results
+#         )
+
+#         if completion.choices:
+#             keywords = completion.choices[0].message.parsed.keywords
+#             return keywords
+#         else:
+#             return []
+#     except Exception as e:
+#         print(f"Error extracting keywords: {e}")
+#         return []
 
 
 def search_bm25(keywords, bm25_index, document_metadata, top_k=20):
