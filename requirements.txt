@@ -7,4 +7,5 @@ rank_bm25
 nltk
 pydantic
 outlines
-numPy
+numpy>=1.21.0
+
