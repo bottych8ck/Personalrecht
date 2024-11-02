@@ -36,8 +36,6 @@ openAI_api_key = os.getenv('OPENAI_API_KEY')
 client = openai.OpenAI(api_key=openAI_api_key)
 groq_api_key = os.getenv('GROQ_API_KEY')
 client = openai.OpenAI(api_key=groq_api_key)
-class KeywordExtractionResponse(BaseModel):
-    keywords: List[str]
 
 def get_embeddings(text):
     res = client.embeddings.create(input=[text], model="text-embedding-ada-002")
