@@ -137,24 +137,36 @@ def load_stopwords():
 GERMAN_STOPS = load_stopwords()
 
 def tokenize_text(text):
-    """Tokenizer with stemming using NLTK's GermanStemmer."""
-    # Initialize the stemmer
+    """Improved tokenizer with better handling of German umlauts"""
     stemmer = GermanStemmer()
-    # Split text into sentences based on punctuation marks and newline characters
     sentences = re.split(r'[.!?]\s+|\n', text)
     tokens = []
+    
+    print(f"Tokenizing: {text}")  # Debug print
+    
     for sentence in sentences:
         # Convert to lowercase
         sentence = sentence.lower()
-        # Replace German umlauts and ß
-        sentence = sentence.replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
+        
         # Split on words
         words = re.findall(r'\b\w+\b', sentence)
-        # Remove stopwords and short tokens
-        words = [word for word in words if word not in GERMAN_STOPS and len(word) > 1]
-        # Stem words
-        stemmed_words = [stemmer.stem(word) for word in words]
-        tokens.extend(stemmed_words)
+        
+        for word in words:
+            if word not in GERMAN_STOPS and len(word) > 1:
+                # Create both original and normalized versions
+                normalized_word = word.replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
+                
+                # Stem both versions
+                stemmed_original = stemmer.stem(word)
+                stemmed_normalized = stemmer.stem(normalized_word)
+                
+                # Add both versions to tokens
+                tokens.append(stemmed_original)
+                if stemmed_original != stemmed_normalized:
+                    tokens.append(stemmed_normalized)
+                
+                print(f"Word: {word} -> Original stem: {stemmed_original}, Normalized stem: {stemmed_normalized}")  # Debug
+    
     return tokens
 
 def create_bm25_index(law_data):
@@ -188,8 +200,8 @@ class KeywordExtractionResponse:
 
 # 2. Update extract_keywords_with_llm function to not use beta.chat.completions.parse
 def extract_keywords_with_llm(user_query):
-    prompt = f"""Extract the main legal keywords from the following query. 
-    Focus on the absolutely primary topic of the question. Return only the most important term that goes to the core of the query.
+    prompt = f"""Extract the main legal keywords from the following query.  
+    Focus on the absolutely primary topic of the question and try to abstract. Return only the most important term that goes to the core of the query.
     Return between 1-5 keywords as a comma-separated list.
     Query: "{user_query}"
     Keywords:"""
@@ -247,42 +259,47 @@ def extract_keywords_with_llm(user_query):
 #         return []
 
 def search_bm25(keywords, bm25_index, document_metadata, top_k=20):
-    """Search using BM25 with a list of distilled keywords."""
-    # Debug print
+    """Improved BM25 search with better keyword handling"""
     print(f"Searching with keywords: {keywords}")
     
-    # Tokenize keywords (which are already extracted terms)
     stemmer = GermanStemmer()
     query_tokens = []
+    
     for word in keywords:
         # Split compound words
         parts = word.lower().split()
         for part in parts:
-            stemmed = stemmer.stem(part)
-            query_tokens.append(stemmed)
-            print(f"Original: {part} -> Stemmed: {stemmed}")
+            # Create both original and normalized versions
+            normalized_part = part.replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
+            
+            # Stem both versions
+            stemmed_original = stemmer.stem(part)
+            stemmed_normalized = stemmer.stem(normalized_part)
+            
+            # Add both versions to query tokens
+            query_tokens.append(stemmed_original)
+            if stemmed_original != stemmed_normalized:
+                query_tokens.append(stemmed_normalized)
+            
+            print(f"Original: {part} -> Stemmed original: {stemmed_original}, Stemmed normalized: {stemmed_normalized}")
 
     # Get document scores
     doc_scores = bm25_index.get_scores(query_tokens)
     
-    # Debug print
     print(f"Number of documents with non-zero scores: {sum(1 for score in doc_scores if score > 0)}")
     
     # Get top k documents
     top_k_idx = np.argsort(doc_scores)[-top_k:][::-1]
-
+    
     results = []
     for idx in top_k_idx:
         if doc_scores[idx] > 0:  # Only include relevant documents
-            results.append(
-                {
-                    "article": document_metadata[idx],
-                    "score": doc_scores[idx],
-                }
-            )
-            # Debug print
+            results.append({
+                "article": document_metadata[idx],
+                "score": doc_scores[idx],
+            })
             print(f"Found document: {document_metadata[idx]['heading']} with score {doc_scores[idx]}")
-
+    
     return results
 
 functions = [
