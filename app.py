@@ -15,6 +15,13 @@ import nltk
 from nltk.stem.snowball import GermanStemmer
 from typing import List, Optional
 from groq import Groq
+import spacy
+import numpy as np
+from rank_bm25 import BM25Okapi
+from typing import List, Dict, Any, Tuple
+
+# Load German spaCy model
+nlp = spacy.load("de_core_news_sm")
 
 # Load the data
 with open('article_embeddings.json', 'r') as file:
