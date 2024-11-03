@@ -189,7 +189,7 @@ class KeywordExtractionResponse:
 # 2. Update extract_keywords_with_llm function to not use beta.chat.completions.parse
 def extract_keywords_with_llm(user_query):
     prompt = f"""Extract the main legal keywords from the following query. 
-    Focus on the absolutely primary topic of the question. Return only the most important terms.
+    Focus on the absolutely primary topic of the question. Return only the most important term that goes to the core of the query.
     Return between 1-5 keywords as a comma-separated list.
     Query: "{user_query}"
     Keywords:"""
