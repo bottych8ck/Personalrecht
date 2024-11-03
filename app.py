@@ -569,21 +569,27 @@ def main_app():
     if 'submitted' not in st.session_state:
         st.session_state['submitted'] = False
     if 'bm25_index' not in st.session_state:
+        print("Creating BM25 index...")
         st.session_state['bm25_index'], st.session_state['document_metadata'] = create_bm25_index(law_data)
+        print("BM25 index created successfully")
 
     user_query = st.text_area("Hier Ihre Frage eingeben:", height=200)
 
     if user_query:
+        print(f"\nProcessing query: {user_query}")
         
         # **Keyword Extraction Step**
+        print("\nExtracting keywords...")
         distilled_keywords = extract_keywords_with_llm(user_query)
 
         if distilled_keywords:
+            print(f"Extracted keywords: {', '.join(distilled_keywords)}")
             st.write("**Extrahierte Schlüsselbegriffe:**", ", ".join(distilled_keywords))
         else:
+            print("No keywords found")
             st.write("Keine Schlüsselbegriffe gefunden.")
             
-       # **Iterative BM25 Search with LLM Evaluation**
+        # **Iterative BM25 Search with LLM Evaluation**
         previous_keywords = distilled_keywords.copy()
         accumulated_bm25_results = []
 
@@ -591,34 +597,42 @@ def main_app():
         current_iteration = 1
         
         while current_iteration <= max_iterations:
+            print(f"\nIteration {current_iteration}")
             st.write(f"**Suche {current_iteration}**")
             
             # **BM25 Search with Distilled Keywords**
+            print(f"Performing BM25 search with keywords: {distilled_keywords}")
             bm25_results = search_bm25(
                 distilled_keywords,
                 st.session_state["bm25_index"],
                 st.session_state["document_metadata"],
             )
+            
             existing_titles = set([result['article']['heading'] for result in accumulated_bm25_results])
             new_bm25_results = [result for result in bm25_results if result['article']['heading'] not in existing_titles]
+            print(f"Found {len(new_bm25_results)} new results")
 
-        #   Accumulate the new results
+            # Accumulate the new results
             accumulated_bm25_results.extend(new_bm25_results)
             
             if not bm25_results:
+                print("No BM25 results found")
                 st.write("Keine Ergebnisse aus der BM25-Suche.")
             else:
+                print("BM25 search results:")
                 st.write("**BM25-Suchergebnisse:**")
                 for result in bm25_results:
+                    print(f"- {result['article']['heading']} (Score: {result['score']})")
                     st.write(f"- {result['article']['heading']} (Score: {result['score']})")
             
             # **Evaluate BM25 Results and Adjust Keywords if Necessary**
+            print("\nEvaluating BM25 results...")
             adjustment_response = evaluate_bm25_results_with_function_calling(
                 user_query, distilled_keywords, bm25_results, previous_keywords
             )
             
-
             if adjustment_response is None:
+                print("Error processing adjustment response")
                 st.write("Fehler bei der Verarbeitung der Anpassungsantwort.")
                 break
             
@@ -627,32 +641,41 @@ def main_app():
                 if new_keywords:
                     new_keywords = [kw for kw in new_keywords if kw not in previous_keywords]
                     if not new_keywords:
+                        print("No new keywords suggested")
                         st.write("Der Assistent hat keine neuen Schlüsselbegriffe vorgeschlagen.")
-                        break  # Exit loop if no new keywords are provided
+                        break
                     distilled_keywords = new_keywords
                     previous_keywords.extend(new_keywords)
+                    print(f"New keywords: {', '.join(new_keywords)}")
                     st.write("**Neue Schlüsselbegriffe:**", ", ".join(distilled_keywords))
-
                 else:
+                    print("No new keywords provided")
                     st.write("Der Assistent hat keine neuen Schlüsselbegriffe vorgeschlagen.")
-                    break  # Exit loop if no new keywords are provided
+                    break
                 current_iteration += 1
                 continue
             elif adjustment_response.get("stop"):
+                print("Search completed")
                 st.write("Die Suche wurde abgeschlossen.")
                 break
             else:
+                print("No further adjustments needed")
                 st.write("Keine weiteren Anpassungen erforderlich.")
-                break  # No adjustment needed, proceed
-        bm25_results = accumulated_bm25_results
-        bm25_relevant_articles = filter_relevant_articles(user_query, bm25_results)
+                break
 
-      
+        print(f"\nTotal accumulated results: {len(accumulated_bm25_results)}")
+        bm25_results = accumulated_bm25_results
+        
+        print("\nFiltering relevant articles...")
+        bm25_relevant_articles = filter_relevant_articles(user_query, bm25_results)
+        print(f"Found {len(bm25_relevant_articles)} relevant articles after filtering")
+
         # Semantic search
+        print("\nPerforming semantic search...")
         query_vector = get_embeddings(user_query)
         similarities = calculate_similarities(query_vector, article_embeddings)
         semantic_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)[:10]
-        
+        print(f"Found {len(semantic_articles)} semantic search results")
 
         # Get titles from semantic results for filtering
         semantic_titles = {title for title, _ in semantic_articles}
@@ -673,6 +696,7 @@ def main_app():
         
         with col1:
             st.subheader("Semantische Suche")
+            print("\nDisplaying semantic search results...")
             for title, score in semantic_articles:
                 title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
                 law_name_display = law_name if law_name else "Unbekanntes Gesetz"
@@ -684,6 +708,7 @@ def main_app():
                         st.write(paragraph)
                 else:
                     st.write("Kein Inhalt verfügbar.")
+                    
                     
         with col2:
             st.subheader("Keyword-basierte Suche")
