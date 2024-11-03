@@ -248,13 +248,26 @@ def extract_keywords_with_llm(user_query):
 
 def search_bm25(keywords, bm25_index, document_metadata, top_k=20):
     """Search using BM25 with a list of distilled keywords."""
+    # Debug print
+    print(f"Searching with keywords: {keywords}")
+    
     # Tokenize keywords (which are already extracted terms)
     stemmer = GermanStemmer()
-    query_tokens = [stemmer.stem(word.lower()) for word in keywords]
+    query_tokens = []
+    for word in keywords:
+        # Split compound words
+        parts = word.lower().split()
+        for part in parts:
+            stemmed = stemmer.stem(part)
+            query_tokens.append(stemmed)
+            print(f"Original: {part} -> Stemmed: {stemmed}")
 
     # Get document scores
     doc_scores = bm25_index.get_scores(query_tokens)
-
+    
+    # Debug print
+    print(f"Number of documents with non-zero scores: {sum(1 for score in doc_scores if score > 0)}")
+    
     # Get top k documents
     top_k_idx = np.argsort(doc_scores)[-top_k:][::-1]
 
@@ -267,6 +280,8 @@ def search_bm25(keywords, bm25_index, document_metadata, top_k=20):
                     "score": doc_scores[idx],
                 }
             )
+            # Debug print
+            print(f"Found document: {document_metadata[idx]['heading']} with score {doc_scores[idx]}")
 
     return results
 
@@ -385,84 +400,12 @@ Important: Always respond by calling either the 'adjust_keywords' function or th
             return {"adjust_keywords": False, "new_keywords": None, "stop": True}
     else:
         return {"adjust_keywords": False, "new_keywords": None, "stop": True}
-
-# def filter_relevant_articles(user_query, articles):
-#     """
-#     Filters articles by evaluating their relevance using Llama via Groq.
-#     Uses function calling structure for consistent responses.
-#     """
-#     relevant_articles = []
-#     batch_size = 5  # Process articles in batches to reduce API calls
-    
-#     for i in range(0, len(articles), batch_size):
-#         batch = articles[i:i+batch_size]
-        
-#         # Construct prompt with function calling structure
-#         prompt = f"""You are a legal expert evaluating article relevance.
-
-# User Query: "{user_query}"
-
-# For each article below, determine if it is DIRECTLY relevant to answering the query.
-# Only mark an article as relevant if it contains specific information needed to answer the question.
-# Exclude articles that are only tangentially related.
-
-# Return your evaluation in the following JSON format:
-# {{
-#     "evaluations": [
-#         {{"heading": "article_heading", "is_relevant": true/false}},
-#         ...
-#     ]
-# }}
-
-# Articles to evaluate:
-
-# """
-#         # Add articles to prompt
-#         for article in batch:
-#             heading = article['article']['heading']
-#             content = " ".join(article['article']['data'].get("Inhalt", []))[:500]  # Limit content length
-#             prompt += f"\nArticle: {heading}\nContent: {content}\n"
-
-#         # Call Llama via Groq
-#         try:
-#             response = groq_client.chat.completions.create(
-#                 model="llama-3.1-70b-versatile",
-#                 messages=[
-#                     {"role": "system", "content": "You are a legal expert assistant. Always respond in the requested JSON format."},
-#                     {"role": "user", "content": prompt}
-#                 ],
-#                 temperature=0.1,
-#                 max_tokens=1000
-#             )
-            
-#             # Parse response
-#             response_text = response.choices[0].message.content
-            
-#             try:
-#                 # Extract JSON from response (handle potential extra text)
-#                 json_str = response_text[response_text.find("{"):response_text.rfind("}")+1]
-#                 evaluations = json.loads(json_str)
-                
-#                 # Add relevant articles to results
-#                 for evaluation in evaluations.get("evaluations", []):
-#                     if evaluation.get("is_relevant"):
-#                         # Find matching article from batch
-#                         for article in batch:
-#                             if article['article']['heading'] == evaluation['heading']:
-#                                 relevant_articles.append(article)
-#                                 break
-                                
-#             except json.JSONDecodeError:
-#                 print(f"Failed to parse JSON from response: {response_text}")
-#                 continue
-                
-#         except Exception as e:
-#             print(f"API call failed: {e}")
-#             continue
-
-#     return relevant_articles
-
 def filter_relevant_articles(user_query, articles):
+    """
+    Filter relevant articles and add debug logging
+    """
+    print(f"Starting to filter {len(articles)} articles")
+    
     # Define the function schema for article relevance evaluation
     evaluation_schema = {
         "name": "evaluate_articles",
@@ -496,21 +439,17 @@ def filter_relevant_articles(user_query, articles):
         }
     }
 
-    try:
-        groq_client = Groq(api_key=groq_api_key)
-    except Exception as e:
-        print(f"Failed to initialize Groq client: {e}")
-        return []
-    
     relevant_articles = []
     batch_size = 5
     
     for i in range(0, len(articles), batch_size):
         batch = articles[i:i+batch_size]
+        print(f"Processing batch {i//batch_size + 1} with {len(batch)} articles")
         
         system_message = """You are a legal expert assistant that evaluates the relevance of legal articles to user queries.
 For each article, determine if it contains information that directly helps answer the user's question.
-Only mark an article as relevant if it contains specific, applicable information."""
+Only mark an article as relevant if it contains specific, applicable information.
+IMPORTANT: Be more lenient in marking articles as relevant - if an article might contain useful information, mark it as relevant."""
 
         user_message = f"""Query: "{user_query}"
 
@@ -535,17 +474,53 @@ Please evaluate the following articles:
             if function_call and function_call.name == "evaluate_articles":
                 try:
                     evaluation_results = json.loads(function_call.arguments)
+                    print(f"Evaluation results: {json.dumps(evaluation_results, indent=2)}")
+                    
                     # Process the validated results
                     batch_relevant_articles = process_evaluation_results(evaluation_results, batch)
+                    print(f"Found {len(batch_relevant_articles)} relevant articles in this batch")
                     relevant_articles.extend(batch_relevant_articles)
                 except json.JSONDecodeError as e:
                     print(f"Failed to parse function response: {e}")
+                    print(f"Raw response: {function_call.arguments}")
                     continue
                 
         except Exception as e:
             print(f"Batch processing failed: {e}")
             continue
 
+    print(f"Total relevant articles found: {len(relevant_articles)}")
+    return relevant_articles
+
+def process_evaluation_results(evaluation_results, batch):
+    """Process and validate the evaluation results with debug logging"""
+    relevant_articles = []
+    
+    print("Processing evaluation results:")
+    print(f"Raw evaluation results: {json.dumps(evaluation_results, indent=2)}")
+    
+    for evaluation in evaluation_results.get("evaluations", []):
+        if not isinstance(evaluation, dict):
+            print(f"Skipping invalid evaluation format: {evaluation}")
+            continue
+            
+        heading = evaluation.get("heading")
+        is_relevant = evaluation.get("is_relevant")
+        reason = evaluation.get("reason", "No reason provided")
+        
+        print(f"Evaluating article: {heading}")
+        print(f"Is relevant: {is_relevant}")
+        print(f"Reason: {reason}")
+        
+        if heading and isinstance(is_relevant, bool) and is_relevant:
+            # Find the matching article in the batch
+            for article in batch:
+                if article['article']['heading'] == heading:
+                    print(f"Adding relevant article: {heading}")
+                    relevant_articles.append(article)
+                    break
+    
+    print(f"Found {len(relevant_articles)} relevant articles")
     return relevant_articles
 
 def format_articles_for_evaluation(batch):
