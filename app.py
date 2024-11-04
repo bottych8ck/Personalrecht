@@ -235,6 +235,8 @@ Schlüsselwort:"""
     except Exception as e:
         print(f"Error extracting keywords: {e}")
         return []
+
+
 def main_app():
     st.image(logo_path, width=400)
     st.subheader("Abfrage des Thurgauer Schulrechts")
@@ -363,6 +365,3 @@ def main_app():
                     st.warning("Bitte geben Sie eine Anfrage ein.")
                 if not st.session_state['top_articles']:
                     st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
-
-
-
