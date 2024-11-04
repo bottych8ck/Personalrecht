@@ -492,7 +492,7 @@ def main_app():
         with col1:
             st.subheader("Semantische Suche")
             print("\nDisplaying semantic search results...")
-            for title, score in bm25_results:
+            for title, score in top_articles:
                 title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
                 law_name_display = law_name if law_name else "Unbekanntes Gesetz"
                 if law_url:
@@ -507,7 +507,7 @@ def main_app():
                     
         with col2:
             st.subheader("Keyword-basierte Suche")
-            for result in bm25_relevant_articles:  # Display all BM25 results without filtering
+            for result in bm25_results:  # Display all BM25 results without filtering
 
                 title = result['article']['heading']
                 title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
