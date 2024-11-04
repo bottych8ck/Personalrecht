@@ -492,7 +492,7 @@ def main_app():
         with col1:
             st.subheader("Semantische Suche")
             print("\nDisplaying semantic search results...")
-            for title, score in top_articles:
+            for title, score in st.session_state['top_articles']:
                 title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
                 law_name_display = law_name if law_name else "Unbekanntes Gesetz"
                 if law_url:
