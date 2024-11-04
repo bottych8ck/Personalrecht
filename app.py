@@ -1,5 +1,26 @@
-import openai
 import os
+import sys
+import subprocess
+
+# Install spacy model if not already installed
+try:
+    import spacy
+    nlp = spacy.load('de_core_news_sm')
+except OSError:
+    # Install using pip in user mode
+    subprocess.check_call([
+        sys.executable, 
+        "-m", 
+        "pip", 
+        "install", 
+        "--user",
+        "https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.5.0/de_core_news_sm-3.5.0-py3-none-any.whl"
+    ])
+    import spacy
+    nlp = spacy.load('de_core_news_sm')
+
+# Rest of your imports
+import openai
 import json
 from dotenv import load_dotenv
 import streamlit as st
@@ -10,18 +31,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 import re
 from rank_bm25 import BM25Okapi
 import pickle
-import re
-import nltk
 from nltk.stem.snowball import GermanStemmer
-from typing import List, Optional
+from typing import List, Optional, Dict, Any, Tuple
 from groq import Groq
-import spacy
-import numpy as np
-from rank_bm25 import BM25Okapi
-from typing import List, Dict, Any, Tuple
-
-# Load German spaCy model
-nlp = spacy.load("de_core_news_sm")
 
 # Load the data
 with open('article_embeddings.json', 'r') as file:
