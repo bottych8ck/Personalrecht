@@ -143,110 +143,6 @@ def load_stopwords():
 
 GERMAN_STOPS = load_stopwords()
 
-# Commenting out the current tokenize_text function
-# def tokenize_text(text):
-#     """Improved tokenizer with better handling of German umlauts"""
-#     stemmer = GermanStemmer()
-#     sentences = re.split(r'[.!?]\s+|\n', text)
-#     tokens = []
-#     
-#     print(f"Tokenizing: {text}")  # Debug print
-#     
-#     for sentence in sentences:
-#         # Convert to lowercase
-#         sentence = sentence.lower()
-#         
-#         # Split on words
-#         words = re.findall(r'\b\w+\b', sentence)
-#         
-#         for word in words:
-#             if word not in GERMAN_STOPS and len(word) > 1:
-#                 # Create both original and normalized versions
-#                 normalized_word = word.replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
-#                 
-#                 # Stem both versions
-#                 stemmed_original = stemmer.stem(word)
-#                 stemmed_normalized = stemmer.stem(normalized_word)
-#                 
-#                 # Add both versions to tokens
-#                 tokens.append(stemmed_original)
-#                 if stemmed_original != stemmed_normalized:
-#                     tokens.append(stemmed_normalized)
-#                 
-#                 print(f"Word: {word} -> Original stem: {stemmed_original}, Normalized stem: {stemmed_normalized}")  # Debug
-#     
-#     return tokens
-
-# Commenting out the current create_bm25_index function
-# def create_bm25_index(law_data):
-#     import time
-#     start_time = time.time()
-#     documents = []
-#     document_metadata = []
-
-#     for article_heading, article_data in law_data.items():
-#         # Combine the 'Inhalt' list into a single string
-#         content = " ".join(article_data.get("Inhalt", []))
-#         
-#         # Create the full text with the article heading and combined content
-#         full_text = f"{article_heading} {content}"
-#         
-#         # Tokenize text
-#         tokens = tokenize_text(full_text)
-#         
-#         documents.append(tokens)
-#         document_metadata.append({
-#             'heading': article_heading,
-#             'data': article_data
-#         })
-#     
-#     bm25 = BM25Okapi(documents)
-#     return bm25, document_metadata
-
-# Commenting out the current search_bm25 function
-# def search_bm25(keywords, bm25_index, document_metadata, top_k=20):
-#     """Improved BM25 search with better keyword handling"""
-#     print(f"Searching with keywords: {keywords}")
-#     
-#     stemmer = GermanStemmer()
-#     query_tokens = []
-#     
-#     for word in keywords:
-#         # Split compound words
-#         parts = word.lower().split()
-#         for part in parts:
-#             # Create both original and normalized versions
-#             normalized_part = part.replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
-#             
-#             # Stem both versions
-#             stemmed_original = stemmer.stem(part)
-#             stemmed_normalized = stemmer.stem(normalized_part)
-#             
-#             # Add both versions to query tokens
-#             query_tokens.append(stemmed_original)
-#             if stemmed_original != stemmed_normalized:
-#                 query_tokens.append(stemmed_normalized)
-#             
-#             print(f"Original: {part} -> Stemmed original: {stemmed_original}, Stemmed normalized: {stemmed_normalized}")
-
-#     # Get document scores
-#     doc_scores = bm25_index.get_scores(query_tokens)
-#     
-#     print(f"Number of documents with non-zero scores: {sum(1 for score in doc_scores if score > 0)}")
-#     
-#     # Get top k documents
-#     top_k_idx = np.argsort(doc_scores)[-top_k:][::-1]
-#     
-#     results = []
-#     for idx in top_k_idx:
-#         if doc_scores[idx] > 0:  # Only include relevant documents
-#             results.append({
-#                 "article": document_metadata[idx],
-#                 "score": doc_scores[idx],
-#             })
-#             print(f"Found document: {document_metadata[idx]['heading']} with score {doc_scores[idx]}")
-#     
-#     return results
 
 def lemmatize_text(text: str) -> List[str]:
     """
@@ -312,8 +208,8 @@ class KeywordExtractionResponse:
 # 2. Update extract_keywords_with_llm function to not use beta.chat.completions.parse
 def extract_keywords_with_llm(user_query):
     prompt = f"""Extract the main legal keywords from the following query.  
-    Focus on the absolutely primary topic of the question and try to abstract. Return only the most important term that goes to the core of the query.
-    Return between 1-5 keywords as a comma-separated list.
+    Focus on the absolutely primary topic of the question and try to abstract. Return only the most important term that goes to the core of the query. 
+    Return between 1-5 keywords as a comma-separated list, only return one word per topic.
     Query: "{user_query}"
     Keywords:"""
 
@@ -338,7 +234,120 @@ def extract_keywords_with_llm(user_query):
     except Exception as e:
         print(f"Error extracting keywords: {e}")
         return []
+functions = [
+    {
+        "name": "adjust_keywords",
+        "description": "Schlage neue Schlüsselbegriffe vor, um die Suchergebnisse zu verbessern.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "new_keywords": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Eine Liste neuer Schlüsselbegriffe für die Suche.",
+                },
+            },
+            "required": ["new_keywords"],
+        },
+    },
+    {
+        "name": "stop_search",
+        "description": "Zeigt an, dass die Suche abgeschlossen werden soll.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+        },
+    },
+]
 
+def evaluate_bm25_results_with_function_calling(user_query, extracted_keywords, bm25_results, previous_keywords):
+    # Prepare the messages
+    messages = [
+        {
+            "role": "system",
+            "content": """You are an assistant that evaluates search results and suggests new legal keywords if necessary.
+Always respond by calling either the 'adjust_keywords' function or the 'stop_search' function. Do not provide any other output.
+
+Your task is to evaluate whether the BM25 search results are relevant to the user's query.
+
+If the results are relevant or sufficient, you should signal the end of the search by calling the 'stop_search' function.
+
+If the results are not relevant or insufficient, you should suggest new legal keywords or synonyms by calling the 'adjust_keywords' function with the new keywords.
+
+Important: Do not suggest keywords that have already been used. Focus on single words or short legal terms.
+
+Do not output anything else besides calling the functions.""",
+        },
+        {
+            "role": "user",
+            "content": f"""The user asked:
+"{user_query}"
+
+The extracted keywords are: {", ".join(extracted_keywords)}.
+
+The previously used keywords are: {", ".join(previous_keywords)}.
+
+The BM25 search results with these keywords are:""",
+        },
+    ]
+
+    if bm25_results:
+        for idx, result in enumerate(bm25_results[:5]):  # Limit to top 5 for brevity
+            article_heading = result['article']['heading']
+            article_content = " ".join(result['article']['data'].get("Inhalt", []))
+            score = result['score']
+            messages.append({
+                "role": "user",
+                "content": f"{idx+1}. {article_heading} (Score: {score})\nContent: {article_content}"
+            })
+    else:
+        messages.append({
+            "role": "user",
+            "content": "No results found."
+        })
+
+    messages.append({
+        "role": "user",
+        "content": """Please evaluate whether these results are relevant to the user's question.
+
+If the results are relevant or sufficient, please signal the end of the search by calling the 'stop_search' function.
+
+If the results are not relevant or insufficient, please suggest new legal keywords or synonyms by calling the 'adjust_keywords' function with the new keywords.
+
+Important: Always respond by calling either the 'adjust_keywords' function or the 'stop_search' function. Do not output anything else."""
+    })
+
+    # Call the LLM
+    response = openai_client.chat.completions.create(
+        model="gpt-4o-2024-08-06",
+        messages=messages,
+        functions=functions,
+        function_call="auto",
+        temperature=0.0,
+    )
+
+    # Process the response
+    message = response.choices[0].message
+
+    # Debugging: Print the assistant's response
+    print("Assistant's response:", message)
+
+    if message.function_call:
+        function_name = message.function_call.name
+        function_arguments = message.function_call.arguments
+        try:
+            arguments = json.loads(function_arguments)
+            new_keywords = arguments.get("new_keywords")
+        except Exception as e:
+            new_keywords = None
+        if function_name == "adjust_keywords" and new_keywords:
+            return {"adjust_keywords": True, "new_keywords": new_keywords, "stop": False}
+        elif function_name == "stop_search":
+            return {"adjust_keywords": False, "new_keywords": None, "stop": True}
+        else:
+            return {"adjust_keywords": False, "new_keywords": None, "stop": True}
+    else:
+        return {"adjust_keywords": False, "new_keywords": None, "stop": True}
 def main_app():
     st.image(logo_path, width=400)
     st.subheader("Abfrage des Thurgauer Schulrechts")
@@ -564,228 +573,6 @@ if __name__ == "__main__":
 
 
 
-
-
-
-# def tokenize_text(text):
-#     """Improved tokenizer with better handling of German umlauts"""
-#     stemmer = GermanStemmer()
-#     sentences = re.split(r'[.!?]\s+|\n', text)
-#     tokens = []
-    
-#     print(f"Tokenizing: {text}")  # Debug print
-    
-#     for sentence in sentences:
-#         # Convert to lowercase
-#         sentence = sentence.lower()
-        
-#         # Split on words
-#         words = re.findall(r'\b\w+\b', sentence)
-        
-#         for word in words:
-#             if word not in GERMAN_STOPS and len(word) > 1:
-#                 # Create both original and normalized versions
-#                 normalized_word = word.replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
-                
-#                 # Stem both versions
-#                 stemmed_original = stemmer.stem(word)
-#                 stemmed_normalized = stemmer.stem(normalized_word)
-                
-#                 # Add both versions to tokens
-#                 tokens.append(stemmed_original)
-#                 if stemmed_original != stemmed_normalized:
-#                     tokens.append(stemmed_normalized)
-                
-#                 print(f"Word: {word} -> Original stem: {stemmed_original}, Normalized stem: {stemmed_normalized}")  # Debug
-    
-#     return tokens
-
-# def create_bm25_index(law_data):
-#     import time
-#     start_time = time.time()
-#     documents = []
-#     document_metadata = []
-
-#     for article_heading, article_data in law_data.items():
-#         # Combine the 'Inhalt' list into a single string
-#         content = " ".join(article_data.get("Inhalt", []))
-        
-#         # Create the full text with the article heading and combined content
-#         full_text = f"{article_heading} {content}"
-        
-#         # Tokenize text
-#         tokens = tokenize_text(full_text)
-        
-#         documents.append(tokens)
-#         document_metadata.append({
-#             'heading': article_heading,
-#             'data': article_data
-#         })
-    
-#     bm25 = BM25Okapi(documents)
-#     return bm25, document_metadata
-
-
-
-
-# def search_bm25(keywords, bm25_index, document_metadata, top_k=20):
-#     """Improved BM25 search with better keyword handling"""
-#     print(f"Searching with keywords: {keywords}")
-    
-#     stemmer = GermanStemmer()
-#     query_tokens = []
-    
-#     for word in keywords:
-#         # Split compound words
-#         parts = word.lower().split()
-#         for part in parts:
-#             # Create both original and normalized versions
-#             normalized_part = part.replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
-            
-#             # Stem both versions
-#             stemmed_original = stemmer.stem(part)
-#             stemmed_normalized = stemmer.stem(normalized_part)
-            
-#             # Add both versions to query tokens
-#             query_tokens.append(stemmed_original)
-#             if stemmed_original != stemmed_normalized:
-#                 query_tokens.append(stemmed_normalized)
-            
-#             print(f"Original: {part} -> Stemmed original: {stemmed_original}, Stemmed normalized: {stemmed_normalized}")
-
-#     # Get document scores
-#     doc_scores = bm25_index.get_scores(query_tokens)
-    
-#     print(f"Number of documents with non-zero scores: {sum(1 for score in doc_scores if score > 0)}")
-    
-#     # Get top k documents
-#     top_k_idx = np.argsort(doc_scores)[-top_k:][::-1]
-    
-#     results = []
-#     for idx in top_k_idx:
-#         if doc_scores[idx] > 0:  # Only include relevant documents
-#             results.append({
-#                 "article": document_metadata[idx],
-#                 "score": doc_scores[idx],
-#             })
-#             print(f"Found document: {document_metadata[idx]['heading']} with score {doc_scores[idx]}")
-    
-#     return results
-
-# functions = [
-#     {
-#         "name": "adjust_keywords",
-#         "description": "Schlage neue Schlüsselbegriffe vor, um die Suchergebnisse zu verbessern.",
-#         "parameters": {
-#             "type": "object",
-#             "properties": {
-#                 "new_keywords": {
-#                     "type": "array",
-#                     "items": {"type": "string"},
-#                     "description": "Eine Liste neuer Schlüsselbegriffe für die Suche.",
-#                 },
-#             },
-#             "required": ["new_keywords"],
-#         },
-#     },
-#     {
-#         "name": "stop_search",
-#         "description": "Zeigt an, dass die Suche abgeschlossen werden soll.",
-#         "parameters": {
-#             "type": "object",
-#             "properties": {},
-#         },
-#     },
-# ]
-
-# def evaluate_bm25_results_with_function_calling(user_query, extracted_keywords, bm25_results, previous_keywords):
-#     # Prepare the messages
-#     messages = [
-#         {
-#             "role": "system",
-#             "content": """You are an assistant that evaluates search results and suggests new legal keywords if necessary.
-# Always respond by calling either the 'adjust_keywords' function or the 'stop_search' function. Do not provide any other output.
-
-# Your task is to evaluate whether the BM25 search results are relevant to the user's query.
-
-# If the results are relevant or sufficient, you should signal the end of the search by calling the 'stop_search' function.
-
-# If the results are not relevant or insufficient, you should suggest new legal keywords or synonyms by calling the 'adjust_keywords' function with the new keywords.
-
-# Important: Do not suggest keywords that have already been used. Focus on single words or short legal terms.
-
-# Do not output anything else besides calling the functions.""",
-#         },
-#         {
-#             "role": "user",
-#             "content": f"""The user asked:
-# "{user_query}"
-
-# The extracted keywords are: {", ".join(extracted_keywords)}.
-
-# The previously used keywords are: {", ".join(previous_keywords)}.
-
-# The BM25 search results with these keywords are:""",
-#         },
-#     ]
-
-#     if bm25_results:
-#         for idx, result in enumerate(bm25_results[:5]):  # Limit to top 5 for brevity
-#             article_heading = result['article']['heading']
-#             article_content = " ".join(result['article']['data'].get("Inhalt", []))
-#             score = result['score']
-#             messages.append({
-#                 "role": "user",
-#                 "content": f"{idx+1}. {article_heading} (Score: {score})\nContent: {article_content}"
-#             })
-#     else:
-#         messages.append({
-#             "role": "user",
-#             "content": "No results found."
-#         })
-
-#     messages.append({
-#         "role": "user",
-#         "content": """Please evaluate whether these results are relevant to the user's question.
-
-# If the results are relevant or sufficient, please signal the end of the search by calling the 'stop_search' function.
-
-# If the results are not relevant or insufficient, please suggest new legal keywords or synonyms by calling the 'adjust_keywords' function with the new keywords.
-
-# Important: Always respond by calling either the 'adjust_keywords' function or the 'stop_search' function. Do not output anything else."""
-#     })
-
-#     # Call the LLM
-#     response = openai_client.chat.completions.create(
-#         model="gpt-4o-2024-08-06",
-#         messages=messages,
-#         functions=functions,
-#         function_call="auto",
-#         temperature=0.0,
-#     )
-
-#     # Process the response
-#     message = response.choices[0].message
-
-#     # Debugging: Print the assistant's response
-#     print("Assistant's response:", message)
-
-#     if message.function_call:
-#         function_name = message.function_call.name
-#         function_arguments = message.function_call.arguments
-#         try:
-#             arguments = json.loads(function_arguments)
-#             new_keywords = arguments.get("new_keywords")
-#         except Exception as e:
-#             new_keywords = None
-#         if function_name == "adjust_keywords" and new_keywords:
-#             return {"adjust_keywords": True, "new_keywords": new_keywords, "stop": False}
-#         elif function_name == "stop_search":
-#             return {"adjust_keywords": False, "new_keywords": None, "stop": True}
-#         else:
-#             return {"adjust_keywords": False, "new_keywords": None, "stop": True}
-#     else:
-#         return {"adjust_keywords": False, "new_keywords": None, "stop": True}
 # def filter_relevant_articles(user_query, articles):
 #     """
 #     Filter relevant articles and add debug logging
