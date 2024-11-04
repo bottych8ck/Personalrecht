@@ -1,3 +1,7 @@
+import os
+os.environ["PYTHONWARNINGS"] = "ignore::UserWarning"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 import openai
 import os
 import json
@@ -21,7 +25,11 @@ from rank_bm25 import BM25Okapi
 from typing import List, Dict, Any, Tuple
 
 # Load German spaCy model
-nlp = spacy.load("de_core_news_sm")
+try:
+    nlp = spacy.load("de_core_news_sm")
+except OSError:
+    spacy.cli.download("de_core_news_sm")
+    nlp = spacy.load("de_core_news_sm")
 
 # Load the data
 with open('article_embeddings.json', 'r') as file:
