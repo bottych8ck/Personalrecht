@@ -1,23 +1,24 @@
 import os
-import sys
-import subprocess
+os.environ["PYTHONWARNINGS"] = "ignore::UserWarning"
 
-# Install spacy model if not already installed
-try:
-    import spacy
-    nlp = spacy.load('de_core_news_sm')
-except OSError:
-    # Install using pip in user mode
-    subprocess.check_call([
-        sys.executable, 
-        "-m", 
-        "pip", 
-        "install", 
-        "--user",
-        "https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.5.0/de_core_news_sm-3.5.0-py3-none-any.whl"
-    ])
-    import spacy
-    nlp = spacy.load('de_core_news_sm')
+import spacy
+from spacy.cli import download
+
+# Download and load model
+def setup_spacy():
+    try:
+        nlp = spacy.load("de_core_news_sm")
+    except OSError:
+        try:
+            # Try downloading using spacy's download function
+            download("de_core_news_sm")
+            nlp = spacy.load("de_core_news_sm")
+        except Exception as e:
+            print(f"Failed to load model: {e}")
+            nlp = None
+    return nlp
+
+nlp = setup_spacy()
 
 # Rest of your imports
 import openai
