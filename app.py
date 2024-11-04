@@ -1,4 +1,14 @@
 import os
+os.environ["PYTHONWARNINGS"] = "ignore::UserWarning"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+import spacy
+from pathlib import Path
+
+# Create a models directory in the current working directory
+MODEL_DIR = Path("models")
+MODEL_DIR.mkdir(exist_ok=True)
+
 # Set the spacy model path environment variable
 os.environ["SPACY_MODEL_PATH"] = str(MODEL_DIR)
 
