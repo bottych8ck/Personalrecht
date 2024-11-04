@@ -9,22 +9,30 @@ from pathlib import Path
 MODEL_DIR = Path("models")
 MODEL_DIR.mkdir(exist_ok=True)
 
-# Set the spacy model path environment variable
-os.environ["SPACY_MODEL_PATH"] = str(MODEL_DIR)
-
 def load_spacy_model():
     model_name = "de_core_news_sm"
     try:
-        nlp = spacy.load(model_name)
+        # Try to load the model directly
+        return spacy.load(model_name)
     except OSError:
-        # Download to custom directory
-        spacy.cli.download(model_name, str(MODEL_DIR))
-        nlp = spacy.load(MODEL_DIR / model_name)
-    return nlp
+        try:
+            # If not found, download using spacy's download command
+            spacy.cli.download(model_name)
+            return spacy.load(model_name)
+        except Exception as e:
+            print(f"Error downloading model: {e}")
+            # If download fails, try to download using pip
+            import subprocess
+            subprocess.check_call(["python", "-m", "pip", "install", 
+                "https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.7.0/de_core_news_sm-3.7.0-py3-none-any.whl"])
+            return spacy.load(model_name)
 
 # Load model
-nlp = load_spacy_model()
-
+try:
+    nlp = load_spacy_model()
+except Exception as e:
+    print(f"Failed to load model: {e}")
+    nlp = None
 import openai
 import json
 from dotenv import load_dotenv
