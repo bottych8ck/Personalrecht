@@ -205,7 +205,6 @@ class KeywordExtractionResponse:
     def __init__(self, keywords: List[str]):
         self.keywords = keywords
 
-# 2. Update extract_keywords_with_llm function to not use beta.chat.completions.parse
 def extract_keywords_with_llm(user_query):
     prompt = f"""Extrahiere das wichtigste juristische Schlüsselwort aus der folgenden Anfrage.
 Fokussiere dich auf das absolut zentrale Thema der Frage und versuche, es zu abstrahieren, aber werde nicht zu generisch, z.B. "Schule".
@@ -236,123 +235,6 @@ Schlüsselwort:"""
     except Exception as e:
         print(f"Error extracting keywords: {e}")
         return []
-
-
-
-functions = [
-    {
-        "name": "adjust_keywords",
-        "description": "Schlage neue Schlüsselbegriffe vor, um die Suchergebnisse zu verbessern.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "new_keywords": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "Eine Liste neuer Schlüsselbegriffe für die Suche.",
-                },
-            },
-            "required": ["new_keywords"],
-        },
-    },
-    {
-        "name": "stop_search",
-        "description": "Zeigt an, dass die Suche abgeschlossen werden soll.",
-        "parameters": {
-            "type": "object",
-            "properties": {},
-        },
-    },
-]
-
-def evaluate_bm25_results_with_function_calling(user_query, extracted_keywords, bm25_results, previous_keywords):
-    # Prepare the messages
-    messages = [
-        {
-            "role": "system",
-            "content": """You are an assistant that evaluates search results and suggests new legal keywords if necessary.
-Always respond by calling either the 'adjust_keywords' function or the 'stop_search' function. Do not provide any other output.
-
-Your task is to evaluate whether the BM25 search results are relevant to the user's query.
-
-If the results are relevant or sufficient, you should signal the end of the search by calling the 'stop_search' function.
-
-If the results are not relevant or insufficient, you should suggest new legal keywords or synonyms by calling the 'adjust_keywords' function with the new keywords.
-
-Important: Do not suggest keywords that have already been used. Focus on single words or short legal terms.
-
-Do not output anything else besides calling the functions.""",
-        },
-        {
-            "role": "user",
-            "content": f"""The user asked:
-"{user_query}"
-
-The extracted keywords are: {", ".join(extracted_keywords)}.
-
-The previously used keywords are: {", ".join(previous_keywords)}.
-
-The BM25 search results with these keywords are:""",
-        },
-    ]
-
-    if bm25_results:
-        for idx, result in enumerate(bm25_results[:5]):  # Limit to top 5 for brevity
-            article_heading = result['article']['heading']
-            article_content = " ".join(result['article']['data'].get("Inhalt", []))
-            score = result['score']
-            messages.append({
-                "role": "user",
-                "content": f"{idx+1}. {article_heading} (Score: {score})\nContent: {article_content}"
-            })
-    else:
-        messages.append({
-            "role": "user",
-            "content": "No results found."
-        })
-
-    messages.append({
-        "role": "user",
-        "content": """Please evaluate whether these results are relevant to the user's question.
-
-If the results are relevant or sufficient, please signal the end of the search by calling the 'stop_search' function.
-
-If the results are not relevant or insufficient, please suggest new legal keywords or synonyms by calling the 'adjust_keywords' function with the new keywords.
-
-Important: Always respond by calling either the 'adjust_keywords' function or the 'stop_search' function. Do not output anything else."""
-    })
-
-    # Call the LLM
-    response = openai_client.chat.completions.create(
-        model="gpt-4o-2024-08-06",
-        messages=messages,
-        functions=functions,
-        function_call="auto",
-        temperature=0.0,
-    )
-
-    # Process the response
-    message = response.choices[0].message
-
-    # Debugging: Print the assistant's response
-    print("Assistant's response:", message)
-
-    if message.function_call:
-        function_name = message.function_call.name
-        function_arguments = message.function_call.arguments
-        try:
-            arguments = json.loads(function_arguments)
-            new_keywords = arguments.get("new_keywords")
-        except Exception as e:
-            new_keywords = None
-        if function_name == "adjust_keywords" and new_keywords:
-            return {"adjust_keywords": True, "new_keywords": new_keywords, "stop": False}
-        elif function_name == "stop_search":
-            return {"adjust_keywords": False, "new_keywords": None, "stop": True}
-        else:
-            return {"adjust_keywords": False, "new_keywords": None, "stop": True}
-    else:
-        return {"adjust_keywords": False, "new_keywords": None, "stop": True}
 def main_app():
     st.image(logo_path, width=400)
     st.subheader("Abfrage des Thurgauer Schulrechts")
@@ -378,97 +260,14 @@ def main_app():
     if user_query:
         print(f"\nProcessing query: {user_query}")
         
-        # **Keyword Extraction Step**
-        print("\nExtracting keywords...")
-        distilled_keywords = extract_keywords_with_llm(user_query)
-
-        if distilled_keywords:
-            print(f"Extracted keywords: {', '.join(distilled_keywords)}")
-            st.write("**Extrahierte Schlüsselbegriffe:**", ", ".join(distilled_keywords))
-        else:
-            print("No keywords found")
-            st.write("Keine Schlüsselbegriffe gefunden.")
-            
-        # **Iterative BM25 Search with LLM Evaluation**
-        previous_keywords = distilled_keywords.copy()
-        accumulated_bm25_results = []
-
-        max_iterations = 3
-        current_iteration = 1
-        
-        while current_iteration <= max_iterations:
-            print(f"\nIteration {current_iteration}")
-            st.write(f"**Suche {current_iteration}**")
-            
-            # **BM25 Search with Distilled Keywords**
-            print(f"Volltextsuche mit folgenden Stichwörtern: {distilled_keywords}")
-            bm25_results = search_bm25(
-                distilled_keywords,
-                st.session_state["bm25_index"],
-                st.session_state["document_metadata"],
-            )
-            
-            existing_titles = set([result['article']['heading'] for result in accumulated_bm25_results])
-            new_bm25_results = [result for result in bm25_results if result['article']['heading'] not in existing_titles]
-            print(f"Found {len(new_bm25_results)} new results")
-
-            # Accumulate the new results
-            accumulated_bm25_results.extend(new_bm25_results)
-            
-            if not bm25_results:
-                print("No BM25 results found")
-                st.write("Keine Ergebnisse aus der BM25-Suche.")
-            else:
-                print("BM25 search results:")
-                st.write("**BM25-Suchergebnisse:**")
-                for result in bm25_results:
-                    print(f"- {result['article']['heading']} (Score: {result['score']})")
-                    st.write(f"- {result['article']['heading']} (Score: {result['score']})")
-            
-            # **Evaluate BM25 Results and Adjust Keywords if Necessary**
-            print("\nEvaluating BM25 results...")
-            adjustment_response = evaluate_bm25_results_with_function_calling(
-                user_query, distilled_keywords, bm25_results, previous_keywords
-            )
-            
-            if adjustment_response is None:
-                print("Error processing adjustment response")
-                st.write("Fehler bei der Verarbeitung der Anpassungsantwort.")
-                break
-            
-            if adjustment_response.get("adjust_keywords"):
-                new_keywords = adjustment_response.get("new_keywords")
-                if new_keywords:
-                    new_keywords = [kw for kw in new_keywords if kw not in previous_keywords]
-                    if not new_keywords:
-                        print("No new keywords suggested")
-                        st.write("Der Assistent hat keine neuen Schlüsselbegriffe vorgeschlagen.")
-                        break
-                    distilled_keywords = new_keywords
-                    previous_keywords.extend(new_keywords)
-                    print(f"New keywords: {', '.join(new_keywords)}")
-                    st.write("**Neue Schlüsselbegriffe:**", ", ".join(distilled_keywords))
-                else:
-                    print("No new keywords provided")
-                    st.write("Der Assistent hat keine neuen Schlüsselbegriffe vorgeschlagen.")
-                    break
-                current_iteration += 1
-                continue
-            elif adjustment_response.get("stop"):
-                print("Search completed")
-                st.write("Die Suche wurde abgeschlossen.")
-                break
-            else:
-                print("No further adjustments needed")
-                st.write("Keine weiteren Anpassungen erforderlich.")
-                break
-
-        print(f"\nTotal accumulated results: {len(accumulated_bm25_results)}")
-        bm25_results = accumulated_bm25_results
-        
-        # print("\nFiltering relevant articles...")
-        # bm25_relevant_articles = filter_relevant_articles(user_query, bm25_results)
-        # print(f"Found {len(bm25_relevant_articles)} relevant articles after filtering")
+        # Direct BM25 search with full query
+        print("Performing BM25 search...")
+        bm25_results = search_bm25(
+            [user_query], # Pass full query
+            st.session_state["bm25_index"],
+            st.session_state["document_metadata"],
+            top_k=20 # Get top 20 results
+        )
 
         # Semantic search
         print("\nPerforming semantic search...")
@@ -480,14 +279,8 @@ def main_app():
         # Get titles from semantic results for filtering
         semantic_titles = {title for title, _ in semantic_articles}
         
-        # Filter BM25 results to remove duplicates
-        filtered_bm25_results = [
-            result for result in bm25_results 
-            if result['article']['heading'] not in semantic_titles
-        ][:10]
-
         st.session_state['top_articles'] = semantic_articles + [(r['article']['heading'], r['score']) 
-                                                              for r in filtered_bm25_results]
+                                                              for r in bm25_results]
 
     if st.button("Relevante Bestimmungen"):
         st.session_state.submitted = True
@@ -495,9 +288,9 @@ def main_app():
         col1, col2 = st.columns(2)
         
         with col1:
-            st.subheader("Semantische Suche")
+            st.subheader("Semantische Suche") 
             print("\nDisplaying semantic search results...")
-            for title, score in st.session_state['top_articles']:
+            for title, score in semantic_articles:
                 title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
                 law_name_display = law_name if law_name else "Unbekanntes Gesetz"
                 if law_url:
@@ -509,11 +302,9 @@ def main_app():
                 else:
                     st.write("Kein Inhalt verfügbar.")
                     
-                    
         with col2:
             st.subheader("Keyword-basierte Suche")
-            for result in bm25_results:  # Display all BM25 results without filtering
-
+            for result in bm25_results:
                 title = result['article']['heading']
                 title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
                 law_name_display = law_name if law_name else "Unbekanntes Gesetz"
@@ -572,162 +363,6 @@ def main_app():
                     st.warning("Bitte geben Sie eine Anfrage ein.")
                 if not st.session_state['top_articles']:
                     st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
-if __name__ == "__main__":
-    main_app()
 
-
-
-
-# def filter_relevant_articles(user_query, articles):
-#     """
-#     Filter relevant articles and add debug logging
-#     """
-#     print(f"Starting to filter {len(articles)} articles")
-    
-#     # Define the function schema for article relevance evaluation
-#     evaluation_schema = {
-#         "name": "evaluate_articles",
-#         "description": "Evaluate the relevance of legal articles to a user query",
-#         "parameters": {
-#             "type": "object",
-#             "properties": {
-#                 "evaluations": {
-#                     "type": "array",
-#                     "items": {
-#                         "type": "object",
-#                         "properties": {
-#                             "heading": {
-#                                 "type": "string",
-#                                 "description": "The heading of the article being evaluated"
-#                             },
-#                             "is_relevant": {
-#                                 "type": "boolean",
-#                                 "description": "Whether the article is directly relevant to the query"
-#                             },
-#                             "reason": {
-#                                 "type": "string",
-#                                 "description": "Brief explanation of why the article is relevant or not"
-#                             }
-#                         },
-#                         "required": ["heading", "is_relevant"]
-#                     }
-#                 }
-#             },
-#             "required": ["evaluations"]
-#         }
-#     }
-
-#     relevant_articles = []
-#     batch_size = 5
-    
-#     for i in range(0, len(articles), batch_size):
-#         batch = articles[i:i+batch_size]
-#         print(f"Processing batch {i//batch_size + 1} with {len(batch)} articles")
-        
-#         system_message = """You are a legal expert assistant that evaluates the relevance of legal articles to user queries.
-# For each article, determine if it contains information that directly helps answer the user's question.
-# Only mark an article as relevant if it contains specific, applicable information.
-# IMPORTANT: Be more lenient in marking articles as relevant - if an article might contain useful information, mark it as relevant."""
-
-#         user_message = f"""Query: "{user_query}"
-
-# Please evaluate the following articles:
-
-# {format_articles_for_evaluation(batch)}"""
-
-#         try:
-#             response = groq_client.chat.completions.create(
-#                 model="llama2-70b-4096",
-#                 messages=[
-#                     {"role": "system", "content": system_message},
-#                     {"role": "user", "content": user_message}
-#                 ],
-#                 functions=[evaluation_schema],
-#                 function_call={"name": "evaluate_articles"},
-#                 temperature=0.1
-#             )
-            
-#             # Extract and validate the function call response
-#             function_call = response.choices[0].message.function_call
-#             if function_call and function_call.name == "evaluate_articles":
-#                 try:
-#                     evaluation_results = json.loads(function_call.arguments)
-#                     print(f"Evaluation results: {json.dumps(evaluation_results, indent=2)}")
-                    
-#                     # Process the validated results
-#                     batch_relevant_articles = process_evaluation_results(evaluation_results, batch)
-#                     print(f"Found {len(batch_relevant_articles)} relevant articles in this batch")
-#                     relevant_articles.extend(batch_relevant_articles)
-#                 except json.JSONDecodeError as e:
-#                     print(f"Failed to parse function response: {e}")
-#                     print(f"Raw response: {function_call.arguments}")
-#                     continue
-                
-#         except Exception as e:
-#             print(f"Batch processing failed: {e}")
-#             continue
-
-#     print(f"Total relevant articles found: {len(relevant_articles)}")
-#     return relevant_articles
-
-# def process_evaluation_results(evaluation_results, batch):
-#     """Process and validate the evaluation results with debug logging"""
-#     relevant_articles = []
-    
-#     print("Processing evaluation results:")
-#     print(f"Raw evaluation results: {json.dumps(evaluation_results, indent=2)}")
-    
-#     for evaluation in evaluation_results.get("evaluations", []):
-#         if not isinstance(evaluation, dict):
-#             print(f"Skipping invalid evaluation format: {evaluation}")
-#             continue
-            
-#         heading = evaluation.get("heading")
-#         is_relevant = evaluation.get("is_relevant")
-#         reason = evaluation.get("reason", "No reason provided")
-        
-#         print(f"Evaluating article: {heading}")
-#         print(f"Is relevant: {is_relevant}")
-#         print(f"Reason: {reason}")
-        
-#         if heading and isinstance(is_relevant, bool) and is_relevant:
-#             # Find the matching article in the batch
-#             for article in batch:
-#                 if article['article']['heading'] == heading:
-#                     print(f"Adding relevant article: {heading}")
-#                     relevant_articles.append(article)
-#                     break
-    
-#     print(f"Found {len(relevant_articles)} relevant articles")
-#     return relevant_articles
-
-# def format_articles_for_evaluation(batch):
-#     """Format the batch of articles for the prompt"""
-#     formatted_articles = []
-#     for article in batch:
-#         heading = article['article']['heading']
-#         content = " ".join(article['article']['data'].get("Inhalt", []))[:500]
-#         formatted_articles.append(f"Article: {heading}\nContent: {content}")
-#     return "\n\n".join(formatted_articles)
-
-# def process_evaluation_results(evaluation_results, batch):
-#     """Process and validate the evaluation results"""
-#     relevant_articles = []
-    
-#     for evaluation in evaluation_results.get("evaluations", []):
-#         if not isinstance(evaluation, dict):
-#             continue
-            
-#         heading = evaluation.get("heading")
-#         is_relevant = evaluation.get("is_relevant")
-        
-#         if heading and isinstance(is_relevant, bool) and is_relevant:
-#             # Find the matching article in the batch
-#             for article in batch:
-#                 if article['article']['heading'] == heading:
-#                     relevant_articles.append(article)
-#                     break
-    
-#     return relevant_articles
 
 
