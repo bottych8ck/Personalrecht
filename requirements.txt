@@ -1,14 +1,15 @@
 streamlit
 openai
-numpy
-scikit-learn
+numpy==1.23.5
+scikit-learn==1.2.2
 python-dotenv
 rank_bm25
 nltk
-pydantic
+pydantic<2.0
 groq
 germalemma
-spacy==3.5.3
-de-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.5.0/de_core_news_sm-3.5.0-py3-none-any.whl
-setuptools
+spacy==3.4.4
+thinc==8.1.10
+de-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.4.0/de_core_news_sm-3.4.0-py3-none-any.whl
+setuptools<60.0
 wheel
