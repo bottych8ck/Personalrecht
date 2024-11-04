@@ -915,213 +915,213 @@ def main_app():
 #         st.session_state['prompt'] = ""
 #     if 'top_articles' not in st.session_state:
 #         st.session_state['top_articles'] = []
-#     if 'submitted' not in st.session_state:
-#         st.session_state['submitted'] = False
-#     if 'bm25_index' not in st.session_state:
-#         print("Creating BM25 index...")
-#         st.session_state['bm25_index'], st.session_state['document_metadata'] = create_bm25_index(law_data)
-#         print("BM25 index created successfully")
+    if 'submitted' not in st.session_state:
+        st.session_state['submitted'] = False
+    if 'bm25_index' not in st.session_state:
+        print("Creating BM25 index...")
+        st.session_state['bm25_index'], st.session_state['document_metadata'] = create_bm25_index(law_data)
+        print("BM25 index created successfully")
 
-#     user_query = st.text_area("Hier Ihre Frage eingeben:", height=200)
+    user_query = st.text_area("Hier Ihre Frage eingeben:", height=200)
 
-#     if user_query:
-#         print(f"\nProcessing query: {user_query}")
+    if user_query:
+        print(f"\nProcessing query: {user_query}")
         
-#         # **Keyword Extraction Step**
-#         print("\nExtracting keywords...")
-#         distilled_keywords = extract_keywords_with_llm(user_query)
+        # **Keyword Extraction Step**
+        print("\nExtracting keywords...")
+        distilled_keywords = extract_keywords_with_llm(user_query)
 
-#         if distilled_keywords:
-#             print(f"Extracted keywords: {', '.join(distilled_keywords)}")
-#             st.write("**Extrahierte Schlüsselbegriffe:**", ", ".join(distilled_keywords))
-#         else:
-#             print("No keywords found")
-#             st.write("Keine Schlüsselbegriffe gefunden.")
+        if distilled_keywords:
+            print(f"Extracted keywords: {', '.join(distilled_keywords)}")
+            st.write("**Extrahierte Schlüsselbegriffe:**", ", ".join(distilled_keywords))
+        else:
+            print("No keywords found")
+            st.write("Keine Schlüsselbegriffe gefunden.")
             
-#         # **Iterative BM25 Search with LLM Evaluation**
-#         previous_keywords = distilled_keywords.copy()
-#         accumulated_bm25_results = []
+        # **Iterative BM25 Search with LLM Evaluation**
+        previous_keywords = distilled_keywords.copy()
+        accumulated_bm25_results = []
 
-#         max_iterations = 3
-#         current_iteration = 1
+        max_iterations = 3
+        current_iteration = 1
         
-#         while current_iteration <= max_iterations:
-#             print(f"\nIteration {current_iteration}")
-#             st.write(f"**Suche {current_iteration}**")
+        while current_iteration <= max_iterations:
+            print(f"\nIteration {current_iteration}")
+            st.write(f"**Suche {current_iteration}**")
             
-#             # **BM25 Search with Distilled Keywords**
-#             print(f"Performing BM25 search with keywords: {distilled_keywords}")
-#             bm25_results = search_bm25(
-#                 distilled_keywords,
-#                 st.session_state["bm25_index"],
-#                 st.session_state["document_metadata"],
-#             )
+            # **BM25 Search with Distilled Keywords**
+            print(f"Performing BM25 search with keywords: {distilled_keywords}")
+            bm25_results = search_bm25(
+                distilled_keywords,
+                st.session_state["bm25_index"],
+                st.session_state["document_metadata"],
+            )
             
-#             existing_titles = set([result['article']['heading'] for result in accumulated_bm25_results])
-#             new_bm25_results = [result for result in bm25_results if result['article']['heading'] not in existing_titles]
-#             print(f"Found {len(new_bm25_results)} new results")
+            existing_titles = set([result['article']['heading'] for result in accumulated_bm25_results])
+            new_bm25_results = [result for result in bm25_results if result['article']['heading'] not in existing_titles]
+            print(f"Found {len(new_bm25_results)} new results")
 
-#             # Accumulate the new results
-#             accumulated_bm25_results.extend(new_bm25_results)
+            # Accumulate the new results
+            accumulated_bm25_results.extend(new_bm25_results)
             
-#             if not bm25_results:
-#                 print("No BM25 results found")
-#                 st.write("Keine Ergebnisse aus der BM25-Suche.")
-#             else:
-#                 print("BM25 search results:")
-#                 st.write("**BM25-Suchergebnisse:**")
-#                 for result in bm25_results:
-#                     print(f"- {result['article']['heading']} (Score: {result['score']})")
-#                     st.write(f"- {result['article']['heading']} (Score: {result['score']})")
+            if not bm25_results:
+                print("No BM25 results found")
+                st.write("Keine Ergebnisse aus der BM25-Suche.")
+            else:
+                print("BM25 search results:")
+                st.write("**BM25-Suchergebnisse:**")
+                for result in bm25_results:
+                    print(f"- {result['article']['heading']} (Score: {result['score']})")
+                    st.write(f"- {result['article']['heading']} (Score: {result['score']})")
             
-#             # **Evaluate BM25 Results and Adjust Keywords if Necessary**
-#             print("\nEvaluating BM25 results...")
-#             adjustment_response = evaluate_bm25_results_with_function_calling(
-#                 user_query, distilled_keywords, bm25_results, previous_keywords
-#             )
+            # **Evaluate BM25 Results and Adjust Keywords if Necessary**
+            print("\nEvaluating BM25 results...")
+            adjustment_response = evaluate_bm25_results_with_function_calling(
+                user_query, distilled_keywords, bm25_results, previous_keywords
+            )
             
-#             if adjustment_response is None:
-#                 print("Error processing adjustment response")
-#                 st.write("Fehler bei der Verarbeitung der Anpassungsantwort.")
-#                 break
+            if adjustment_response is None:
+                print("Error processing adjustment response")
+                st.write("Fehler bei der Verarbeitung der Anpassungsantwort.")
+                break
             
-#             if adjustment_response.get("adjust_keywords"):
-#                 new_keywords = adjustment_response.get("new_keywords")
-#                 if new_keywords:
-#                     new_keywords = [kw for kw in new_keywords if kw not in previous_keywords]
-#                     if not new_keywords:
-#                         print("No new keywords suggested")
-#                         st.write("Der Assistent hat keine neuen Schlüsselbegriffe vorgeschlagen.")
-#                         break
-#                     distilled_keywords = new_keywords
-#                     previous_keywords.extend(new_keywords)
-#                     print(f"New keywords: {', '.join(new_keywords)}")
-#                     st.write("**Neue Schlüsselbegriffe:**", ", ".join(distilled_keywords))
-#                 else:
-#                     print("No new keywords provided")
-#                     st.write("Der Assistent hat keine neuen Schlüsselbegriffe vorgeschlagen.")
-#                     break
-#                 current_iteration += 1
-#                 continue
-#             elif adjustment_response.get("stop"):
-#                 print("Search completed")
-#                 st.write("Die Suche wurde abgeschlossen.")
-#                 break
-#             else:
-#                 print("No further adjustments needed")
-#                 st.write("Keine weiteren Anpassungen erforderlich.")
-#                 break
+            if adjustment_response.get("adjust_keywords"):
+                new_keywords = adjustment_response.get("new_keywords")
+                if new_keywords:
+                    new_keywords = [kw for kw in new_keywords if kw not in previous_keywords]
+                    if not new_keywords:
+                        print("No new keywords suggested")
+                        st.write("Der Assistent hat keine neuen Schlüsselbegriffe vorgeschlagen.")
+                        break
+                    distilled_keywords = new_keywords
+                    previous_keywords.extend(new_keywords)
+                    print(f"New keywords: {', '.join(new_keywords)}")
+                    st.write("**Neue Schlüsselbegriffe:**", ", ".join(distilled_keywords))
+                else:
+                    print("No new keywords provided")
+                    st.write("Der Assistent hat keine neuen Schlüsselbegriffe vorgeschlagen.")
+                    break
+                current_iteration += 1
+                continue
+            elif adjustment_response.get("stop"):
+                print("Search completed")
+                st.write("Die Suche wurde abgeschlossen.")
+                break
+            else:
+                print("No further adjustments needed")
+                st.write("Keine weiteren Anpassungen erforderlich.")
+                break
 
-#         print(f"\nTotal accumulated results: {len(accumulated_bm25_results)}")
-#         bm25_results = accumulated_bm25_results
+        print(f"\nTotal accumulated results: {len(accumulated_bm25_results)}")
+        bm25_results = accumulated_bm25_results
         
-#         print("\nFiltering relevant articles...")
-#         bm25_relevant_articles = filter_relevant_articles(user_query, bm25_results)
-#         print(f"Found {len(bm25_relevant_articles)} relevant articles after filtering")
+        print("\nFiltering relevant articles...")
+        bm25_relevant_articles = filter_relevant_articles(user_query, bm25_results)
+        print(f"Found {len(bm25_relevant_articles)} relevant articles after filtering")
 
-#         # Semantic search
-#         print("\nPerforming semantic search...")
-#         query_vector = get_embeddings(user_query)
-#         similarities = calculate_similarities(query_vector, article_embeddings)
-#         semantic_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)[:10]
-#         print(f"Found {len(semantic_articles)} semantic search results")
+        # Semantic search
+        print("\nPerforming semantic search...")
+        query_vector = get_embeddings(user_query)
+        similarities = calculate_similarities(query_vector, article_embeddings)
+        semantic_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)[:10]
+        print(f"Found {len(semantic_articles)} semantic search results")
 
-#         # Get titles from semantic results for filtering
-#         semantic_titles = {title for title, _ in semantic_articles}
+        # Get titles from semantic results for filtering
+        semantic_titles = {title for title, _ in semantic_articles}
         
-#         # Filter BM25 results to remove duplicates
-#         filtered_bm25_results = [
-#             result for result in bm25_results 
-#             if result['article']['heading'] not in semantic_titles
-#         ][:10]
+        # Filter BM25 results to remove duplicates
+        filtered_bm25_results = [
+            result for result in bm25_results 
+            if result['article']['heading'] not in semantic_titles
+        ][:10]
 
-#         st.session_state['top_articles'] = semantic_articles + [(r['article']['heading'], r['score']) 
-#                                                               for r in filtered_bm25_results]
+        st.session_state['top_articles'] = semantic_articles + [(r['article']['heading'], r['score']) 
+                                                              for r in filtered_bm25_results]
 
-#     if st.button("Relevante Bestimmungen"):
-#         st.session_state.submitted = True
+    if st.button("Relevante Bestimmungen"):
+        st.session_state.submitted = True
         
-#         col1, col2 = st.columns(2)
+        col1, col2 = st.columns(2)
         
-#         with col1:
-#             st.subheader("Semantische Suche")
-#             print("\nDisplaying semantic search results...")
-#             for title, score in semantic_articles:
-#                 title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
-#                 law_name_display = law_name if law_name else "Unbekanntes Gesetz"
-#                 if law_url:
-#                     law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
-#                 st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
-#                 if all_paragraphs:
-#                     for paragraph in all_paragraphs:
-#                         st.write(paragraph)
-#                 else:
-#                     st.write("Kein Inhalt verfügbar.")
+        with col1:
+            st.subheader("Semantische Suche")
+            print("\nDisplaying semantic search results...")
+            for title, score in semantic_articles:
+                title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
+                law_name_display = law_name if law_name else "Unbekanntes Gesetz"
+                if law_url:
+                    law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
+                st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
+                if all_paragraphs:
+                    for paragraph in all_paragraphs:
+                        st.write(paragraph)
+                else:
+                    st.write("Kein Inhalt verfügbar.")
                     
                     
-#         with col2:
-#             st.subheader("Keyword-basierte Suche")
-#             for result in bm25_relevant_articles:  # Display all BM25 results without filtering
+        with col2:
+            st.subheader("Keyword-basierte Suche")
+            for result in bm25_relevant_articles:  # Display all BM25 results without filtering
 
-#                 title = result['article']['heading']
-#                 title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
-#                 law_name_display = law_name if law_name else "Unbekanntes Gesetz"
-#                 if law_url:
-#                     law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
-#                 st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
-#                 if all_paragraphs:
-#                     for paragraph in all_paragraphs:
-#                         st.write(paragraph)
-#                 else:
-#                     st.write("Kein Inhalt verfügbar.")
+                title = result['article']['heading']
+                title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
+                law_name_display = law_name if law_name else "Unbekanntes Gesetz"
+                if law_url:
+                    law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
+                st.markdown(f"**{title} - {law_name_display}**", unsafe_allow_html=True)
+                if all_paragraphs:
+                    for paragraph in all_paragraphs:
+                        st.write(paragraph)
+                else:
+                    st.write("Kein Inhalt verfügbar.")
 
-#     st.write("")
-#     st.write("")
-#     st.write("")
+    st.write("")
+    st.write("")
+    st.write("")
     
-#     col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
     
-#     with col1:
-#         if st.button("Mit GPT 4o beantworten") and user_query:
-#             if user_query != st.session_state['last_question']:
-#                 prompt = generate_prompt(user_query, st.session_state['top_articles'], law_data)
-#                 response = openai_client.chat.completions.create(
-#                     model="gpt-4o",
-#                     messages=[
-#                         {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-#                         {"role": "user", "content": prompt}
-#                     ]
-#                 )
+    with col1:
+        if st.button("Mit GPT 4o beantworten") and user_query:
+            if user_query != st.session_state['last_question']:
+                prompt = generate_prompt(user_query, st.session_state['top_articles'], law_data)
+                response = openai_client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                        {"role": "user", "content": prompt}
+                    ]
+                )
 
-#             if response.choices:
-#                 ai_message = response.choices[0].message.content
-#                 st.session_state['last_question'] = user_query
-#                 st.session_state['last_answer'] = ai_message
-#         else:
-#             ai_message = st.session_state['last_answer']
+            if response.choices:
+                ai_message = response.choices[0].message.content
+                st.session_state['last_question'] = user_query
+                st.session_state['last_answer'] = ai_message
+        else:
+            ai_message = st.session_state['last_answer']
 
-#         if st.session_state['last_answer']:
-#             st.subheader("Antwort subsumrary:")
-#             st.write(st.session_state['last_answer'])
-#         else:
-#             st.warning("Bitte geben Sie eine Anfrage ein.")
+        if st.session_state['last_answer']:
+            st.subheader("Antwort subsumrary:")
+            st.write(st.session_state['last_answer'])
+        else:
+            st.warning("Bitte geben Sie eine Anfrage ein.")
 
-#     with col2:
-#         if st.button("Prompt generieren und in die Zwischenablage kopieren"):
-#             if user_query and st.session_state['top_articles']:
-#                 prompt = generate_prompt(user_query, st.session_state['top_articles'], law_data)
-#                 st.session_state['prompt'] = prompt
+    with col2:
+        if st.button("Prompt generieren und in die Zwischenablage kopieren"):
+            if user_query and st.session_state['top_articles']:
+                prompt = generate_prompt(user_query, st.session_state['top_articles'], law_data)
+                st.session_state['prompt'] = prompt
 
-#                 html_with_js = generate_html_with_js(prompt)
-#                 html(html_with_js)
+                html_with_js = generate_html_with_js(prompt)
+                html(html_with_js)
 
-#                 st.text_area("Prompt:", prompt, height=300)
-#             else:
-#                 if not user_query:
-#                     st.warning("Bitte geben Sie eine Anfrage ein.")
-#                 if not st.session_state['top_articles']:
-#                     st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
-# if __name__ == "__main__":
-#     main_app()
+                st.text_area("Prompt:", prompt, height=300)
+            else:
+                if not user_query:
+                    st.warning("Bitte geben Sie eine Anfrage ein.")
+                if not st.session_state['top_articles']:
+                    st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
+if __name__ == "__main__":
+    main_app()
 
 
