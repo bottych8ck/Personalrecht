@@ -216,7 +216,7 @@ Anfrage: "{user_query}"
 Schlüsselwort:"""
 
     try:
-        completion = openai.ChatCompletion.create(
+        completion = openai_client.chat.completions.create(
             model="gpt-4",
             messages=[
                 {
