@@ -396,7 +396,7 @@ def main_app():
             st.write(f"**Suche {current_iteration}**")
             
             # **BM25 Search with Distilled Keywords**
-            print(f"Performing BM25 search with keywords: {distilled_keywords}")
+            print(f"Volltextsuche mit folgenden Stichwörtern: {distilled_keywords}")
             bm25_results = search_bm25(
                 distilled_keywords,
                 st.session_state["bm25_index"],
@@ -461,9 +461,9 @@ def main_app():
         print(f"\nTotal accumulated results: {len(accumulated_bm25_results)}")
         bm25_results = accumulated_bm25_results
         
-        print("\nFiltering relevant articles...")
-        bm25_relevant_articles = filter_relevant_articles(user_query, bm25_results)
-        print(f"Found {len(bm25_relevant_articles)} relevant articles after filtering")
+        # print("\nFiltering relevant articles...")
+        # bm25_relevant_articles = filter_relevant_articles(user_query, bm25_results)
+        # print(f"Found {len(bm25_relevant_articles)} relevant articles after filtering")
 
         # Semantic search
         print("\nPerforming semantic search...")
@@ -492,7 +492,7 @@ def main_app():
         with col1:
             st.subheader("Semantische Suche")
             print("\nDisplaying semantic search results...")
-            for title, score in semantic_articles:
+            for title, score in bm25_results:
                 title, all_paragraphs, law_name, law_url = get_article_content(title, law_data)
                 law_name_display = law_name if law_name else "Unbekanntes Gesetz"
                 if law_url:
@@ -726,16 +726,3 @@ if __name__ == "__main__":
 #     return relevant_articles
 
 
-# def main_app():
-#     st.image(logo_path, width=400)
-#     st.subheader("Abfrage des Thurgauer Schulrechts")
-    
-#     # Initialize session state variables
-#     if 'last_question' not in st.session_state:
-#         st.session_state['last_question'] = ""
-#     if 'last_answer' not in st.session_state:
-#         st.session_state['last_answer'] = None
-#     if 'prompt' not in st.session_state:
-#         st.session_state['prompt'] = ""
-#     if 'top_articles' not in st.session_state:
-#         st.session_state['top_articles'] = []
