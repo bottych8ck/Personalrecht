@@ -207,19 +207,21 @@ class KeywordExtractionResponse:
 
 # 2. Update extract_keywords_with_llm function to not use beta.chat.completions.parse
 def extract_keywords_with_llm(user_query):
-    prompt = f"""Extract the main legal keywords from the following query.  
-    Focus on the absolutely primary topic of the question and try to abstract. Return only the most important term that goes to the core of the query. 
-    Return between 1-5 keywords as a comma-separated list, only return one word per topic.
-    Query: "{user_query}"
-    Keywords:"""
+    prompt = f"""Extrahiere das wichtigste juristische Schlüsselwort aus der folgenden Anfrage.
+Fokussiere dich auf das absolut zentrale Thema der Frage und versuche, es zu abstrahieren, aber werde nicht zu generisch, z.B. "Schule".
+Gib nur den wichtigsten Begriff zurück, der den Kern der Anfrage trifft.
+Gib nur ein Wort oder eine kurze Phrase zurück.
+Gib keine Liste zurück.
+Anfrage: "{user_query}"
+Schlüsselwort:"""
 
     try:
-        completion = openai_client.chat.completions.create(
+        completion = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a system specialized in extracting legal terminology from queries.",
+                    "content": "Du bist ein System, das auf die Extraktion juristischer Fachbegriffe aus Anfragen spezialisiert ist.",
                 },
                 {"role": "user", "content": prompt},
             ],
@@ -227,13 +229,16 @@ def extract_keywords_with_llm(user_query):
         )
         
         if completion.choices:
-            # Extract keywords from the response and split into list
-            keywords = [k.strip() for k in completion.choices[0].message.content.split(',')]
-            return keywords
+            # Extract the keyword from the response
+            keyword = completion.choices[0].message.content.strip()
+            return [keyword]
         return []
     except Exception as e:
         print(f"Error extracting keywords: {e}")
         return []
+
+
+
 functions = [
     {
         "name": "adjust_keywords",
