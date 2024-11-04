@@ -1,39 +1,5 @@
-import os
-os.environ["PYTHONWARNINGS"] = "ignore::UserWarning"
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
-import spacy
-from pathlib import Path
-
-# Create a models directory in the current working directory
-MODEL_DIR = Path("models")
-MODEL_DIR.mkdir(exist_ok=True)
-
-def load_spacy_model():
-    model_name = "de_core_news_sm"
-    try:
-        # Try to load the model directly
-        return spacy.load(model_name)
-    except OSError:
-        try:
-            # If not found, download using spacy's download command
-            spacy.cli.download(model_name)
-            return spacy.load(model_name)
-        except Exception as e:
-            print(f"Error downloading model: {e}")
-            # If download fails, try to download using pip
-            import subprocess
-            subprocess.check_call(["python", "-m", "pip", "install", 
-                "https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.7.0/de_core_news_sm-3.7.0-py3-none-any.whl"])
-            return spacy.load(model_name)
-
-# Load model
-try:
-    nlp = load_spacy_model()
-except Exception as e:
-    print(f"Failed to load model: {e}")
-    nlp = None
 import openai
+import os
 import json
 from dotenv import load_dotenv
 import streamlit as st
@@ -55,11 +21,7 @@ from rank_bm25 import BM25Okapi
 from typing import List, Dict, Any, Tuple
 
 # Load German spaCy model
-try:
-    nlp = spacy.load("de_core_news_sm")
-except OSError:
-    spacy.cli.download("de_core_news_sm")
-    nlp = spacy.load("de_core_news_sm")
+nlp = spacy.load("de_core_news_sm")
 
 # Load the data
 with open('article_embeddings.json', 'r') as file:
