@@ -1,9 +1,21 @@
 import os
-os.environ["PYTHONWARNINGS"] = "ignore::UserWarning"
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
+# Set the spacy model path environment variable
+os.environ["SPACY_MODEL_PATH"] = str(MODEL_DIR)
+
+def load_spacy_model():
+    model_name = "de_core_news_sm"
+    try:
+        nlp = spacy.load(model_name)
+    except OSError:
+        # Download to custom directory
+        spacy.cli.download(model_name, str(MODEL_DIR))
+        nlp = spacy.load(MODEL_DIR / model_name)
+    return nlp
+
+# Load model
+nlp = load_spacy_model()
 
 import openai
-import os
 import json
 from dotenv import load_dotenv
 import streamlit as st
