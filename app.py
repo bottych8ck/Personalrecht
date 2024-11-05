@@ -338,7 +338,7 @@ def main_app():
                     st.write(content)
                             
     if st.session_state.get('submitted'):
-        st.markdown("### Hier können Sie eine Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortung berücksichtigt werden:")
+        st.write("### Hier können Sie eine Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortung berücksichtigt werden:")
         keyword = st.text_input("Stichwort eingeben und Enter drücken:")
         
         if keyword:
@@ -358,7 +358,7 @@ def main_app():
                     # Create container for each article
                     with st.container():
                         # Checkbox with title and law name
-                        col_check, col_expand = st.columns([8,1])
+                        col_check, col_expand = st.columns([8,18])
                         with col_check:
                             if st.checkbox(f"{title}", key=f"article_{uid}"):
                                 selected_article_uids.append(uid)
