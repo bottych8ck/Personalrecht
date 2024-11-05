@@ -351,14 +351,26 @@ def main_app():
         with col2:
             if st.button("Wissenselement löschen"):
                 st.session_state.delete_form = not st.session_state.delete_form
-    
+                
             if st.session_state.delete_form:
                 with st.form(key='delete_knowledge_form'):
-                    entry_id_to_delete = st.selectbox("Wählen Sie das Wissenselement zum Löschen aus:", [(key, knowledge_base[key]["Title"]) for key in knowledge_base.keys()])
+                    # Just use the key directly instead of creating a tuple
+                    entry_id_to_delete = st.selectbox(
+                        "Wählen Sie das Wissenselement zum Löschen aus:", 
+                        list(knowledge_base.keys()),
+                        format_func=lambda x: f"{x}: {knowledge_base[x]['Title']}"
+                    )
                     delete_button = st.form_submit_button(label='Löschen')
-    
+            
                     if delete_button and entry_id_to_delete:
                         delete_from_knowledge_base(entry_id_to_delete)
+        # if st.session_state.delete_form:
+            #     with st.form(key='delete_knowledge_form'):
+            #         entry_id_to_delete = st.selectbox("Wählen Sie das Wissenselement zum Löschen aus:", [(key, knowledge_base[key]["Title"]) for key in knowledge_base.keys()])
+            #         delete_button = st.form_submit_button(label='Löschen')
+    
+            #         if delete_button and entry_id_to_delete:
+            #             delete_from_knowledge_base(entry_id_to_delete)
     
     
         st.write("")
