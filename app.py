@@ -358,7 +358,7 @@ def main_app():
                     # Create container for each article
                     with st.container():
                         # Checkbox with title and law name
-                        col_check, col_expand = st.columns([8,18])
+                        col_check, col_expand = st.columns([8,48])
                         with col_check:
                             if st.checkbox(f"{title}", key=f"article_{uid}"):
                                 selected_article_uids.append(uid)
