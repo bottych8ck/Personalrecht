@@ -390,9 +390,9 @@ def main_app():
                             st.session_state.top_knowledge_items.append((item_id, 1.0))
                     st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")
             
-                    if 'show_form' not in st.session_state:
-                    st.session_state.show_form = False
-        
+        if 'show_form' not in st.session_state:
+            st.session_state.show_form = False
+
         col1, col2 = st.columns(2)
         with col1:
             if st.button("Neues Wissenselement hinzufügen"):
