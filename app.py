@@ -337,71 +337,66 @@ def main_app():
                     content = ' '.join(item.get("Content", []))
                     st.markdown(f"**{title}**")
                     st.write(content)
-                                
+
     if st.session_state.get('submitted'):
-        st.write("Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortung berücksichtigt werden:")
-        keyword = st.text_input("Stichwort eingeben und Enter drücken:")
-        
-        if keyword:
-            matching_articles, matching_items = keyword_search(keyword, law_data, knowledge_base)
+        # Wrap the entire keyword search section in an expander
+        with st.expander("🔍 Stichwortsuche", expanded=False):
+            st.markdown("### Hier können Sie eine Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortung berücksichtigt werden:")
+            keyword = st.text_input("Stichwort eingeben und Enter drücken:")
             
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.markdown("#### Gefundene Gesetzesartikel")
-                selected_article_uids = []
+            if keyword:
+                matching_articles, matching_items = keyword_search(keyword, law_data, knowledge_base)
                 
-                for uid, article in matching_articles.items():
-                    title = article.get('Title', 'Unknown Title')
-                    law_name = article.get('Name', 'Unbekanntes Gesetz')
-                    content = article.get('Inhalt', [])
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("#### Gefundene Gesetzesartikel")
+                    selected_article_uids = []
                     
-                    # Create container for each article
-                    with st.container():
-                        # Checkbox for selection
-                        if st.checkbox("Auswählen", key=f"select_article_{uid}"):
-                            selected_article_uids.append(uid)
+                    for uid, article in matching_articles.items():
+                        title = article.get('Title', 'Unknown Title')
+                        law_name = article.get('Name', 'Unbekanntes Gesetz')
+                        content = article.get('Inhalt', [])
                         
-                        # Expander with title and law name as header
-                        with st.expander(f"{title}\n*{law_name}*"):
-                            for paragraph in content:
-                                st.write(paragraph)
-                        st.markdown("---")
-                
-                if selected_article_uids and st.button("Ausgewählte Artikel hinzufügen"):
-                    existing_uids = [uid for uid, _ in st.session_state.top_articles]
-                    for uid in selected_article_uids:
-                        if uid not in existing_uids:
-                            st.session_state.top_articles.append((uid, 1.0))
-                    st.success("Ausgewählte Artikel wurden zu den relevanten Artikeln hinzugefügt")
-            
-            with col2:
-                st.markdown("#### Gefundene Wissenselemente")
-                selected_item_ids = []
-                
-                for item_id, item in matching_items.items():
-                    title = item.get('Title', 'Unknown Title')
-                    content = ' '.join(item.get('Content', []))
+                        with st.container():
+                            if st.checkbox("Auswählen", key=f"select_article_{uid}"):
+                                selected_article_uids.append(uid)
+                            
+                            with st.expander(f"{title}\n*{law_name}*"):
+                                for paragraph in content:
+                                    st.write(paragraph)
+                            st.markdown("---")
                     
-                    # Create container for each knowledge item
-                    with st.container():
-                        # Checkbox for selection
-                        if st.checkbox("Auswählen", key=f"select_item_{item_id}"):
-                            selected_item_ids.append(item_id)
-                        
-                        # Expander with title as header
-                        with st.expander(title):
-                            st.write(content)
-                        st.markdown("---")
+                    if selected_article_uids and st.button("Ausgewählte Artikel hinzufügen"):
+                        existing_uids = [uid for uid, _ in st.session_state.top_articles]
+                        for uid in selected_article_uids:
+                            if uid not in existing_uids:
+                                st.session_state.top_articles.append((uid, 1.0))
+                        st.success("Ausgewählte Artikel wurden zu den relevanten Artikeln hinzugefügt")
                 
-                if selected_item_ids and st.button("Ausgewählte Wissenselemente hinzufügen"):
-                    existing_ids = [item_id for item_id, _ in st.session_state.top_knowledge_items]
-                    for item_id in selected_item_ids:
-                        if item_id not in existing_ids:
-                            st.session_state.top_knowledge_items.append((item_id, 1.0))
-                    st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")  
-        if 'show_form' not in st.session_state:
-            st.session_state.show_form = False
+                with col2:
+                    st.markdown("#### Gefundene Wissenselemente")
+                    selected_item_ids = []
+                    
+                    for item_id, item in matching_items.items():
+                        title = item.get('Title', 'Unknown Title')
+                        content = ' '.join(item.get('Content', []))
+                        
+                        with st.container():
+                            if st.checkbox("Auswählen", key=f"select_item_{item_id}"):
+                                selected_item_ids.append(item_id)
+                            
+                            with st.expander(title):
+                                st.write(content)
+                            st.markdown("---")
+                    
+                    if selected_item_ids and st.button("Ausgewählte Wissenselemente hinzufügen"):
+                        existing_ids = [item_id for item_id, _ in st.session_state.top_knowledge_items]
+                        for item_id in selected_item_ids:
+                            if item_id not in existing_ids:
+                                st.session_state.top_knowledge_items.append((item_id, 1.0))
+                        st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")
+
 
         col1, col2 = st.columns(2)
         with col1:
