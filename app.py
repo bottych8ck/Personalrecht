@@ -348,7 +348,7 @@ def main_app():
                     content = ' '.join(item.get("Content", []))
                     st.markdown(f"**{title}**")
                     st.write(content)
-                    
+                        
     if st.session_state.get('submitted'):
         st.markdown("### Hier können Sie eine Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortung berücksichtigt werden:")
         keyword = st.text_input("Stichwort eingeben und Enter drücken:")
@@ -364,8 +364,24 @@ def main_app():
                 
                 for uid, article in matching_articles.items():
                     title = article.get('Title', 'Unknown Title')
-                    if st.checkbox(f"{title}", key=f"article_{uid}"):
-                        selected_article_uids.append(uid)
+                    law_name = article.get('Name', 'Unbekanntes Gesetz')
+                    content = article.get('Inhalt', [])
+                    
+                    # Create container for each article
+                    with st.container():
+                        # Checkbox with title and law name
+                        col_check, col_expand = st.columns([8,1])
+                        with col_check:
+                            if st.checkbox(f"{title}", key=f"article_{uid}"):
+                                selected_article_uids.append(uid)
+                            st.markdown(f"<small style='color: gray;'>{law_name}</small>", unsafe_allow_html=True)
+                        
+                        # Expander for content
+                        with col_expand:
+                            with st.expander("📖"):
+                                for paragraph in content:
+                                    st.write(paragraph)
+                        st.markdown("---")
                 
                 if selected_article_uids and st.button("Ausgewählte Artikel hinzufügen"):
                     existing_uids = [uid for uid, _ in st.session_state.top_articles]
@@ -380,8 +396,20 @@ def main_app():
                 
                 for item_id, item in matching_items.items():
                     title = item.get('Title', 'Unknown Title')
-                    if st.checkbox(f"{title}", key=f"item_{item_id}"):
-                        selected_item_ids.append(item_id)
+                    content = ' '.join(item.get('Content', []))
+                    
+                    # Create container for each knowledge item
+                    with st.container():
+                        col_check, col_expand = st.columns([8,1])
+                        with col_check:
+                            if st.checkbox(f"{title}", key=f"item_{item_id}"):
+                                selected_item_ids.append(item_id)
+                        
+                        # Expander for content
+                        with col_expand:
+                            with st.expander("📖"):
+                                st.write(content)
+                        st.markdown("---")
                 
                 if selected_item_ids and st.button("Ausgewählte Wissenselemente hinzufügen"):
                     existing_ids = [item_id for item_id, _ in st.session_state.top_knowledge_items]
