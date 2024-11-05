@@ -77,19 +77,7 @@ def keyword_search(keyword, law_data, knowledge_base):
             
     return matching_articles, matching_items
             
-    # Search in knowledge_base
-    matching_items = {}
-    for item_id, item in knowledge_base.items():
-        # Search in title
-        if keyword in item.get('Title', '').lower():
-            matching_items[item_id] = item
-            continue
-            
-        # Search in content
-        if any(keyword in content.lower() for content in item.get('Content', [])):
-            matching_items[item_id] = item
-            
-    return matching_articles, matching_items
+
 
 def update_file_in_github(file_path, content, commit_message="Update file"):
     repo_owner = os.getenv('GITHUB_REPO_OWNER')
@@ -348,7 +336,7 @@ def main_app():
                     content = ' '.join(item.get("Content", []))
                     st.markdown(f"**{title}**")
                     st.write(content)
-                        
+                            
     if st.session_state.get('submitted'):
         st.markdown("### Hier können Sie eine Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortung berücksichtigt werden:")
         keyword = st.text_input("Stichwort eingeben und Enter drücken:")
@@ -416,8 +404,7 @@ def main_app():
                     for item_id in selected_item_ids:
                         if item_id not in existing_ids:
                             st.session_state.top_knowledge_items.append((item_id, 1.0))
-                    st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")
-            
+                    st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")           
         if 'show_form' not in st.session_state:
             st.session_state.show_form = False
 
