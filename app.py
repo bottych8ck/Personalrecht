@@ -345,7 +345,7 @@ def main_app():
         if st.session_state.get('submitted'):
 
             with st.expander("Zusätzliche Stichwortsuche", expanded=False):
-                st.write("Sie können die ")
+                st.write("Sie können eine Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortung berücksichtigt werden:")
                 keyword = st.text_input("Stichwort eingeben:")
                 
                 if keyword:
@@ -378,7 +378,7 @@ def main_app():
                             if st.checkbox(f"{title}", key=f"item_{item_id}"):
                                 selected_item_ids.append(item_id)
                         
-                        if selected_item_ids and st.button("Ausgewählte Wissenselemente hinzufügen"):
+                        if selected_item_ids and st.button("Ausgewählte Resultate für die Antwort berücksichtigen"):
                             existing_ids = [item_id for item_id, _ in st.session_state.top_knowledge_items]
                             for item_id in selected_item_ids:
                                 if item_id not in existing_ids:
