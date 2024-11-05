@@ -339,9 +339,12 @@ def main_app():
                     st.write(content)
 
     if st.session_state.get('submitted'):
-        # Wrap the entire keyword search section in an expander
-        with st.expander("🔍 Stichwortsuche", expanded=False):
-            st.markdown("### Hier können Sie eine Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortung berücksichtigt werden:")
+        st.markdown("---")
+        st.markdown("### 🔍 Stichwortsuche")
+        show_search = st.checkbox("Stichwortsuche ein-/ausblenden", value=False)
+        
+        if show_search:
+            st.markdown("Hier können Sie eine Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortung berücksichtigt werden:")
             keyword = st.text_input("Stichwort eingeben und Enter drücken:")
             
             if keyword:
@@ -396,6 +399,7 @@ def main_app():
                             if item_id not in existing_ids:
                                 st.session_state.top_knowledge_items.append((item_id, 1.0))
                         st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")
+        st.markdown("---")
 
 
         col1, col2 = st.columns(2)
