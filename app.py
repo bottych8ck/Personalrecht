@@ -54,6 +54,7 @@ openai_client = openai.OpenAI(api_key=openai_api_key)
 groq_api_key = os.getenv('GROQ_API_KEY')
 groq_client = Groq(api_key=groq_api_key)
 
+
 def keyword_search(keyword, law_data, knowledge_base):
     keyword = keyword.lower()
     
@@ -336,9 +337,9 @@ def main_app():
                     content = ' '.join(item.get("Content", []))
                     st.markdown(f"**{title}**")
                     st.write(content)
-                            
+                                
     if st.session_state.get('submitted'):
-        st.write("### Hier können Sie eine Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortung berücksichtigt werden:")
+        st.markdown("### Hier können Sie eine Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortung berücksichtigt werden:")
         keyword = st.text_input("Stichwort eingeben und Enter drücken:")
         
         if keyword:
@@ -357,18 +358,14 @@ def main_app():
                     
                     # Create container for each article
                     with st.container():
-                        # Checkbox with title and law name
-                        col_check, col_expand = st.columns([8,48])
-                        with col_check:
-                            if st.checkbox(f"{title}", key=f"article_{uid}"):
-                                selected_article_uids.append(uid)
-                            st.markdown(f"<small style='color: gray;'>{law_name}</small>", unsafe_allow_html=True)
+                        # Checkbox for selection
+                        if st.checkbox("Auswählen", key=f"select_article_{uid}"):
+                            selected_article_uids.append(uid)
                         
-                        # Expander for content
-                        with col_expand:
-                            with st.expander("📖"):
-                                for paragraph in content:
-                                    st.write(paragraph)
+                        # Expander with title and law name as header
+                        with st.expander(f"{title}\n*{law_name}*"):
+                            for paragraph in content:
+                                st.write(paragraph)
                         st.markdown("---")
                 
                 if selected_article_uids and st.button("Ausgewählte Artikel hinzufügen"):
@@ -388,15 +385,13 @@ def main_app():
                     
                     # Create container for each knowledge item
                     with st.container():
-                        col_check, col_expand = st.columns([8,1])
-                        with col_check:
-                            if st.checkbox(f"{title}", key=f"item_{item_id}"):
-                                selected_item_ids.append(item_id)
+                        # Checkbox for selection
+                        if st.checkbox("Auswählen", key=f"select_item_{item_id}"):
+                            selected_item_ids.append(item_id)
                         
-                        # Expander for content
-                        with col_expand:
-                            with st.expander("📖"):
-                                st.write(content)
+                        # Expander with title as header
+                        with st.expander(title):
+                            st.write(content)
                         st.markdown("---")
                 
                 if selected_item_ids and st.button("Ausgewählte Wissenselemente hinzufügen"):
@@ -404,7 +399,7 @@ def main_app():
                     for item_id in selected_item_ids:
                         if item_id not in existing_ids:
                             st.session_state.top_knowledge_items.append((item_id, 1.0))
-                    st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")           
+                    st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")  
         if 'show_form' not in st.session_state:
             st.session_state.show_form = False
 
