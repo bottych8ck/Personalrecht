@@ -54,6 +54,36 @@ openai_client = openai.OpenAI(api_key=openai_api_key)
 groq_api_key = os.getenv('GROQ_API_KEY')
 groq_client = Groq(api_key=groq_api_key)
 
+def keyword_search(keyword, law_data, knowledge_base):
+    # Convert keyword to lowercase for case-insensitive search
+    keyword = keyword.lower()
+    
+    # Search in law_data
+    matching_articles = {}
+    for uid, article in law_data.items():
+        # Search in title
+        if keyword in article.get('Title', '').lower():
+            matching_articles[uid] = article
+            continue
+            
+        # Search in content
+        if any(keyword in paragraph.lower() for paragraph in article.get('Inhalt', [])):
+            matching_articles[uid] = article
+            
+    # Search in knowledge_base
+    matching_items = {}
+    for item_id, item in knowledge_base.items():
+        # Search in title
+        if keyword in item.get('Title', '').lower():
+            matching_items[item_id] = item
+            continue
+            
+        # Search in content
+        if any(keyword in content.lower() for content in item.get('Content', [])):
+            matching_items[item_id] = item
+            
+    return matching_articles, matching_items
+
 def update_file_in_github(file_path, content, commit_message="Update file"):
     repo_owner = os.getenv('GITHUB_REPO_OWNER')
     repo_name = os.getenv('GITHUB_REPO_NAME')
@@ -311,6 +341,47 @@ def main_app():
                     content = ' '.join(item.get("Content", []))
                     st.markdown(f"**{title}**")
                     st.write(content)
+                    
+    if st.session_state.get('submitted'):
+    with st.expander("Stichwortsuche", expanded=False):
+        keyword = st.text_input("Stichwort eingeben:")
+        if keyword:
+            matching_articles, matching_items = keyword_search(keyword, law_data, knowledge_base)
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("#### Gefundene Gesetzesartikel")
+                selected_article_uids = []
+                
+                for uid, article in matching_articles.items():
+                    title = article.get('Title', 'Unknown Title')
+                    if st.checkbox(f"{title}", key=f"article_{uid}"):
+                        selected_article_uids.append(uid)
+                
+                if selected_article_uids and st.button("Ausgewählte Artikel hinzufügen"):
+                    existing_uids = [uid for uid, _ in st.session_state.top_articles]
+                    for uid in selected_article_uids:
+                        if uid not in existing_uids:
+                            st.session_state.top_articles.append((uid, 1.0))
+                    st.success("Ausgewählte Artikel wurden zu den relevanten Artikeln hinzugefügt")
+            
+            with col2:
+                st.markdown("#### Gefundene Wissenselemente")
+                selected_item_ids = []
+                
+                for item_id, item in matching_items.items():
+                    title = item.get('Title', 'Unknown Title')
+                    if st.checkbox(f"{title}", key=f"item_{item_id}"):
+                        selected_item_ids.append(item_id)
+                
+                if selected_item_ids and st.button("Ausgewählte Wissenselemente hinzufügen"):
+                    existing_ids = [item_id for item_id, _ in st.session_state.top_knowledge_items]
+                    for item_id in selected_item_ids:
+                        if item_id not in existing_ids:
+                            st.session_state.top_knowledge_items.append((item_id, 1.0))
+                    st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")
+
 
         if 'show_form' not in st.session_state:
             st.session_state.show_form = False
