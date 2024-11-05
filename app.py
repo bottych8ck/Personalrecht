@@ -342,7 +342,7 @@ def main_app():
                     st.markdown(f"**{title}**")
                     st.write(content)
                     
-    if st.session_state.get('submitted'):
+    
     with st.expander("Stichwortsuche", expanded=False):
         keyword = st.text_input("Stichwort eingeben:")
         if keyword:
