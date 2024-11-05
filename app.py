@@ -339,7 +339,7 @@ def main_app():
                     st.write(content)
                                 
     if st.session_state.get('submitted'):
-        st.markdown("### Hier können Sie eine Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortung berücksichtigt werden:")
+        st.write("Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortung berücksichtigt werden:")
         keyword = st.text_input("Stichwort eingeben und Enter drücken:")
         
         if keyword:
