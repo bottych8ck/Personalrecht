@@ -441,7 +441,7 @@ def main_app():
         with st.expander("🔍 Zusätzliche Stichwortsuche", expanded=False):
             st.write(create_tooltip_css(), unsafe_allow_html=True)
             keyword = st.text_input("Stichwort eingeben und Enter drücken:")
-            st.markdown(Auswählen, welche Artikel oder Wissenselemente für die Antwort zusätzlich berücksichtigt werden soll:")
+            st.markdown(Auswählen, welche Artikel oder Wissenselemente für die Antwort zusätzlich berücksichtigt werden solenl:")
             if keyword:
                 matching_articles, matching_items = keyword_search(keyword, law_data, knowledge_base)
                 
@@ -600,7 +600,7 @@ def main_app():
                         st.subheader(f"Antwort SubSumary ({model}):")
                         st.write(response)
                         st.write(generate_html_with_js(response), unsafe_allow_html=True)
-            elif 'last_answer' in st.session_state:
+            elif 'last_answer' in st.session_state and st.session_state['last_answer']:
                 st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
                 st.write(st.session_state['last_answer'])
                 st.write(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)
