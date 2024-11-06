@@ -566,8 +566,6 @@ def main_app():
     
         # genAI-Teil
         with st.expander("🤖 Mit Sprachmodell beantworten", expanded=False):
-            previous_selection = st.session_state.get('previous_ai_selection', None)
-            
             ai_provider = st.radio(
                 "Wählen Sie ein Sprachmodell:",
                 ("Groq Llama 3.1 (Gratis)", "OpenAI GPT-4"),
@@ -575,7 +573,7 @@ def main_app():
                 key='ai_provider'
             )
             
-            # Always generate fresh prompt based on current state
+            # Generate fresh prompt
             current_prompt = generate_prompt(
                 user_query, 
                 relevance, 
@@ -583,32 +581,37 @@ def main_app():
                 law_data, 
                 st.session_state.top_knowledge_items
             )
-            st.session_state['generated_prompt'] = current_prompt
+    
+            # Create a container for the answer
+            answer_container = st.container()
     
             if st.button("Antwort generieren"):
                 with st.spinner('Generiere Antwort...'):
                     client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
-                    # Use current_prompt instead of session state
                     response, model = generate_ai_response(client, current_prompt)
                     
                     if response:
                         st.session_state['last_answer'] = response
                         st.session_state['last_model'] = model
-                        
-            # Display answer section
-            if 'last_answer' in st.session_state and st.session_state['last_answer']:
-                st.success(f"Antwort erfolgreich generiert mit {st.session_state['last_model']}")
-                st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
-                st.markdown(st.session_state['last_answer'])
-                st.write("")
-                st.markdown("---")
-                st.write(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)
+            
+            # Display answer section in the container
+            with answer_container:
+                if 'last_answer' in st.session_state and st.session_state['last_answer']:
+                    st.success(f"Antwort erfolgreich generiert mit {st.session_state['last_model']}")
+                    st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
+                    
+                    # Create two columns for better layout
+                    col1, col2 = st.columns([9,1])
+                    with col1:
+                        st.markdown(st.session_state['last_answer'])
+                    st.markdown("---")
+                    st.write(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)
           
             show_prompt = st.checkbox("Prompt anzeigen und bearbeiten", value=False)
             if show_prompt:
                 edited_prompt = st.text_area(
                     "**Prompt bearbeiten:**", 
-                    value=current_prompt,  # Use current_prompt here
+                    value=current_prompt,
                     height=300
                 )
                 
@@ -619,11 +622,6 @@ def main_app():
                         
                         if response:
                             st.session_state['last_answer'] = response
-                            st.session_state['last_model'] = model
-                            st.markdown(response)
-                            st.write("")
-                            st.markdown("---") 
-                            st.write(generate_html_with_js(response), unsafe_allow_html=True)
-if __name__ == "__main__":
+                            st.session_state['last_model'] = modelif __name__ == "__main__":
     main_app()
 
