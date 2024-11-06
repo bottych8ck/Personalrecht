@@ -351,7 +351,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
     return prompt
 
 
-s
+
 def main_app():
     st.image(logo_path, width=400)
     st.subheader("Abfrage des Thurgauer Personalrechts")
