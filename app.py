@@ -569,7 +569,7 @@ def main_app():
         
         ai_provider = st.radio(
             "Wählen Sie ein Sprachmodell:",
-            ("OpenAI GPT-4", "Groq Llama 3.1"),
+            ("Groq Llama 3.1 (Gratis)", "OpenAI GPT-4"),
             horizontal=True,
             key='ai_provider'
         )
