@@ -390,6 +390,7 @@ def main_app():
     if st.button("Bearbeiten"):
         st.session_state['relevance'] = relevance
         st.session_state['last_question'] = user_query
+        st.session_state['last_answer'] = None  # Clear previous answer
         st.session_state.generating_answer = False
         query_vector = get_embeddings(user_query)
         similarities = calculate_similarities(query_vector, article_embeddings)
@@ -587,30 +588,47 @@ def main_app():
             )
 
 
-            
-            # Check if selection has changed
-            if ai_provider != previous_selection:
-                st.session_state['previous_ai_selection'] = ai_provider
-                
-                if user_query:
-                    with st.spinner('Generiere Antwort...'):
-                        client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
-                        response, model = generate_ai_response(client, st.session_state['generated_prompt'])
+            if st.button("Antwort generieren"):
+                with st.spinner('Generiere Antwort...'):
+                    client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
+                    response, model = generate_ai_response(client, st.session_state['generated_prompt'])
+                    
+                    if response:
+                        st.session_state['last_answer'] = response
+                        st.session_state['last_model'] = model
                         
-                        if response:
-                            st.session_state['last_answer'] = response
-                            st.session_state['last_model'] = model
-                            
-                            st.success(f"Antwort erfolgreich generiert mit {model}")
-                            st.subheader(f"Antwort SubSumary ({model}):")
-                            st.write(response)
-                            st.write(generate_html_with_js(response), unsafe_allow_html=True)
-            
-            # Show previous response if it exists
+                        st.success(f"Antwort erfolgreich generiert mit {model}")
+                        st.subheader(f"Antwort SubSumary ({model}):")
+                        st.write(response)
+                        st.write(generate_html_with_js(response), unsafe_allow_html=True)
             elif 'last_answer' in st.session_state:
                 st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
                 st.write(st.session_state['last_answer'])
                 st.write(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)
+
+            # # Check if selection has changed
+            # if ai_provider != previous_selection:
+            #     st.session_state['previous_ai_selection'] = ai_provider
+                
+            #     if user_query:
+            #         with st.spinner('Generiere Antwort...'):
+            #             client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
+            #             response, model = generate_ai_response(client, st.session_state['generated_prompt'])
+                        
+            #             if response:
+            #                 st.session_state['last_answer'] = response
+            #                 st.session_state['last_model'] = model
+                            
+            #                 st.success(f"Antwort erfolgreich generiert mit {model}")
+            #                 st.subheader(f"Antwort SubSumary ({model}):")
+            #                 st.write(response)
+            #                 st.write(generate_html_with_js(response), unsafe_allow_html=True)
+            
+            # # Show previous response if it exists
+            # elif 'last_answer' in st.session_state:
+            #     st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
+            #     st.write(st.session_state['last_answer'])
+            #     st.write(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)
     
             # Prompt editing section
             show_prompt = st.checkbox("Prompt anzeigen und bearbeiten", value=False)
