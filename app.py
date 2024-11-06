@@ -54,6 +54,30 @@ openai_client = openai.OpenAI(api_key=openai_api_key)
 groq_api_key = os.getenv('GROQ_API_KEY')
 groq_client = Groq(api_key=groq_api_key)
 
+def generate_ai_response(client, prompt, model=None):
+    try:
+        if isinstance(client, openai.OpenAI):
+            response = client.chat.completions.create(
+                model="gpt-4-turbo-preview",
+                messages=[
+                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            return response.choices[0].message.content, "GPT-4"
+        else:  # Groq client
+            response = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                    {"role": "user", "content": prompt}
+                ],
+                model="llama-3.1-70b-versatile"
+            )
+            return response.choices[0].message.content, "Llama 3.1"
+    except Exception as e:
+        st.error(f"Error with {client.__class__.__name__}: {str(e)}")
+        return None, None
+
 def create_tooltip_css():
     return """
     <style>
@@ -522,43 +546,119 @@ def main_app():
         st.write("")    
     
     # genAI-Teil
-        if st.button("Mit Sprachmodell beantworten"):
-            st.session_state.generating_answer = True  # Set this to true when button is clicked
-        if st.session_state.get('generating_answer'):
-            if user_query:
-                st.session_state['generated_prompt'] = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                st.session_state['editable_prompt'] = st.text_area("**Prompt bearbeiten:**", st.session_state['generated_prompt'], height=300)
-                if st.button("Promptengineering abgeschlossen") and st.session_state['editable_prompt']:
-                    st.session_state.start_generating_answer = True  # Set this to true when button is clicked
-                if st.session_state.get('start_generating_answer'):
+        with st.expander("🤖 Mit Sprachmodell beantworten", expanded=False):
+            # Store previous selection to detect changes
+            previous_selection = st.session_state.get('previous_ai_selection', None)
+            
+            ai_provider = st.radio(
+                "Wählen Sie ein Sprachmodell:",
+                ("OpenAI GPT-4", "Groq Llama 3.1"),
+                horizontal=True,
+                key='ai_provider'
+            )
+            
+            # Check if selection has changed
+            if ai_provider != previous_selection:
+                st.session_state['previous_ai_selection'] = ai_provider
+                
+                if user_query:
+                    prompt = generate_prompt(
+                        user_query, 
+                        relevance, 
+                        st.session_state.top_articles, 
+                        law_data, 
+                        st.session_state.top_knowledge_items
+                    )
                     
-                    try:
-                        # Handle Llama 3.1 model selection
-                        chat_completion = groq_client.chat.completions.create(
-                            messages=[
-                                {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                                {"role": "user", "content": st.session_state['editable_prompt']}
-                            ],
-                            model="llama-3.1-70b-versatile"
+                    with st.spinner('Generiere Antwort...'):
+                        client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
+                        response, model = generate_ai_response(client, prompt)
+                        
+                        if response:
+                            st.session_state['last_answer'] = response
+                            st.session_state['last_model'] = model
+                            
+                            st.success(f"Antwort erfolgreich generiert mit {model}")
+                            st.subheader(f"Antwort SubSumary ({model}):")
+                            st.write(response)
+                            
+                            # Optional: Add copy button for the response
+                            if st.button("Antwort kopieren"):
+                                st.write(generate_html_with_js(response), unsafe_allow_html=True)
+            
+            # Show previous response if it exists
+            elif 'last_answer' in st.session_state:
+                st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
+                st.write(st.session_state['last_answer'])
+                if st.button("Antwort kopieren"):
+                    st.write(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)
+    
+            # Keep prompt editing option at the bottom
+            if st.checkbox("Prompt anzeigen und bearbeiten", value=False):
+                if user_query:
+                    if 'generated_prompt' not in st.session_state:
+                        st.session_state['generated_prompt'] = generate_prompt(
+                            user_query, 
+                            relevance, 
+                            st.session_state.top_articles, 
+                            law_data, 
+                            st.session_state.top_knowledge_items
                         )
-                        # Check if response is available
-                        if chat_completion.choices and len(chat_completion.choices) > 0:
-                            ai_message = chat_completion.choices[0].message.content
-                            st.session_state['last_answer'] = ai_message
-                            st.session_state['last_model'] = "Llama 3.1"
+                    
+                    edited_prompt = st.text_area(
+                        "**Prompt bearbeiten:**", 
+                        st.session_state['generated_prompt'], 
+                        height=300
+                    )
+                    
+                    if edited_prompt != st.session_state['generated_prompt']:
+                        if st.button("Mit bearbeitetem Prompt neu generieren"):
+                            with st.spinner('Generiere neue Antwort...'):
+                                client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
+                                response, model = generate_ai_response(client, edited_prompt)
+                                
+                                if response:
+                                    st.session_state['last_answer'] = response
+                                    st.session_state['last_model'] = model
+                                    st.experimental_rerun()
+            
+        # if st.button("Mit Sprachmodell beantworten"):
+        #     st.session_state.generating_answer = True  # Set this to true when button is clicked
+        # if st.session_state.get('generating_answer'):
+        #     if user_query:
+        #         st.session_state['generated_prompt'] = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
+        #         st.session_state['editable_prompt'] = st.text_area("**Prompt bearbeiten:**", st.session_state['generated_prompt'], height=300)
+        #         if st.button("Promptengineering abgeschlossen") and st.session_state['editable_prompt']:
+        #             st.session_state.start_generating_answer = True  # Set this to true when button is clicked
+        #         if st.session_state.get('start_generating_answer'):
+                    
+        #             try:
+        #                 # Handle Llama 3.1 model selection
+        #                 chat_completion = groq_client.chat.completions.create(
+        #                     messages=[
+        #                         {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+        #                         {"role": "user", "content": st.session_state['editable_prompt']}
+        #                     ],
+        #                     model="llama-3.1-70b-versatile"
+        #                 )
+        #                 # Check if response is available
+        #                 if chat_completion.choices and len(chat_completion.choices) > 0:
+        #                     ai_message = chat_completion.choices[0].message.content
+        #                     st.session_state['last_answer'] = ai_message
+        #                     st.session_state['last_model'] = "Llama 3.1"
 
-                        else:
-                            st.warning("No response generated from Llama 3.1.")
+        #                 else:
+        #                     st.warning("No response generated from Llama 3.1.")
         
-                    # except groq.InternalServerError as e:
-                    #     st.error(f"An internal server error occurred with the Groq API: {str(e)}")
-                    except Exception as e:
-                        st.error(f"An error occurred with the Groq API: {str(e)}")
+        #             # except groq.InternalServerError as e:
+        #             #     st.error(f"An internal server error occurred with the Groq API: {str(e)}")
+        #             except Exception as e:
+        #                 st.error(f"An error occurred with the Groq API: {str(e)}")
         
-                    # Display the generated answer
-                    if st.session_state['last_answer']:
-                        st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
-                        st.write(st.session_state['last_answer'])
+        #             # Display the generated answer
+        #             if st.session_state['last_answer']:
+        #                 st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
+        #                 st.write(st.session_state['last_answer'])
         
 if __name__ == "__main__":
     main_app()
