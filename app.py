@@ -622,6 +622,8 @@ def main_app():
                         
                         if response:
                             st.session_state['last_answer'] = response
-                            st.session_state['last_model'] = modelif __name__ == "__main__":
+                            st.session_state['last_model'] = model
+
+if __name__ == "__main__":
     main_app()
 
