@@ -351,7 +351,7 @@ def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge
     return prompt
 
 
-
+s
 def main_app():
     st.image(logo_path, width=400)
     st.subheader("Abfrage des Thurgauer Personalrechts")
@@ -604,6 +604,7 @@ def main_app():
             elif 'last_answer' in st.session_state and st.session_state['last_answer']:
                 st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
                 st.write(st.session_state['last_answer'])
+                 st.write("")
                 st.write(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)
 
           
@@ -624,7 +625,9 @@ def main_app():
                         if response:
                             st.session_state['last_answer'] = response
                             st.session_state['last_model'] = model
-                            st.experimental_rerun()
+                            st.write(response)
+                            st.write("")
+                            st.write(generate_html_with_js(response), unsafe_allow_html=True)
 
             
  
