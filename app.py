@@ -301,7 +301,24 @@ def generate_html_with_js(prompt):
     copyToClipboard();
     </script>
     """
-
+def generate_html_with_js(text):
+    escaped_text = text.replace('"', '&quot;').replace('\n', '<br>')
+    return f"""
+    <div>
+        <textarea id="text_area" style="position: absolute; left: -9999px;">{text}</textarea>
+        <button onclick="copyToClipboard()" style="padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc; background: white; cursor: pointer;">
+            In die Zwischenablage kopieren
+        </button>
+        <script>
+            function copyToClipboard() {{
+                var copyText = document.getElementById('text_area');
+                copyText.select();
+                document.execCommand('copy');
+                alert('Text wurde in die Zwischenablage kopiert!');
+            }}
+        </script>
+    </div>
+    """
 
 
 def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
@@ -546,81 +563,151 @@ def main_app():
         st.write("")    
     
     # genAI-Teil
-        with st.expander("🤖 Mit Sprachmodell beantworten", expanded=False):
-            # Store previous selection to detect changes
-            previous_selection = st.session_state.get('previous_ai_selection', None)
+
+    with st.expander("🤖 Mit Sprachmodell beantworten", expanded=False):
+        previous_selection = st.session_state.get('previous_ai_selection', None)
+        
+        ai_provider = st.radio(
+            "Wählen Sie ein Sprachmodell:",
+            ("OpenAI GPT-4", "Groq Llama 3.1"),
+            horizontal=True,
+            key='ai_provider'
+        )
+        
+        # Generate and store prompt when expander is opened
+        if 'generated_prompt' not in st.session_state:
+            st.session_state['generated_prompt'] = generate_prompt(
+                user_query, 
+                relevance, 
+                st.session_state.top_articles, 
+                law_data, 
+                st.session_state.top_knowledge_items
+            )
+        
+        # Check if selection has changed
+        if ai_provider != previous_selection:
+            st.session_state['previous_ai_selection'] = ai_provider
             
-            ai_provider = st.radio(
-                "Wählen Sie ein Sprachmodell:",
-                ("Groq Llama 3.1 (gratis)", "OpenAI GPT-4"),
-                horizontal=True,
-                key='ai_provider'
+            if user_query:
+                with st.spinner('Generiere Antwort...'):
+                    client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
+                    response, model = generate_ai_response(client, st.session_state['generated_prompt'])
+                    
+                    if response:
+                        st.session_state['last_answer'] = response
+                        st.session_state['last_model'] = model
+                        
+                        st.success(f"Antwort erfolgreich generiert mit {model}")
+                        st.subheader(f"Antwort SubSumary ({model}):")
+                        st.write(response)
+                        st.write(generate_html_with_js(response), unsafe_allow_html=True)
+        
+        # Show previous response if it exists
+        elif 'last_answer' in st.session_state:
+            st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
+            st.write(st.session_state['last_answer'])
+            st.write(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)
+
+        # Prompt editing section
+        show_prompt = st.checkbox("Prompt anzeigen und bearbeiten", value=False)
+        if show_prompt:
+            edited_prompt = st.text_area(
+                "**Prompt bearbeiten:**", 
+                value=st.session_state['generated_prompt'],
+                height=300
             )
             
-            # Check if selection has changed
-            if ai_provider != previous_selection:
-                st.session_state['previous_ai_selection'] = ai_provider
-                
-                if user_query:
-                    prompt = generate_prompt(
-                        user_query, 
-                        relevance, 
-                        st.session_state.top_articles, 
-                        law_data, 
-                        st.session_state.top_knowledge_items
-                    )
-                    
-                    with st.spinner('Generiere Antwort...'):
+            if edited_prompt != st.session_state['generated_prompt']:
+                if st.button("Mit bearbeitetem Prompt neu generieren"):
+                    st.session_state['generated_prompt'] = edited_prompt
+                    with st.spinner('Generiere neue Antwort...'):
                         client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
-                        response, model = generate_ai_response(client, prompt)
+                        response, model = generate_ai_response(client, edited_prompt)
                         
                         if response:
                             st.session_state['last_answer'] = response
                             st.session_state['last_model'] = model
-                            
-                            st.success(f"Antwort erfolgreich generiert mit {model}")
-                            st.subheader(f"Antwort SubSumary ({model}):")
-                            st.write(response)
-                            
-                            # Optional: Add copy button for the response
-                            if st.button("Antwort kopieren"):
-                                st.write(generate_html_with_js(response), unsafe_allow_html=True)
+                            st.experimental_rerun()
+
+
+
+
+
+        # with st.expander("🤖 Mit Sprachmodell beantworten", expanded=False):
+        #     # Store previous selection to detect changes
+        #     previous_selection = st.session_state.get('previous_ai_selection', None)
             
-            # Show previous response if it exists
-            elif 'last_answer' in st.session_state:
-                st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
-                st.write(st.session_state['last_answer'])
-                if st.button("Antwort kopieren"):
-                    st.write(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)
+        #     ai_provider = st.radio(
+        #         "Wählen Sie ein Sprachmodell:",
+        #         ("Groq Llama 3.1 (gratis)", "OpenAI GPT-4"),
+        #         horizontal=True,
+        #         key='ai_provider'
+        #     )
+            
+        #     # Check if selection has changed
+        #     if ai_provider != previous_selection:
+        #         st.session_state['previous_ai_selection'] = ai_provider
+                
+        #         if user_query:
+        #             prompt = generate_prompt(
+        #                 user_query, 
+        #                 relevance, 
+        #                 st.session_state.top_articles, 
+        #                 law_data, 
+        #                 st.session_state.top_knowledge_items
+        #             )
+                    
+        #             with st.spinner('Generiere Antwort...'):
+        #                 client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
+        #                 response, model = generate_ai_response(client, prompt)
+                        
+        #                 if response:
+        #                     st.session_state['last_answer'] = response
+        #                     st.session_state['last_model'] = model
+                            
+        #                     st.success(f"Antwort erfolgreich generiert mit {model}")
+        #                     st.subheader(f"Antwort SubSumary ({model}):")
+        #                     st.write(response)
+                            
+        #                     # Optional: Add copy button for the response
+        #                     if st.button("Antwort kopieren"):
+        #                         st.write(generate_html_with_js(response), unsafe_allow_html=True)
+            
+        #     # Show previous response if it exists
+        #     elif 'last_answer' in st.session_state:
+        #         st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
+        #         st.write(st.session_state['last_answer'])
+        #         if st.button("Antwort kopieren"):
+        #             st.write(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)
     
-            # Keep prompt editing option at the bottom
-            if st.checkbox("Prompt anzeigen und bearbeiten", value=False):
-                if user_query:
-                    if 'generated_prompt' not in st.session_state:
-                        st.session_state['generated_prompt'] = generate_prompt(
-                            user_query, 
-                            relevance, 
-                            st.session_state.top_articles, 
-                            law_data, 
-                            st.session_state.top_knowledge_items
-                        )
+        #     # Keep prompt editing option at the bottom
+        #     if st.checkbox("Prompt anzeigen und bearbeiten", value=False):
+        #         if user_query:
+        #             if 'generated_prompt' not in st.session_state:
+        #                 st.session_state['generated_prompt'] = generate_prompt(
+        #                     user_query, 
+        #                     relevance, 
+        #                     st.session_state.top_articles, 
+        #                     law_data, 
+        #                     st.session_state.top_knowledge_items
+        #                 )
                     
-                    edited_prompt = st.text_area(
-                        "**Prompt bearbeiten:**", 
-                        st.session_state['generated_prompt'], 
-                        height=300
-                    )
+        #             edited_prompt = st.text_area(
+        #                 "**Prompt bearbeiten:**", 
+        #                 st.session_state['generated_prompt'], 
+        #                 height=300
+        #             )
                     
-                    if edited_prompt != st.session_state['generated_prompt']:
-                        if st.button("Mit bearbeitetem Prompt neu generieren"):
-                            with st.spinner('Generiere neue Antwort...'):
-                                client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
-                                response, model = generate_ai_response(client, edited_prompt)
+        #             if edited_prompt != st.session_state['generated_prompt']:
+        #                 if st.button("Mit bearbeitetem Prompt neu generieren"):
+        #                     with st.spinner('Generiere neue Antwort...'):
+        #                         client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
+        #                         response, model = generate_ai_response(client, edited_prompt)
                                 
-                                if response:
-                                    st.session_state['last_answer'] = response
-                                    st.session_state['last_model'] = model
-                                    st.experimental_rerun()
+        #                         if response:
+        #                             st.session_state['last_answer'] = response
+        #                             st.session_state['last_model'] = model
+        #                             st.experimental_rerun()
             
       
         
