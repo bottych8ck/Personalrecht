@@ -376,7 +376,10 @@ def main_app():
     if 'generating_answer' not in st.session_state:
         st.session_state.generating_answer = False
     if 'start_generating_answer' not in st.session_state:
-        st.session_state.start_generating_answer = False
+    st.session_state.start_generating_answer = False
+    if 'last_model' not in st.session_state:
+        st.session_state.last_model = False
+        
 
     user_query = st.text_area("Hier Ihre Frage eingeben:", height=200, key="user_query_text_area")
 
