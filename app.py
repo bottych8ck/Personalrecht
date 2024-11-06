@@ -599,6 +599,7 @@ def main_app():
                         st.success(f"Antwort erfolgreich generiert mit {model}")
                         st.subheader(f"Antwort SubSumary ({model}):")
                         st.write(response)
+                        st.write("")
                         st.write(generate_html_with_js(response), unsafe_allow_html=True)
             elif 'last_answer' in st.session_state and st.session_state['last_answer']:
                 st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
