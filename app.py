@@ -564,7 +564,6 @@ def main_app():
                 
         st.write("")
         st.write("")
-        st.write("")    
     
     # genAI-Teil
 
@@ -588,6 +587,7 @@ def main_app():
             )
 
 
+        st.write("")    
             if st.button("Antwort generieren"):
                 with st.spinner('Generiere Antwort...'):
                     client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
@@ -606,31 +606,7 @@ def main_app():
                 st.write(st.session_state['last_answer'])
                 st.write(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)
 
-            # # Check if selection has changed
-            # if ai_provider != previous_selection:
-            #     st.session_state['previous_ai_selection'] = ai_provider
-                
-            #     if user_query:
-            #         with st.spinner('Generiere Antwort...'):
-            #             client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
-            #             response, model = generate_ai_response(client, st.session_state['generated_prompt'])
-                        
-            #             if response:
-            #                 st.session_state['last_answer'] = response
-            #                 st.session_state['last_model'] = model
-                            
-            #                 st.success(f"Antwort erfolgreich generiert mit {model}")
-            #                 st.subheader(f"Antwort SubSumary ({model}):")
-            #                 st.write(response)
-            #                 st.write(generate_html_with_js(response), unsafe_allow_html=True)
-            
-            # # Show previous response if it exists
-            # elif 'last_answer' in st.session_state:
-            #     st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
-            #     st.write(st.session_state['last_answer'])
-            #     st.write(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)
-    
-            # Prompt editing section
+          
             show_prompt = st.checkbox("Prompt anzeigen und bearbeiten", value=False)
             if show_prompt:
                 edited_prompt = st.text_area(
