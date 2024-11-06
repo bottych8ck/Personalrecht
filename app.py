@@ -587,7 +587,7 @@ def main_app():
             )
 
 
-        st.write("")    
+st.write("")    
             if st.button("Antwort generieren"):
                 with st.spinner('Generiere Antwort...'):
                     client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
