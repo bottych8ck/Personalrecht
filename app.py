@@ -419,7 +419,7 @@ def main_app():
         st.markdown("---")
         with st.expander("🔍 Zusätzliche Stichwortsuche", expanded=False):
             st.write(create_tooltip_css(), unsafe_allow_html=True)
-            st.markdown("Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortungzusätzlich berücksichtigt werden:")
+            st.markdown("Stichwortsuche durchführen und auswählen, was für die Antwort zusätzlich berücksichtigt werden soll:")
             keyword = st.text_input("Stichwort eingeben und Enter drücken:")
             
             if keyword:
@@ -552,7 +552,7 @@ def main_app():
             
             ai_provider = st.radio(
                 "Wählen Sie ein Sprachmodell:",
-                ("OpenAI GPT-4", "Groq Llama 3.1"),
+                ("Groq Llama 3.1 (gratis)", "OpenAI GPT-4"),
                 horizontal=True,
                 key='ai_provider'
             )
@@ -622,43 +622,7 @@ def main_app():
                                     st.session_state['last_model'] = model
                                     st.experimental_rerun()
             
-        # if st.button("Mit Sprachmodell beantworten"):
-        #     st.session_state.generating_answer = True  # Set this to true when button is clicked
-        # if st.session_state.get('generating_answer'):
-        #     if user_query:
-        #         st.session_state['generated_prompt'] = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-        #         st.session_state['editable_prompt'] = st.text_area("**Prompt bearbeiten:**", st.session_state['generated_prompt'], height=300)
-        #         if st.button("Promptengineering abgeschlossen") and st.session_state['editable_prompt']:
-        #             st.session_state.start_generating_answer = True  # Set this to true when button is clicked
-        #         if st.session_state.get('start_generating_answer'):
-                    
-        #             try:
-        #                 # Handle Llama 3.1 model selection
-        #                 chat_completion = groq_client.chat.completions.create(
-        #                     messages=[
-        #                         {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-        #                         {"role": "user", "content": st.session_state['editable_prompt']}
-        #                     ],
-        #                     model="llama-3.1-70b-versatile"
-        #                 )
-        #                 # Check if response is available
-        #                 if chat_completion.choices and len(chat_completion.choices) > 0:
-        #                     ai_message = chat_completion.choices[0].message.content
-        #                     st.session_state['last_answer'] = ai_message
-        #                     st.session_state['last_model'] = "Llama 3.1"
-
-        #                 else:
-        #                     st.warning("No response generated from Llama 3.1.")
-        
-        #             # except groq.InternalServerError as e:
-        #             #     st.error(f"An internal server error occurred with the Groq API: {str(e)}")
-        #             except Exception as e:
-        #                 st.error(f"An error occurred with the Groq API: {str(e)}")
-        
-        #             # Display the generated answer
-        #             if st.session_state['last_answer']:
-        #                 st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
-        #                 st.write(st.session_state['last_answer'])
+      
         
 if __name__ == "__main__":
     main_app()
