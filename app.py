@@ -54,6 +54,59 @@ openai_client = openai.OpenAI(api_key=openai_api_key)
 groq_api_key = os.getenv('GROQ_API_KEY')
 groq_client = Groq(api_key=groq_api_key)
 
+def create_tooltip_css():
+    return """
+    <style>
+    .tooltip-container {
+        position: relative;
+        display: inline-block;
+        margin: 5px 0;
+        width: 100%;
+    }
+
+    .tooltip-text {
+        cursor: pointer;
+        border-bottom: 1px dotted #666;
+        display: inline-block;
+        padding: 5px;
+    }
+
+    .tooltip-content {
+        visibility: hidden;
+        position: absolute;
+        left: 0;
+        background-color: white;
+        color: black;
+        padding: 15px;
+        border-radius: 6px;
+        width: 100%;
+        max-height: 300px;
+        overflow-y: auto;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        z-index: 1000;
+        border: 1px solid #ddd;
+    }
+
+    .tooltip-container:hover .tooltip-content {
+        visibility: visible;
+    }
+
+    .select-button {
+        margin-left: 10px;
+    }
+    </style>
+    """
+    
+def create_tooltip_html(title, content):
+    return f"""
+    <div class="tooltip-container">
+        <span class="tooltip-text">{title}</span>
+        <div class="tooltip-content">
+            {content}
+        </div>
+    </div>
+    """
+
 
 def keyword_search(keyword, law_data, knowledge_base):
     keyword = keyword.lower()
@@ -337,13 +390,11 @@ def main_app():
                     content = ' '.join(item.get("Content", []))
                     st.markdown(f"**{title}**")
                     st.write(content)
-
+# In the main function, replace the search section with:
     if st.session_state.get('submitted'):
         st.markdown("---")
-        st.markdown("### 🔍 Stichwortsuche")
-        show_search = st.checkbox("Stichwortsuche ein-/ausblenden", value=False)
-        
-        if show_search:
+        with st.expander("🔍 Stichwortsuche", expanded=False):
+            st.write(create_tooltip_css(), unsafe_allow_html=True)
             st.markdown("Hier können Sie eine Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortung berücksichtigt werden:")
             keyword = st.text_input("Stichwort eingeben und Enter drücken:")
             
@@ -359,16 +410,21 @@ def main_app():
                     for uid, article in matching_articles.items():
                         title = article.get('Title', 'Unknown Title')
                         law_name = article.get('Name', 'Unbekanntes Gesetz')
-                        content = article.get('Inhalt', [])
+                        content = '<br>'.join(article.get('Inhalt', []))
                         
-                        with st.container():
-                            if st.checkbox("Auswählen", key=f"select_article_{uid}"):
+                        col_select, col_content = st.columns([1, 4])
+                        with col_select:
+                            if st.checkbox("", key=f"select_article_{uid}"):
                                 selected_article_uids.append(uid)
-                            
-                            with st.expander(f"{title}\n*{law_name}*"):
-                                for paragraph in content:
-                                    st.write(paragraph)
-                            st.markdown("---")
+                        with col_content:
+                            st.write(
+                                create_tooltip_html(
+                                    f"{title} - {law_name}", 
+                                    content
+                                ), 
+                                unsafe_allow_html=True
+                            )
+                        st.markdown("---")
                     
                     if selected_article_uids and st.button("Ausgewählte Artikel hinzufügen"):
                         existing_uids = [uid for uid, _ in st.session_state.top_articles]
@@ -385,13 +441,19 @@ def main_app():
                         title = item.get('Title', 'Unknown Title')
                         content = ' '.join(item.get('Content', []))
                         
-                        with st.container():
-                            if st.checkbox("Auswählen", key=f"select_item_{item_id}"):
+                        col_select, col_content = st.columns([1, 4])
+                        with col_select:
+                            if st.checkbox("", key=f"select_item_{item_id}"):
                                 selected_item_ids.append(item_id)
-                            
-                            with st.expander(title):
-                                st.write(content)
-                            st.markdown("---")
+                        with col_content:
+                            st.write(
+                                create_tooltip_html(
+                                    title,
+                                    content
+                                ),
+                                unsafe_allow_html=True
+                            )
+                        st.markdown("---")
                     
                     if selected_item_ids and st.button("Ausgewählte Wissenselemente hinzufügen"):
                         existing_ids = [item_id for item_id, _ in st.session_state.top_knowledge_items]
@@ -399,7 +461,70 @@ def main_app():
                             if item_id not in existing_ids:
                                 st.session_state.top_knowledge_items.append((item_id, 1.0))
                         st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")
-        st.markdown("---")
+
+        
+    # if st.session_state.get('submitted'):
+    #     st.markdown("---")
+    #     st.markdown("### 🔍 Stichwortsuche")
+    #     show_search = st.checkbox("Stichwortsuche einblenden", value=False)
+        
+    #     if show_search:
+    #         st.markdown("Hier können Sie eine Stichwortsuche durchführen und auswählen, welche Resultate für die Beantwortung berücksichtigt werden:")
+    #         keyword = st.text_input("Stichwort eingeben und Enter drücken:")
+            
+    #         if keyword:
+    #             matching_articles, matching_items = keyword_search(keyword, law_data, knowledge_base)
+                
+    #             col1, col2 = st.columns(2)
+                
+    #             with col1:
+    #                 st.markdown("#### Gefundene Gesetzesartikel")
+    #                 selected_article_uids = []
+                    
+    #                 for uid, article in matching_articles.items():
+    #                     title = article.get('Title', 'Unknown Title')
+    #                     law_name = article.get('Name', 'Unbekanntes Gesetz')
+    #                     content = article.get('Inhalt', [])
+                        
+    #                     with st.container():
+    #                         if st.checkbox("Auswählen", key=f"select_article_{uid}"):
+    #                             selected_article_uids.append(uid)
+                            
+    #                         with st.expander(f"{title}\n*{law_name}*"):
+    #                             for paragraph in content:
+    #                                 st.write(paragraph)
+    #                         st.markdown("---")
+                    
+    #                 if selected_article_uids and st.button("Ausgewählte Artikel hinzufügen"):
+    #                     existing_uids = [uid for uid, _ in st.session_state.top_articles]
+    #                     for uid in selected_article_uids:
+    #                         if uid not in existing_uids:
+    #                             st.session_state.top_articles.append((uid, 1.0))
+    #                     st.success("Ausgewählte Artikel wurden zu den relevanten Artikeln hinzugefügt")
+                
+    #             with col2:
+    #                 st.markdown("#### Gefundene Wissenselemente")
+    #                 selected_item_ids = []
+                    
+    #                 for item_id, item in matching_items.items():
+    #                     title = item.get('Title', 'Unknown Title')
+    #                     content = ' '.join(item.get('Content', []))
+                        
+    #                     with st.container():
+    #                         if st.checkbox("Auswählen", key=f"select_item_{item_id}"):
+    #                             selected_item_ids.append(item_id)
+                            
+    #                         with st.expander(title):
+    #                             st.write(content)
+    #                         st.markdown("---")
+                    
+    #                 if selected_item_ids and st.button("Ausgewählte Wissenselemente hinzufügen"):
+    #                     existing_ids = [item_id for item_id, _ in st.session_state.top_knowledge_items]
+    #                     for item_id in selected_item_ids:
+    #                         if item_id not in existing_ids:
+    #                             st.session_state.top_knowledge_items.append((item_id, 1.0))
+    #                     st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")
+    #     st.markdown("---")
 
 
         col1, col2 = st.columns(2)
@@ -502,85 +627,6 @@ def main_app():
                     if st.session_state['last_answer']:
                         st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
                         st.write(st.session_state['last_answer'])
-                # else:
-                #     st.warning("Please enter a query before generating an answer.")  # Warning for no query input
-                    
-                    # col1, col2 = st.columns(2)
-
-                    
-                    
-                    # # with col1:
-                    # #     if st.button("Mit GPT 4o beantworten"):
-                    # #         if user_query:
-                    # #            response = client.chat.completions.create(
-                    # #                 model="gpt-4o",
-                    # #                 messages=[
-                    # #                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                    # #                     {"role": "user", "content": st.session_state['editable_prompt']}
-                    # #                 ]
-                    # #             )
-                        
-                    # #                 # Display the response from OpenAI
-                    # #         if response.choices:
-                    # #             ai_message = response.choices[0].message.content  # Corrected attribute access
-                    # #             st.session_state['last_question'] = user_query
-                    # #             st.session_state['last_answer_gpt4o'] = ai_message
-                    # #     else:
-                    # #         ai_message = st.session_state['last_answer_gpt4o']
-                    # #     if st.session_state['last_answer_gpt4o']:
-                    # #         st.subheader("Antwort subsumary:")
-                    # #         st.write(st.session_state['last_answer_gpt4o'])
-                
-                    # with col2:
-                    #     if st.button("Mit GPT 4o mini beantworten"):
-                    #         if user_query:
-                    #             query_vector = get_embeddings(user_query)
-                    #             similarities = calculate_similarities(query_vector, article_embeddings)
-                                
-                    #             sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-                    #             filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-                    #             st.session_state.top_articles = filtered_articles[:10]
-                    #             knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
-                    #             st.session_state.top_knowledge_items = [(item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True) if is_relevant_article(knowledge_base[item_id], relevance)][:5]
-                    #             prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-                    #             response = client.chat.completions.create(
-                    #                 model="gpt-4o-mini",
-                    #                 messages=[
-                    #                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
-                    #                     {"role": "user", "content": prompt}
-                    #                 ]
-                    #             )
-                        
-                    #                 # Display the response from OpenAI
-                    #             if response.choices:
-                    #                 ai_message = response.choices[0].message.content  # Corrected attribute access
-                    #                 st.session_state['last_question'] = user_query
-                    #                 st.session_state['last_answer'] = ai_message
-                    #         else:
-                    #             ai_message = st.session_state['last_answer']
-                    #     if st.session_state['last_answer']:
-                    #         st.subheader("Antwort subsumary:")
-                    #         st.write(st.session_state['last_answer'])
-                
-                
-        
-                
-                
-            # if st.button("Prompt generieren und in die Zwischenablage kopieren"):
-            #     if user_query and st.session_state.top_articles:
-            #         # Generate the prompt
-            #         prompt = generate_prompt(user_query, relevance, st.session_state.top_articles, law_data, st.session_state.top_knowledge_items)
-            #         st.session_state['prompt'] = prompt
-        
-            #         # Create HTML with JavaScript to copy the prompt to the clipboard
-            #         html_with_js = generate_html_with_js(prompt)
-            #         st.components.v1.html(html_with_js)
-        
-            #         # Display the generated prompt in a text area
-            #         st.text_area("Prompt:", prompt, height=300)
-            #     else:
-            #         if not st.session_state.top_articles:
-            #             st.warning("Bitte klicken Sie zuerst auf 'Abschicken', um die passenden Artikel zu ermitteln.")
         
 if __name__ == "__main__":
     main_app()
