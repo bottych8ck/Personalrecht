@@ -604,7 +604,7 @@ def main_app():
             elif 'last_answer' in st.session_state and st.session_state['last_answer']:
                 st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
                 st.write(st.session_state['last_answer'])
-                 st.write("")
+                st.write("")
                 st.write(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)
 
           
