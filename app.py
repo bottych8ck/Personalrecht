@@ -440,9 +440,8 @@ def main_app():
         st.markdown("---")
         with st.expander("🔍 Zusätzliche Stichwortsuche", expanded=False):
             st.write(create_tooltip_css(), unsafe_allow_html=True)
-            st.markdown("Stichwortsuche durchführen und auswählen, was für die Antwort zusätzlich berücksichtigt werden soll:")
             keyword = st.text_input("Stichwort eingeben und Enter drücken:")
-            
+            st.markdown(Auswählen, welche Artikel oder Wissenselemente für die Antwort zusätzlich berücksichtigt werden soll:")
             if keyword:
                 matching_articles, matching_items = keyword_search(keyword, law_data, knowledge_base)
                 
