@@ -282,9 +282,9 @@ def get_article_content(uid, law_data):
     return (title, all_paragraphs, law_name, law_url)
 
 
-def generate_html_with_js(prompt):
+def generate_html_with_js(text):
     return f"""
-    <textarea id='text_area' style='opacity: 0; position: absolute; left: -9999px;'>{prompt}</textarea>
+    <textarea id='text_area' style='opacity: 0; position: absolute; left: -9999px;'>{text}</textarea>
     <script>
     function copyToClipboard() {{
         var copyText = document.getElementById('text_area');
@@ -301,24 +301,24 @@ def generate_html_with_js(prompt):
     copyToClipboard();
     </script>
     """
-def generate_html_with_js(text):
-    escaped_text = text.replace('"', '&quot;').replace('\n', '<br>')
-    return f"""
-    <div>
-        <textarea id="text_area" style="position: absolute; left: -9999px;">{text}</textarea>
-        <button onclick="copyToClipboard()" style="padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc; background: white; cursor: pointer;">
-            In die Zwischenablage kopieren
-        </button>
-        <script>
-            function copyToClipboard() {{
-                var copyText = document.getElementById('text_area');
-                copyText.select();
-                document.execCommand('copy');
-                alert('Text wurde in die Zwischenablage kopiert!');
-            }}
-        </script>
-    </div>
-    """
+# def generate_html_with_js(text):
+#     escaped_text = text.replace('"', '&quot;').replace('\n', '<br>')
+#     return f"""
+#     <div>
+#         <textarea id="text_area" style="position: absolute; left: -9999px;">{text}</textarea>
+#         <button onclick="copyToClipboard()" style="padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc; background: white; cursor: pointer;">
+#             In die Zwischenablage kopieren
+#         </button>
+#         <script>
+#             function copyToClipboard() {{
+#                 var copyText = document.getElementById('text_area');
+#                 copyText.select();
+#                 document.execCommand('copy');
+#                 alert('Text wurde in die Zwischenablage kopiert!');
+#             }}
+#         </script>
+#     </div>
+#     """
 
 
 def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
