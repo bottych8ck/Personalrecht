@@ -571,7 +571,7 @@ def main_app():
         st.write("")
     
         # genAI-Teil
-        with st.expander("🤖 Mit Sprachmodell beantworten", expanded=False):
+        with st.expander("🤖 Mit Sprachmodell beantworten", expanded=True):
             ai_provider = st.radio(
                 "Wählen Sie ein Sprachmodell:",
                 ("Groq Llama 3.1 (Gratis)", "OpenAI GPT-4"),
