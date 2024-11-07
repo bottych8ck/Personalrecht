@@ -10,6 +10,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 import base64
 import requests
 from groq import Groq
+from streamlit.components.v1 import html
+
 
 
 # Mapping for relevance criteria
@@ -600,12 +602,12 @@ def main_app():
                     st.success(f"Antwort erfolgreich generiert mit {st.session_state['last_model']}")
                     st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
                     
-                    # Create two columns for better layout
-                    col1, col2 = st.columns([9,1])
-                    with col1:
-                        st.markdown(st.session_state['last_answer'])
-                    st.markdown("---")
-                    st.write(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)
+                    # Display the AI's response directly
+                    st.markdown(st.session_state['last_answer'])
+                    
+                    # Render the HTML with JavaScript for copying
+                    html(generate_html_with_js(st.session_state['last_answer']))
+
           
             show_prompt = st.checkbox("Prompt anzeigen und bearbeiten", value=False)
             if show_prompt:
