@@ -588,13 +588,13 @@ def main_app():
                 st.session_state.top_knowledge_items
             )
             if st.button("Antwort generieren"):
-            with st.spinner('Generiere Antwort...'):
-                client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
-                response, model = generate_ai_response(client, current_prompt)
-                
-                if response:
-                    st.session_state['last_answer'] = response
-                    st.session_state['last_model'] = model
+                with st.spinner('Generiere Antwort...'):
+                    client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
+                    response, model = generate_ai_response(client, current_prompt)
+                    
+                    if response:
+                        st.session_state['last_answer'] = response
+                        st.session_state['last_model'] = model
 
             # Create a container for the answer
             answer_container = st.container()
