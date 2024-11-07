@@ -286,23 +286,27 @@ def get_article_content(uid, law_data):
 
 def generate_html_with_js(text):
     return f"""
-    <textarea id='text_area' style='opacity: 0; position: absolute; left: -9999px;'>{text}</textarea>
-    <script>
-    function copyToClipboard() {{
-        var copyText = document.getElementById('text_area');
-        copyText.style.opacity = 1; // Make the textarea visible to enable selection
-        copyText.select();
-        navigator.clipboard.writeText(copyText.value).then(function() {{
-            alert('Copied to clipboard!');
-        }}, function(err) {{
-            console.error('Could not copy text: ', err);
-        }});
-        copyText.style.opacity = 0; // Hide the textarea again
-    }}
-    // Automatically copy to clipboard when the script is loaded
-    copyToClipboard();
-    </script>
+    <div>
+        <textarea id='text_area' style='position: absolute; left: -9999px;'>{text}</textarea>
+        <button onclick="copyToClipboard()" style="padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc; background: white; cursor: pointer;">
+            In die Zwischenablage kopieren
+        </button>
+        <script>
+            function copyToClipboard() {{
+                var copyText = document.getElementById('text_area');
+                copyText.style.opacity = 1; // Make the textarea visible to enable selection
+                copyText.select();
+                navigator.clipboard.writeText(copyText.value).then(function() {{
+                    alert('Text wurde in die Zwischenablage kopiert!');
+                }}, function(err) {{
+                    console.error('Could not copy text: ', err);
+                }});
+                copyText.style.opacity = 0; // Hide the textarea again
+            }}
+        </script>
+    </div>
     """
+
 # def generate_html_with_js(text):
 #     escaped_text = text.replace('"', '&quot;').replace('\n', '<br>')
 #     return f"""
@@ -609,22 +613,22 @@ def main_app():
                     html(generate_html_with_js(st.session_state['last_answer']))
 
           
-            show_prompt = st.checkbox("Prompt anzeigen und bearbeiten", value=False)
-            if show_prompt:
-                edited_prompt = st.text_area(
-                    "**Prompt bearbeiten:**", 
-                    value=current_prompt,
-                    height=300
-                )
+            # show_prompt = st.checkbox("Prompt anzeigen und bearbeiten", value=False)
+            # if show_prompt:
+            #     edited_prompt = st.text_area(
+            #         "**Prompt bearbeiten:**", 
+            #         value=current_prompt,
+            #         height=300
+            #     )
                 
-                if st.button("Mit bearbeitetem Prompt neu generieren"):
-                    with st.spinner('Generiere neue Antwort...'):
-                        client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
-                        response, model = generate_ai_response(client, edited_prompt)
+            #     if st.button("Mit bearbeitetem Prompt neu generieren"):
+            #         with st.spinner('Generiere neue Antwort...'):
+            #             client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
+            #             response, model = generate_ai_response(client, edited_prompt)
                         
-                        if response:
-                            st.session_state['last_answer'] = response
-                            st.session_state['last_model'] = model
+            #             if response:
+            #                 st.session_state['last_answer'] = response
+            #                 st.session_state['last_model'] = model
 
 if __name__ == "__main__":
     main_app()
