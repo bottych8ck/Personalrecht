@@ -182,6 +182,7 @@ def create_tooltip_css():
     }
     </style>
     """
+
 # def main():
 #     st.image(logo_path, width=400)
 #     st.subheader("Abfrage des Migrationsrechts des Bundes")
@@ -194,6 +195,8 @@ def create_tooltip_css():
 #         st.session_state.analyzed_articles = None
 #     if 'query_text' not in st.session_state:
 #         st.session_state.query_text = ""
+#     if 'top_chapters' not in st.session_state:
+#         st.session_state.top_chapters = []
 
 #     try:
 #         # Load data
@@ -247,34 +250,31 @@ def create_tooltip_css():
 
 #                     similarities = sorted(similarities, key=lambda x: x['similarity'], reverse=True)
 #                     top_chapters = similarities[:5]
+#                     st.session_state.top_chapters = top_chapters
 
-#                     # Get semantic search articles
-#                     articles_to_evaluate = []
+#                     # Get semantic search articles for all top chapters
+#                     all_articles = []
 #                     for top_chapter in top_chapters:
 #                         law_full_name = top_chapter['law_full_name']
 #                         section_title = top_chapter['section_title']
 #                         articles_in_section = articles_by_law_and_section.get(law_full_name, {}).get(section_title, [])
-#                         articles_to_evaluate.extend(articles_in_section)
-
-#                     semantic_articles = collect_articles_with_references(articles_to_evaluate, law_data)
+#                         articles_with_refs = collect_articles_with_references(articles_in_section, law_data)
+#                         all_articles.extend(articles_with_refs)
                     
-#                     # Store all articles in session state
-#                     st.session_state.analyzed_articles = semantic_articles
+#                     st.session_state.analyzed_articles = all_articles
 
-#                     # Display results
-#                     st.subheader("Semantische Suche:")
-#                     for article in semantic_articles:
-#                         with st.container():
-#                             title = article['data']['ID']
-#                             content = article['data']['content']
-#                             st.write(
-#                                 create_tooltip_html(
-#                                     title,
-#                                     content
-#                                 ),
-#                                 unsafe_allow_html=True
-#                             )
-#                         st.markdown("---")
+#                     # Display results with expandable sections for each chapter
+#                     st.subheader("Relevante Kapitel und Artikel:")
+#                     for idx, chapter in enumerate(top_chapters, 1):
+#                         with st.expander(f"{idx}. {chapter['law_full_name']} - {chapter['section_title']} (Relevanz: {chapter['similarity']:.2f})"):
+#                             law_full_name = chapter['law_full_name']
+#                             section_title = chapter['section_title']
+#                             articles_in_section = articles_by_law_and_section.get(law_full_name, {}).get(section_title, [])
+                            
+#                             for article in articles_in_section:
+#                                 article_id = article['data']['ID']
+#                                 article_url = article['data'].get('URL', '#')  # Use # as fallback if URL doesn't exist
+#                                 st.markdown(f"[{article_id}]({article_url})")
 
 #             if st.session_state.analyzed_articles:
 #                 with st.expander("🤖 Mit Sprachmodell beantworten", expanded=True):
@@ -285,14 +285,14 @@ def create_tooltip_css():
 #                         key='ai_provider'
 #                     )
                     
-#                     # Generate fresh prompt
 #                     current_prompt = generate_prompt(
 #                         query_text, 
-#                         None,  # Replace with relevant relevance score if applicable
+#                         None,
 #                         st.session_state.analyzed_articles, 
 #                         law_data, 
-#                         None  # Replace with top knowledge items if applicable
+#                         None
 #                     )
+                    
 #                     if st.button("Antwort generieren"):
 #                         with st.spinner('Generiere Antwort...'):
 #                             client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
@@ -302,19 +302,12 @@ def create_tooltip_css():
 #                                 st.session_state['last_answer'] = response
 #                                 st.session_state['last_model'] = model
 
-#                     # Create a container for the answer
 #                     answer_container = st.container()
-#                     # Display answer section in the container
 #                     with answer_container:
 #                         if 'last_answer' in st.session_state and st.session_state['last_answer']:
 #                             st.success(f"Antwort erfolgreich generiert mit {st.session_state['last_model']}")
 #                             st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
-                            
-#                             # Display the AI's response directly
 #                             st.markdown(st.session_state['last_answer'])
-                            
-#                             # Render the HTML with JavaScript for copying
-#                             # st.markdown(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)  # Uncomment if JavaScript HTML generation is implemented
 
 #     except Exception as e:
 #         st.error(f"Fehler: {str(e)}")
@@ -365,89 +358,96 @@ def main():
                 })
             articles_by_law_and_section[law_full_name] = articles_by_section
 
-        # Query input
-        query_text = st.text_input("Geben Sie Ihre rechtliche Frage ein:", st.session_state.query_text)
+        # Query input and analyze button side by side
+        col1, col2 = st.columns([4, 1])
+        with col1:
+            query_text = st.text_input("Geben Sie Ihre rechtliche Frage ein:", key="query_input")
+        with col2:
+            analyze_button = st.button("Analysieren")
 
-        if query_text:
+        # Main results container
+        results_container = st.container()
+
+        if analyze_button and query_text:
             st.session_state.query_text = query_text
             
-            if st.button("Analysieren"):
-                with st.spinner("Analysiere..."):
-                    # Semantic Search
-                    query_embedding = get_embedding(query_text)
-                    similarities = []
-                    for chapter in chapter_embeddings:
-                        sim = cosine_similarity(query_embedding, chapter['embedding'])
-                        similarities.append({
-                            'law_full_name': chapter['law_full_name'],
-                            'section_title': chapter['section_title'],
-                            'similarity': sim
-                        })
+            with st.spinner("Analysiere..."):
+                # Semantic Search
+                query_embedding = get_embedding(query_text)
+                similarities = []
+                for chapter in chapter_embeddings:
+                    sim = cosine_similarity(query_embedding, chapter['embedding'])
+                    similarities.append({
+                        'law_full_name': chapter['law_full_name'],
+                        'section_title': chapter['section_title'],
+                        'similarity': sim
+                    })
 
-                    similarities = sorted(similarities, key=lambda x: x['similarity'], reverse=True)
-                    top_chapters = similarities[:5]
-                    st.session_state.top_chapters = top_chapters
+                similarities = sorted(similarities, key=lambda x: x['similarity'], reverse=True)
+                top_chapters = similarities[:5]
+                st.session_state.top_chapters = top_chapters
 
-                    # Get semantic search articles for all top chapters
-                    all_articles = []
-                    for top_chapter in top_chapters:
-                        law_full_name = top_chapter['law_full_name']
-                        section_title = top_chapter['section_title']
+                # Get semantic search articles for all top chapters
+                all_articles = []
+                for top_chapter in top_chapters:
+                    law_full_name = top_chapter['law_full_name']
+                    section_title = top_chapter['section_title']
+                    articles_in_section = articles_by_law_and_section.get(law_full_name, {}).get(section_title, [])
+                    articles_with_refs = collect_articles_with_references(articles_in_section, law_data)
+                    all_articles.extend(articles_with_refs)
+                
+                st.session_state.analyzed_articles = all_articles
+
+        # Always show results if they exist in session state
+        if st.session_state.top_chapters:
+            with results_container:
+                st.subheader("Relevante Kapitel und Artikel:")
+                for idx, chapter in enumerate(st.session_state.top_chapters, 1):
+                    with st.expander(f"{idx}. {chapter['law_full_name']} - {chapter['section_title']} (Relevanz: {chapter['similarity']:.2f})"):
+                        law_full_name = chapter['law_full_name']
+                        section_title = chapter['section_title']
                         articles_in_section = articles_by_law_and_section.get(law_full_name, {}).get(section_title, [])
-                        articles_with_refs = collect_articles_with_references(articles_in_section, law_data)
-                        all_articles.extend(articles_with_refs)
-                    
-                    st.session_state.analyzed_articles = all_articles
+                        
+                        for article in articles_in_section:
+                            article_id = article['data']['ID']
+                            article_url = article['data'].get('URL', '#')
+                            st.markdown(f"[{article_id}]({article_url})")
 
-                    # Display results with expandable sections for each chapter
-                    st.subheader("Relevante Kapitel und Artikel:")
-                    for idx, chapter in enumerate(top_chapters, 1):
-                        with st.expander(f"{idx}. {chapter['law_full_name']} - {chapter['section_title']} (Relevanz: {chapter['similarity']:.2f})"):
-                            law_full_name = chapter['law_full_name']
-                            section_title = chapter['section_title']
-                            articles_in_section = articles_by_law_and_section.get(law_full_name, {}).get(section_title, [])
-                            
-                            for article in articles_in_section:
-                                article_id = article['data']['ID']
-                                article_url = article['data'].get('URL', '#')  # Use # as fallback if URL doesn't exist
-                                st.markdown(f"[{article_id}]({article_url})")
+        # AI Model section
+        if st.session_state.analyzed_articles:
+            st.markdown("---")
+            with st.expander("🤖 Mit Sprachmodell beantworten", expanded=True):
+                ai_provider = st.radio(
+                    "Wählen Sie ein Sprachmodell:",
+                    ("Groq Llama 3.1 (Gratis)", "OpenAI GPT-4"),
+                    horizontal=True,
+                    key='ai_provider'
+                )
+                
+                current_prompt = generate_prompt(
+                    st.session_state.query_text, 
+                    None,
+                    st.session_state.analyzed_articles, 
+                    law_data, 
+                    None
+                )
+                
+                if st.button("Antwort generieren"):
+                    with st.spinner('Generiere Antwort...'):
+                        client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
+                        response, model = generate_ai_response(client, current_prompt)
+                        
+                        if response:
+                            st.session_state['last_answer'] = response
+                            st.session_state['last_model'] = model
 
-            if st.session_state.analyzed_articles:
-                with st.expander("🤖 Mit Sprachmodell beantworten", expanded=True):
-                    ai_provider = st.radio(
-                        "Wählen Sie ein Sprachmodell:",
-                        ("Groq Llama 3.1 (Gratis)", "OpenAI GPT-4"),
-                        horizontal=True,
-                        key='ai_provider'
-                    )
-                    
-                    current_prompt = generate_prompt(
-                        query_text, 
-                        None,
-                        st.session_state.analyzed_articles, 
-                        law_data, 
-                        None
-                    )
-                    
-                    if st.button("Antwort generieren"):
-                        with st.spinner('Generiere Antwort...'):
-                            client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
-                            response, model = generate_ai_response(client, current_prompt)
-                            
-                            if response:
-                                st.session_state['last_answer'] = response
-                                st.session_state['last_model'] = model
-
-                    answer_container = st.container()
-                    with answer_container:
-                        if 'last_answer' in st.session_state and st.session_state['last_answer']:
-                            st.success(f"Antwort erfolgreich generiert mit {st.session_state['last_model']}")
-                            st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
-                            st.markdown(st.session_state['last_answer'])
+                if 'last_answer' in st.session_state and st.session_state['last_answer']:
+                    st.success(f"Antwort erfolgreich generiert mit {st.session_state['last_model']}")
+                    st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
+                    st.markdown(st.session_state['last_answer'])
 
     except Exception as e:
         st.error(f"Fehler: {str(e)}")
-
 
 if __name__ == "__main__":
     main()
