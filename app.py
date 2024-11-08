@@ -5,6 +5,7 @@ import numpy as np
 import os
 import google.generativeai as genai
 import re
+import nltk
 from dotenv import load_dotenv
 import openai
 from groq import Groq
@@ -165,7 +166,8 @@ def create_tooltip_css():
     """
 
 def main():
-    st.title("Juristischer Assistent")
+    st.image(logo_path, width=400)
+    st.subheader("Abfrage des Migrationsrechts des Bundes")
 
     # Inject tooltip CSS
     st.markdown(create_tooltip_css(), unsafe_allow_html=True)
