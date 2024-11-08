@@ -5,7 +5,6 @@ import numpy as np
 import os
 import google.generativeai as genai
 import re
-import nltk
 from dotenv import load_dotenv
 import openai
 from groq import Groq
