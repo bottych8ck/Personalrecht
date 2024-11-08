@@ -163,7 +163,7 @@ def update_file_in_github(file_path, content, commit_message="Update file"):
     repo_owner = os.getenv('GITHUB_REPO_OWNER')
     repo_name = os.getenv('GITHUB_REPO_NAME')
     token = os.getenv('GITHUB_TOKEN')
-    branch_name = os.getenv('GITHUB_BRANCH', 'learningsubsumary')  # Assuming 'learningsubsumary' is the branch name
+    branch_name = os.getenv('GITHUB_BRANCH', 'AV-SA')  # Assuming 'learningsubsumary' is the branch name
 
     url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{file_path}?ref={branch_name}"
     headers = {
