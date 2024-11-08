@@ -271,6 +271,7 @@ def main():
                 st.session_state.analyzed_articles = all_articles
 
         # Always show results if they exist in session state
+
         if st.session_state.top_chapters:
             with results_container:
                 st.subheader("Relevante Kapitel und Artikel:")
@@ -285,16 +286,24 @@ def main():
                             article_url = article['data'].get('URL', '#')
                             content = article['data']['content']
                             
-                            # Combine URL link with tooltip
-                            tooltip_html = create_tooltip_html(
-                                f"[{article_id}]({article_url})",
-                                content
-                            )
-                            st.markdown(tooltip_html, unsafe_allow_html=True)
+                            # Create columns for URL and tooltip
+                            col1, col2 = st.columns([1, 20])
+                            
+                            with col1:
+                                # Display the URL link
+                                st.markdown(f"[{article_id}]({article_url})")
+                            
+                            with col2:
+                                # Display tooltip with content
+                                st.markdown(create_tooltip_html(
+                                    "ℹ️",  # Info emoji as hover target
+                                    content
+                                ), unsafe_allow_html=True)
+
         # AI Model section
         if st.session_state.analyzed_articles:
             st.markdown("---")
-            with st.expander("🤖 Mit Sprachmodell beantworten", expanded=True):
+            with st.expander("🤖 Mit Sprachmodell beantworten", expanded=False):
                 ai_provider = st.radio(
                     "Wählen Sie ein Sprachmodell:",
                     ("Groq Llama 3.1 (Gratis)", "OpenAI GPT-4"),
