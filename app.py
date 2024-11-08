@@ -231,11 +231,8 @@ def main():
             articles_by_law_and_section[law_full_name] = articles_by_section
 
         # Query input and analyze button side by side
-        col1, col2 = st.columns([4, 1])
-        with col1:
-            query_text = st.text_input("Geben Sie Ihre rechtliche Frage ein:", key="query_input")
-        with col2:
-            analyze_button = st.button("Analysieren")
+        query_text = st.text_input("Geben Sie Ihre rechtliche Frage ein:", key="query_input")
+        analyze_button = st.button("Analysieren")
 
         # Main results container
         results_container = st.container()
@@ -287,7 +284,7 @@ def main():
                             content = article['data']['content']
                             
                             # Create columns for URL and tooltip
-                            col1, col2 = st.columns([20, 1])
+                            col1, col2 = st.columns([10, 10])
                             
                             with col1:
                                 # Display the URL link
