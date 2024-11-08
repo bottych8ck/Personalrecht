@@ -287,7 +287,7 @@ def main():
                             content = article['data']['content']
                             
                             # Create columns for URL and tooltip
-                            col1, col2 = st.columns([1, 20])
+                            col1, col2 = st.columns([20, 1])
                             
                             with col1:
                                 # Display the URL link
