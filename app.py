@@ -4,56 +4,25 @@ import time
 import numpy as np
 import os
 import google.generativeai as genai
-from rank_bm25 import BM25Okapi
-import pickle
 import re
 import nltk
+from dotenv import load_dotenv
+import openai
+from groq import Groq
+
+# Load environment variables
+load_dotenv()  # This line loads the variables from .env
+logo_path = 'subsumary_Logo_1farbig_schwarz.png'
+
+openai_api_key = os.getenv('OPENAI_API_KEY')
+openai_client = openai.OpenAI(api_key=openai_api_key)
+
+groq_api_key = os.getenv('GROQ_API_KEY')
+groq_client = Groq(api_key=groq_api_key)
 
 # Configure page and Gemini
-st.set_page_config(page_title="Legal RAG Assistant", layout="wide")
+st.set_page_config(page_title="Abfrage des Bundesmigrationsrechts", layout="wide")
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
-
-def load_stopwords():
-    stopwords = set([
-        'aber', 'alle', 'als', 'also', 'am', 'an', 'andere', 'auch',
-        'auf', 'aus', 'bei', 'bin', 'bis', 'bist', 'da', 'damit', 'das',
-        'dass', 'dein', 'deine', 'dem', 'den', 'der', 'des', 'dessen',
-        'die', 'dies', 'dieser', 'dieses', 'doch', 'dort', 'du', 'durch',
-        'ein', 'eine', 'einem', 'einen', 'einer', 'eines', 'er', 'es',
-        'euer', 'eure', 'für', 'hatte', 'hatten', 'hattest', 'hattet',
-        'hier', 'hinter', 'ich', 'ihr', 'ihre', 'im', 'in', 'ist', 'ja',
-        'jede', 'jedem', 'jeden', 'jeder', 'jedes', 'jener', 'jenes',
-        'jetzt', 'kann', 'kannst', 'können', 'könnt', 'machen', 'mein',
-        'meine', 'mit', 'muß', 'mußt', 'musst', 'müssen', 'müsst', 'nach',
-        'nachdem', 'nein', 'nicht', 'nun', 'oder', 'seid', 'sein', 'seine',
-        'sich', 'sie', 'sind', 'soll', 'sollen', 'sollst', 'sollt', 'sonst',
-        'soweit', 'sowie', 'und', 'unser', 'unsere', 'unter', 'vom', 'von',
-        'vor', 'wann', 'warum', 'was', 'weiter', 'weitere', 'wenn', 'wer',
-        'werde', 'werden', 'werdet', 'weshalb', 'wie', 'wieder', 'wieso',
-        'wir', 'wird', 'wirst', 'wo', 'woher', 'wohin', 'zu', 'zum', 'zur',
-        'über'
-    ])
-    
-    # Add legal specific stopwords
-    legal_stops = {
-        'artikel', 'art', 'abs', 'paragraph', 'lit', 'ziffer', 'ziff',
-        'bzw', 'vgl', 'etc', 'siehe', 'gemäss'
-    }
-    return stopwords.union(legal_stops)
-
-GERMAN_STOPS = load_stopwords()
-
-
-
-# # Load German punkt tokenizer
-# def load_punkt_tokenizer(filepath='german_punkt.pickle'):
-#     with open(filepath, 'rb') as f:
-#         tokenizer = pickle.load(f)
-#     return tokenizer
-
-# # Load resources
-# GERMAN_STOPS = load_stopwords()
-# # TOKENIZER = load_punkt_tokenizer()# Configure Gemini with environment variable
 
 
 # Function to compute cosine similarity
@@ -114,110 +83,103 @@ def collect_articles_with_references(articles_to_evaluate, law_data):
 
     return all_articles
 
-def generate_answer(query_text, articles):
-    system_prompt = "Sie sind ein juristischer Experte. Beantworte die Frage des Nutzers basierend auf den bereitgestellten Artikeln. Sei präzise und zitieren Sie die relevanten Artikel, wenn möglich."
-    
-    articles_text = ""
-    for article in articles:
-        article_text = f"Artikelüberschrift: {article['heading']}\nInhalt: {article['data']['content']}\n\n"
-        articles_text += article_text
-    
-    final_prompt = f"{system_prompt}\n\nFrage des Nutzers: {query_text}\n\nRelevante Artikel:\n{articles_text}"
-    
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    response = model.generate_content(final_prompt)
-    return response.text.strip()
+def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
+    # You can implement a prompt generation function based on your requirements
+    # Here we just concatenate some information as an example
+    return f"Frage des Nutzers: {user_query}\n\nRelevante Artikel:\n{top_articles}\n\nZusätzliche Informationen:\n{top_knowledge_items}"
 
+def generate_ai_response(client, prompt, model=None):
+    try:
+        if isinstance(client, openai.OpenAI):
+            response = client.chat.completions.create(
+                model="gpt-4-turbo-preview",
+                messages=[
+                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            return response.choices[0].message.content, "GPT-4"
+        else:  # Groq client
+            response = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                    {"role": "user", "content": prompt}
+                ],
+                model="llama-3.1-70b-versatile"
+            )
+            return response.choices[0].message.content, "Llama 3.1"
+    except Exception as e:
+        st.error(f"Error with {client.__class__.__name__}: {str(e)}")
+        return None, None
 
+def create_tooltip_html(title, content):
+    return f"""
+    <div class="tooltip-container">
+        <span class="tooltip-text">{title}</span>
+        <div class="tooltip-content">
+            {content}
+        </div>
+    </div>
+    """
 
-def tokenize_text(text):
-    """Custom tokenizer using regular expressions to avoid NLTK dependencies."""
-    # Split text into sentences based on punctuation marks and newline characters
-    sentences = re.split(r'[.!?]\s+|\n', text)
-    tokens = []
-    for sentence in sentences:
-        # Convert to lowercase
-        sentence = sentence.lower()
-        # Replace German umlauts and ß
-        sentence = sentence.replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
-        # Split on words
-        words = re.findall(r'\b\w+\b', sentence)
-        # Remove stopwords and short tokens
-        words = [word for word in words if word not in GERMAN_STOPS and len(word) > 1]
-        tokens.extend(words)
-    return tokens
+def create_tooltip_css():
+    return """
+    <style>
+    .tooltip-container {
+        position: relative;
+        display: inline-block;
+        margin: 5px 0;
+        width: 100%;
+    }
 
+    .tooltip-text {
+        cursor: pointer;
+        border-bottom: 1px dotted #666;
+        display: inline-block;
+        padding: 5px;
+    }
 
-import time
+    .tooltip-content {
+        visibility: hidden;
+        position: absolute;
+        left: 0;
+        background-color: white;
+        color: black;
+        padding: 15px;
+        border-radius: 6px;
+        width: 100%;
+        max-height: 300px;
+        overflow-y: auto;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        z-index: 1000;
+        border: 1px solid #ddd;
+    }
 
-def create_bm25_index(law_data):
-    start_time = time.time()
-    documents = []
-    document_metadata = []
-    
-    for law_name, articles in law_data.items():
-        for article_heading, article_data in articles.items():
-            # Combine article heading and content for search
-            full_text = f"{article_heading} {article_data['content']}"
-            
-            # Tokenize text
-            tokens = tokenize_text(full_text)
-            
-            documents.append(tokens)
-            document_metadata.append({
-                'heading': article_heading,
-                'data': article_data
-            })
-    
-    bm25 = BM25Okapi(documents)
-    st.write(f"BM25 index created in {time.time() - start_time:.2f} seconds")
-    return bm25, document_metadata
+    .tooltip-container:hover .tooltip-content {
+        visibility: visible;
+    }
 
+    .select-button {
+        margin-left: 10px;
+    }
+    </style>
+    """
 
-def search_bm25(query, bm25_index, document_metadata, top_k=20):
-    """Search using BM25 with German-specific processing"""
-    # Tokenize query
-    query_tokens = tokenize_text(query)
-    
-    # Get document scores
-    doc_scores = bm25_index.get_scores(query_tokens)
-    
-    # Get top k documents
-    top_k_idx = np.argsort(doc_scores)[-top_k:][::-1]
-    
-    results = []
-    for idx in top_k_idx:
-        if doc_scores[idx] > 0:  # Only include relevant documents
-            results.append({
-                'article': document_metadata[idx],
-                'score': doc_scores[idx]
-            })
-    
-    return results
-    
 def main():
     st.title("Juristischer Assistent")
+
+    # Inject tooltip CSS
+    st.markdown(create_tooltip_css(), unsafe_allow_html=True)
 
     # Initialize session state
     if 'analyzed_articles' not in st.session_state:
         st.session_state.analyzed_articles = None
     if 'query_text' not in st.session_state:
         st.session_state.query_text = ""
-    if 'bm25_index' not in st.session_state:
-        st.session_state.bm25_index = None
-    if 'document_metadata' not in st.session_state:
-        st.session_state.document_metadata = None
 
     try:
         # Load data
         law_data, summary_embedding_data = load_data()
-
-        # Create BM25 index if not already created
-        if st.session_state.bm25_index is None:
-            with st.spinner("Erstelle Suchindex..."):
-                bm25_index, document_metadata = create_bm25_index(law_data)
-                st.session_state.bm25_index = bm25_index
-                st.session_state.document_metadata = document_metadata
 
         # Prepare chapter embeddings
         chapter_embeddings = []
@@ -278,46 +240,66 @@ def main():
 
                     semantic_articles = collect_articles_with_references(articles_to_evaluate, law_data)
                     
-                    # Keyword Search (BM25)
-                    bm25_results = search_bm25(query_text, st.session_state.bm25_index, st.session_state.document_metadata)
-                    keyword_articles = [result['article'] for result in bm25_results]
-                    
                     # Store all articles in session state
                     st.session_state.analyzed_articles = semantic_articles
-                    
-                    # Create sets of article IDs for comparison
-                    semantic_ids = {article['data']['ID'] for article in semantic_articles}
-                    keyword_articles_filtered = [article for article in keyword_articles 
-                                              if article['data']['ID'] not in semantic_ids]
 
-                    # Display results in two columns
-                    col1, col2 = st.columns(2)
-                    
-                    with col1:
-                        st.subheader("Semantische Suche:")
-                        for article in semantic_articles:
-                            st.markdown(f"[{article['data']['ID']}]({article['data']['URL']})")
-                            with st.expander("Inhalt anzeigen"):
-                                st.write(article['data']['content'])
-                    
-                    with col2:
-                        st.subheader("Keyword-basierte Suche:")
-                        # for article in keyword_articles_filtered:
-                        for article in keyword_articles:
-                            st.markdown(f"[{article['data']['ID']}]({article['data']['URL']})")
-                            with st.expander("Inhalt anzeigen"):
-                                st.write(article['data']['content'])
+                    # Display results
+                    st.subheader("Semantische Suche:")
+                    for article in semantic_articles:
+                        with st.container():
+                            title = article['data']['ID']
+                            content = article['data']['content']
+                            st.write(
+                                create_tooltip_html(
+                                    title,
+                                    content
+                                ),
+                                unsafe_allow_html=True
+                            )
+                        st.markdown("---")
 
-            if st.session_state.analyzed_articles and st.button("Antwort generieren"):
-                with st.spinner("Generiere Antwort..."):
-                    answer = generate_answer(query_text, st.session_state.analyzed_articles)
-                    st.subheader("Antwort:")
-                    st.write(answer)
+            if st.session_state.analyzed_articles:
+                with st.expander("🤖 Mit Sprachmodell beantworten", expanded=True):
+                    ai_provider = st.radio(
+                        "Wählen Sie ein Sprachmodell:",
+                        ("Groq Llama 3.1 (Gratis)", "OpenAI GPT-4"),
+                        horizontal=True,
+                        key='ai_provider'
+                    )
+                    
+                    # Generate fresh prompt
+                    current_prompt = generate_prompt(
+                        query_text, 
+                        None,  # Replace with relevant relevance score if applicable
+                        st.session_state.analyzed_articles, 
+                        law_data, 
+                        None  # Replace with top knowledge items if applicable
+                    )
+                    if st.button("Antwort generieren"):
+                        with st.spinner('Generiere Antwort...'):
+                            client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
+                            response, model = generate_ai_response(client, current_prompt)
+                            
+                            if response:
+                                st.session_state['last_answer'] = response
+                                st.session_state['last_model'] = model
+
+                    # Create a container for the answer
+                    answer_container = st.container()
+                    # Display answer section in the container
+                    with answer_container:
+                        if 'last_answer' in st.session_state and st.session_state['last_answer']:
+                            st.success(f"Antwort erfolgreich generiert mit {st.session_state['last_model']}")
+                            st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
+                            
+                            # Display the AI's response directly
+                            st.markdown(st.session_state['last_answer'])
+                            
+                            # Render the HTML with JavaScript for copying
+                            # st.markdown(generate_html_with_js(st.session_state['last_answer']), unsafe_allow_html=True)  # Uncomment if JavaScript HTML generation is implemented
 
     except Exception as e:
         st.error(f"Fehler: {str(e)}")
 
 if __name__ == "__main__":
     main()
-
-
