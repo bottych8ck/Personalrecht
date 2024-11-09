@@ -65,8 +65,10 @@ def load_data():
     # Load summary_embedding_data
     with open('summary_embeddings.json', 'r') as f:
         summary_embedding_data = json.load(f)
+    with open('knowledge_base.json', 'r') as f:
+        knowledge_base = json.load(f)
         
-    return law_data, summary_embedding_data
+    return law_data, summary_embedding_data, knowledge_base
 
 def collect_articles_with_references(articles_to_evaluate, law_data):
     processed_article_ids = set()
