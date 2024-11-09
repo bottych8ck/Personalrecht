@@ -27,13 +27,22 @@ def keyword_search(keyword, law_data, knowledge_base):
     keyword = keyword.lower()
     
     matching_articles = {}
-    for uid, article in law_data.items():
-        if keyword in article.get('Title', '').lower():
-            matching_articles[uid] = article
-            continue
-            
-        if any(keyword in paragraph.lower() for paragraph in article.get('Inhalt', [])):
-            matching_articles[uid] = article
+    for law_name, articles in law_data.items():
+        for article_title, article_data in articles.items():
+            if keyword in article_title.lower():
+                matching_articles[article_data['ID']] = {
+                    'Title': article_title,
+                    'Name': law_name,
+                    'Inhalt': [article_data['content']]
+                }
+                continue
+                
+            if keyword in article_data['content'].lower():
+                matching_articles[article_data['ID']] = {
+                    'Title': article_title,
+                    'Name': law_name, 
+                    'Inhalt': [article_data['content']]
+                }
             
     matching_items = {}
     for item_id, item in knowledge_base.items():
@@ -45,6 +54,7 @@ def keyword_search(keyword, law_data, knowledge_base):
             matching_items[item_id] = item
             
     return matching_articles, matching_items
+
             
 # Function to compute cosine similarity
 def cosine_similarity(a, b):
