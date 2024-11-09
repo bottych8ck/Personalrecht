@@ -210,7 +210,7 @@ def main():
     if 'top_articles' not in st.session_state:
         st.session_state.top_articles = None
     st.image(logo_path, width=400)
-        st.subheader("Abfrage des Migrationsrechts des Bundes")
+    subheader("Abfrage des Migrationsrechts des Bundes")
 
     # Inject tooltip CSS
     st.markdown(create_tooltip_css(), unsafe_allow_html=True)
