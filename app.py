@@ -62,9 +62,11 @@ def load_data():
     with open('law_data.json', 'r') as f:
         law_data = json.load(f)
     
-    # Load summary_embedding_data
+    # Load summary_embedding_data 
     with open('summary_embeddings.json', 'r') as f:
         summary_embedding_data = json.load(f)
+        
+    # Load knowledge_base
     with open('knowledge_base.json', 'r') as f:
         knowledge_base = json.load(f)
         
@@ -227,7 +229,7 @@ def main():
 
     try:
         # Load data
-        law_data, summary_embedding_data = load_data()
+        law_data, summary_embedding_data, knowledge_base = load_data()
 
         # Prepare chapter embeddings
         chapter_embeddings = []
