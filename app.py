@@ -327,9 +327,8 @@ def main():
                 keyword = st.text_input("Stichwort eingeben und Enter drücken:")
                 st.markdown("Auswählen, welche Artikel oder Wissenselemente für die Antwort zusätzlich berücksichtigt werden solenl:")
                 if keyword:
-                    # matching_articles, matching_items = keyword_search(keyword, law_data, knowledge_base)
-                    matching_articles = keyword_search(keyword, law_data)
-
+                    matching_articles, matching_items = keyword_search(keyword, law_data, knowledge_base)
+                    
                     col1, col2 = st.columns(2)
                     
                     with col1:
@@ -361,34 +360,34 @@ def main():
                                 if uid not in existing_uids:
                                     st.session_state.top_articles.append((uid, 1.0))
                             st.success("Ausgewählte Artikel wurden zu den relevanten Artikeln hinzugefügt")
-                    # with col2:
-                    #     st.markdown("#### Gefundene Wissenselemente")
-                    #     selected_item_ids = []
+                    with col2:
+                        st.markdown("#### Gefundene Wissenselemente")
+                        selected_item_ids = []
                         
-                    #     for item_id, item in matching_items.items():
-                    #         title = item.get('Title', 'Unknown Title')
-                    #         content = ' '.join(item.get('Content', []))
+                        for item_id, item in matching_items.items():
+                            title = item.get('Title', 'Unknown Title')
+                            content = ' '.join(item.get('Content', []))
                             
-                    #         col_select, col_content = st.columns([1, 4])
-                    #         with col_select:
-                    #             if st.checkbox("", key=f"select_item_{item_id}"):
-                    #                 selected_item_ids.append(item_id)
-                    #         with col_content:
-                    #             st.write(
-                    #                 create_tooltip_html(
-                    #                     title,
-                    #                     content
-                    #                 ),
-                    #                 unsafe_allow_html=True
-                    #             )
-                    #         st.markdown("---")
+                            col_select, col_content = st.columns([1, 4])
+                            with col_select:
+                                if st.checkbox("", key=f"select_item_{item_id}"):
+                                    selected_item_ids.append(item_id)
+                            with col_content:
+                                st.write(
+                                    create_tooltip_html(
+                                        title,
+                                        content
+                                    ),
+                                    unsafe_allow_html=True
+                                )
+                            st.markdown("---")
                         
-                    #     if selected_item_ids and st.button("Ausgewählte Wissenselemente hinzufügen"):
-                    #         existing_ids = [item_id for item_id, _ in st.session_state.top_knowledge_items]
-                    #         for item_id in selected_item_ids:
-                    #             if item_id not in existing_ids:
-                    #                 st.session_state.top_knowledge_items.append((item_id, 1.0))
-                    #         st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")
+                        if selected_item_ids and st.button("Ausgewählte Wissenselemente hinzufügen"):
+                            existing_ids = [item_id for item_id, _ in st.session_state.top_knowledge_items]
+                            for item_id in selected_item_ids:
+                                if item_id not in existing_ids:
+                                    st.session_state.top_knowledge_items.append((item_id, 1.0))
+                            st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")
 
         # AI Model section
         if st.session_state.analyzed_articles:
