@@ -189,5 +189,12 @@
             "directly applicable: Lehrperson Sek II",
             "indirectly applicable: Lehrperson Sek II"
         ]
+    },
+    "17": {
+        "Title": "Hinweis zu folgender Frage: dsaf",
+        "Content": [
+            "asdf"
+        ],
+        "Category": "User-Hinweis"
     }
 }
