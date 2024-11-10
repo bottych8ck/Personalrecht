@@ -519,15 +519,7 @@ def main():
                             title = st.text_input("Titel", value=f"Hinweis zu folgender Frage: {query_text}")
                             content = st.text_area("Inhalt")
                             category = "User-Hinweis"
-                            selected_german_tags = st.multiselect(
-                                "Anwendbarkeit: Auf welche Personalkategorie ist das neue Wissen anwendbar? Bitte auswählen, mehrfache Auswahl ist erlaubt.",
-                                list(set(tags_mapping.values())),
-                                default=[
-                                    "Staatspersonal",
-                                    "Lehrperson VS",
-                                    "Lehrperson Sek II"
-                                ]
-                            )
+                            
                             submit_button = st.form_submit_button(label='Hinzufügen')
             
                             if submit_button and title and content:
