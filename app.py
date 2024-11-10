@@ -10,6 +10,8 @@ import re
 from dotenv import load_dotenv
 import openai
 from groq import Groq
+import base64
+import requests
 
 # Load environment variables
 load_dotenv()  # This line loads the variables from .env
