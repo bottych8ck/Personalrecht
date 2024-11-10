@@ -1,4 +1,6 @@
 import streamlit as st
+import streamlit.components.v1 as components
+from streamlit.components.v1 import html
 import json
 import time
 import numpy as np
@@ -523,12 +525,7 @@ def main():
                             submit_button = st.form_submit_button(label='Hinzufügen')
             
                             if submit_button and title and content:
-                                # Convert the selected German tags to their corresponding English tags
-                                selected_english_tags = []
-                                for selected_german_tag in selected_german_tags:
-                                    selected_english_tags.extend(reverse_tags_mapping[selected_german_tag])
-                                add_to_knowledge_base(title, content, category, selected_english_tags)
-                                st.success("Neues Wissen erfolgreich hinzugefügt!")
+                              st.success("Neues Wissen erfolgreich hinzugefügt!")
             
                     if 'delete_form' not in st.session_state:
                         st.session_state.delete_form = False
