@@ -124,8 +124,12 @@ def update_knowledge_base_in_github(new_data):
 def update_knowledge_base_embeddings_in_github(new_embeddings):
     update_file_in_github('knowledge_base_embeddings.json', json.dumps(new_embeddings, indent=4, ensure_ascii=False))
     st.success("Knowledge base embeddings updated in GitHub.")
-
+    
 def add_to_knowledge_base(title, content, category):
+    # Access knowledge_base via st.session_state
+    knowledge_base = st.session_state['knowledge_base']
+    knowledge_base_embeddings = st.session_state['knowledge_base_embeddings']
+    
     if knowledge_base:
         max_id = max(int(k) for k in knowledge_base.keys())
     else:
@@ -136,20 +140,24 @@ def add_to_knowledge_base(title, content, category):
         "Content": [content],
         "Category": category
     }
-    update_knowledge_base(knowledge_base)
+    update_knowledge_base_in_github(knowledge_base)
     
     # Create and store the embedding
-    embedding = get_embeddings(content)
-    knowledge_base_embeddings[new_id] = embedding
-    update_knowledge_base_embeddings(knowledge_base_embeddings)
+    embedding = get_embedding(content)
+    knowledge_base_embeddings[new_id] = embedding.tolist()
+    update_knowledge_base_embeddings_in_github(knowledge_base_embeddings)
+
 
 def delete_from_knowledge_base(entry_id):
+    knowledge_base = st.session_state['knowledge_base']
+    knowledge_base_embeddings = st.session_state['knowledge_base_embeddings']
+    
     if entry_id in knowledge_base:
         del knowledge_base[entry_id]
         if entry_id in knowledge_base_embeddings:
             del knowledge_base_embeddings[entry_id]
-        update_knowledge_base(knowledge_base)
-        update_knowledge_base_embeddings(knowledge_base_embeddings)
+        update_knowledge_base_in_github(knowledge_base)
+        update_knowledge_base_embeddings_in_github(knowledge_base_embeddings)
         st.success(f"Entry {entry_id} successfully deleted.")
     else:
         st.error(f"Entry {entry_id} not found.")
@@ -527,7 +535,8 @@ def main():
                             submit_button = st.form_submit_button(label='Hinzufügen')
             
                             if submit_button and title and content:
-                              st.success("Neues Wissen erfolgreich hinzugefügt!")
+                                add_to_knowledge_base(title, content, category)
+                                st.success("Neues Wissen erfolgreich hinzugefügt!")
             
                     if 'delete_form' not in st.session_state:
                         st.session_state.delete_form = False
