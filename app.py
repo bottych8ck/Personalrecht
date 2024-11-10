@@ -78,9 +78,7 @@ def load_data():
         
     # Load knowledge_base
     with open('knowledge_base.json', 'r') as f:
-        knowledge_base = json.load(f)
-    with open('knowledge_base.json', 'r') as file:
-        knowledge_base = json.load(file)
+        knowledge_base = json.load(f))
     with open('knowledge_base_embeddings.json', 'r') as file:
         knowledge_base_embeddings = json.load(file)    
     return law_data, summary_embedding_data, knowledge_base, knowledge_base_embeddings
@@ -337,6 +335,11 @@ def main():
     try:
         # Load data
         law_data, summary_embedding_data, knowledge_base, knowledge_base_embeddings = load_data()
+        # After loading the knowledge_base and knowledge_base_embeddings
+        if 'knowledge_base' not in st.session_state:
+            st.session_state['knowledge_base'] = knowledge_base
+        if 'knowledge_base_embeddings' not in st.session_state:
+            st.session_state['knowledge_base_embeddings'] = knowledge_base_embeddings
 
         # Prepare chapter embeddings
         chapter_embeddings = []
@@ -368,7 +371,8 @@ def main():
         # Query input and analyze button
         query_text = st.text_input("Geben Sie Ihre rechtliche Frage ein:", key="query_input")
         analyze_button = st.button("Analysieren")
-
+        if query_text:
+            st.session_state['query_text'] = query_text
         # Main results container
         results_container = st.container()
 
@@ -512,7 +516,7 @@ def main():
             
                     if st.session_state.show_form:
                         with st.form(key='add_knowledge_form'):
-                            title = st.text_input("Titel", value=f"Hinweis zu folgender Frage: {user_query}")
+                            title = st.text_input("Titel", value=f"Hinweis zu folgender Frage: {query_text}")
                             content = st.text_area("Inhalt")
                             category = "User-Hinweis"
                             selected_german_tags = st.multiselect(
