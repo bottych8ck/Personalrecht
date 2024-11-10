@@ -538,8 +538,8 @@ def main():
                             # Just use the key directly instead of creating a tuple
                             entry_id_to_delete = st.selectbox(
                                 "Wählen Sie das Wissenselement zum Löschen aus:", 
-                                list(knowledge_base.keys()),
-                                format_func=lambda x: f"{x}: {knowledge_base[x]['Title']}"
+                                list(st.session_state['knowledge_base'].keys()),
+                                format_func=lambda x: f"{x}: {st.session_state['knowledge_base'][x]['Title']}"
                             )
                             delete_button = st.form_submit_button(label='Löschen')
                     
