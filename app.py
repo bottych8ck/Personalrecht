@@ -335,7 +335,7 @@ def main():
 
     try:
         # Load data
-        law_data, summary_embedding_data, knowledge_base = load_data()
+        law_data, summary_embedding_data, knowledge_base, knowledge_base_embeddings = load_data()
 
         # Prepare chapter embeddings
         chapter_embeddings = []
