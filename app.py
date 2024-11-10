@@ -316,7 +316,8 @@ def main():
         st.session_state.last_answer = ""
     if 'last_model' not in st.session_state:
         st.session_state.last_model = ""
-
+    if 'show_form' not in st.session_state:
+        st.session_state.show_form = ""
     if 'top_articles' not in st.session_state:
         st.session_state.top_articles = None
     st.image(logo_path, width=400)
