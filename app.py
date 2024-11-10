@@ -79,8 +79,79 @@ def load_data():
     # Load knowledge_base
     with open('knowledge_base.json', 'r') as f:
         knowledge_base = json.load(f)
-        
-    return law_data, summary_embedding_data, knowledge_base
+    with open('knowledge_base.json', 'r') as file:
+    knowledge_base = json.load(file)
+    with open('knowledge_base_embeddings.json', 'r') as file:
+        knowledge_base_embeddings = json.load(file)    
+    return law_data, summary_embedding_data, knowledge_base, knowledge_base_embeddings
+
+def update_file_in_github(file_path, content, commit_message="Update file"):
+    repo_owner = os.getenv('GITHUB_REPO_OWNER')
+    repo_name = os.getenv('GITHUB_REPO_NAME')
+    token = os.getenv('GITHUB_TOKEN')
+    branch_name = os.getenv('GITHUB_BRANCH', 'Migirecht--2')  # Assuming 'learningsubsumary' is the branch name
+
+    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{file_path}?ref={branch_name}"
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+
+    # Get the current file SHA
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    sha = response.json()["sha"]
+
+    # Prepare the data to update the file
+    data = {
+        "message": commit_message,
+        "content": base64.b64encode(content.encode('utf-8')).decode('utf-8'),
+        "sha": sha,
+        "branch": branch_name
+    }
+
+    # Update the file
+    response = requests.put(url, headers=headers, json=data)
+    response.raise_for_status()
+    return response.json()
+
+def update_knowledge_base_in_github(new_data):
+    update_file_in_github('knowledge_base.json', json.dumps(new_data, indent=4, ensure_ascii=False))
+    st.success("Knowledge base updated in GitHub.")
+
+def update_knowledge_base_embeddings_in_github(new_embeddings):
+    update_file_in_github('knowledge_base_embeddings.json', json.dumps(new_embeddings, indent=4, ensure_ascii=False))
+    st.success("Knowledge base embeddings updated in GitHub.")
+
+def add_to_knowledge_base(title, content, category):
+    if knowledge_base:
+        max_id = max(int(k) for k in knowledge_base.keys())
+    else:
+        max_id = 0
+    new_id = str(max_id + 1)
+    knowledge_base[new_id] = {
+        "Title": title,
+        "Content": [content],
+        "Category": category
+    }
+    update_knowledge_base(knowledge_base)
+    
+    # Create and store the embedding
+    embedding = get_embeddings(content)
+    knowledge_base_embeddings[new_id] = embedding
+    update_knowledge_base_embeddings(knowledge_base_embeddings)
+
+def delete_from_knowledge_base(entry_id):
+    if entry_id in knowledge_base:
+        del knowledge_base[entry_id]
+        if entry_id in knowledge_base_embeddings:
+            del knowledge_base_embeddings[entry_id]
+        update_knowledge_base(knowledge_base)
+        update_knowledge_base_embeddings(knowledge_base_embeddings)
+        st.success(f"Entry {entry_id} successfully deleted.")
+    else:
+        st.error(f"Entry {entry_id} not found.")
+
 
 def collect_articles_with_references(articles_to_evaluate, law_data):
     processed_article_ids = set()
@@ -362,74 +433,128 @@ def main():
         if st.session_state.get('top_chapters'):
             st.markdown("---")
 
-        with st.expander("🔍 Zusätzliche Stichwortsuche", expanded=False):
-            st.write(create_tooltip_css(), unsafe_allow_html=True)
-            
-            keyword = st.text_input("Stichwort eingeben und Enter drücken:", key="keyword_search")
-            
-            if keyword and keyword != st.session_state.current_keyword:
-                st.session_state.current_keyword = keyword
-                st.session_state.matching_articles, st.session_state.matching_items = keyword_search(keyword, law_data, knowledge_base)
-                st.session_state.selected_article_uids = []
-                st.session_state.selected_item_ids = []
-            
-            st.markdown("Auswählen, welche Artikel oder Wissenselemente für die Antwort zusätzlich berücksichtigt werden sollen:")
-            
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.markdown("#### Gefundene Gesetzesartikel")
+            with st.expander("🔍 Zusätzliche Stichwortsuche", expanded=False):
+                st.write(create_tooltip_css(), unsafe_allow_html=True)
                 
-                for uid, article in st.session_state.matching_articles.items():
-                    title = article.get('Title', 'Unknown Title')
-                    law_name = article.get('Name', 'Unbekanntes Gesetz')
-                    content = '<br>'.join(article.get('Inhalt', []))
-                    
-                    col_select, col_content = st.columns([1, 4])
-                    with col_select:
-                        if st.checkbox("", key=f"article_{uid}", value=uid in st.session_state.selected_article_uids):
-                            if uid not in st.session_state.selected_article_uids:
-                                st.session_state.selected_article_uids.append(uid)
-                        elif uid in st.session_state.selected_article_uids:
-                            st.session_state.selected_article_uids.remove(uid)
-                    
-                    with col_content:
-                        st.write(create_tooltip_html(f"{title} - {law_name}", content), unsafe_allow_html=True)
-                    st.markdown("---")
+                keyword = st.text_input("Stichwort eingeben und Enter drücken:", key="keyword_search")
                 
-                if st.session_state.selected_article_uids and st.button("Ausgewählte Artikel hinzufügen"):
-                    existing_uids = [uid for uid, _ in st.session_state.top_articles]
-                    for uid in st.session_state.selected_article_uids:
-                        if uid not in existing_uids:
-                            st.session_state.top_articles.append((uid, 1.0))
-                    st.success("Ausgewählte Artikel wurden zu den relevanten Artikeln hinzugefügt")
+                if keyword and keyword != st.session_state.current_keyword:
+                    st.session_state.current_keyword = keyword
+                    st.session_state.matching_articles, st.session_state.matching_items = keyword_search(keyword, law_data, knowledge_base)
+                    st.session_state.selected_article_uids = []
+                    st.session_state.selected_item_ids = []
+                
+                st.markdown("Auswählen, welche Artikel oder Wissenselemente für die Antwort zusätzlich berücksichtigt werden sollen:")
+                
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("#### Gefundene Gesetzesartikel")
+                    
+                    for uid, article in st.session_state.matching_articles.items():
+                        title = article.get('Title', 'Unknown Title')
+                        law_name = article.get('Name', 'Unbekanntes Gesetz')
+                        content = '<br>'.join(article.get('Inhalt', []))
+                        
+                        col_select, col_content = st.columns([1, 4])
+                        with col_select:
+                            if st.checkbox("", key=f"article_{uid}", value=uid in st.session_state.selected_article_uids):
+                                if uid not in st.session_state.selected_article_uids:
+                                    st.session_state.selected_article_uids.append(uid)
+                            elif uid in st.session_state.selected_article_uids:
+                                st.session_state.selected_article_uids.remove(uid)
+                        
+                        with col_content:
+                            st.write(create_tooltip_html(f"{title} - {law_name}", content), unsafe_allow_html=True)
+                        st.markdown("---")
+                    
+                    if st.session_state.selected_article_uids and st.button("Ausgewählte Artikel hinzufügen"):
+                        existing_uids = [uid for uid, _ in st.session_state.top_articles]
+                        for uid in st.session_state.selected_article_uids:
+                            if uid not in existing_uids:
+                                st.session_state.top_articles.append((uid, 1.0))
+                        st.success("Ausgewählte Artikel wurden zu den relevanten Artikeln hinzugefügt")
+            
+                with col2:
+                    st.markdown("#### Gefundene Wissenselemente")
+                    
+                    for item_id, item in st.session_state.matching_items.items():
+                        title = item.get('Title', 'Unknown Title')
+                        content = ' '.join(item.get('Content', []))
+                        
+                        col_select, col_content = st.columns([1, 4])
+                        with col_select:
+                            if st.checkbox("", key=f"item_{item_id}", value=item_id in st.session_state.selected_item_ids):
+                                if item_id not in st.session_state.selected_item_ids:
+                                    st.session_state.selected_item_ids.append(item_id)
+                            elif item_id in st.session_state.selected_item_ids:
+                                st.session_state.selected_item_ids.remove(item_id)
+                        
+                        with col_content:
+                            st.write(create_tooltip_html(title, content), unsafe_allow_html=True)
+                        st.markdown("---")
+                    
+                    if st.session_state.selected_item_ids and st.button("Ausgewählte Wissenselemente hinzufügen"):
+                        existing_ids = [item_id for item_id, _ in st.session_state.top_knowledge_items]
+                        for item_id in st.session_state.selected_item_ids:
+                            if item_id not in existing_ids:
+                                st.session_state.top_knowledge_items.append((item_id, 1.0))
+                        st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")
+            with st.expander("Neues Wissen hinzufügen", expanded=False):
+    
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button("Neues Wissenselement hinzufügen"):
+                        st.session_state.show_form = not st.session_state.show_form
+                        # Toggle form visibility on button click
         
-            with col2:
-                st.markdown("#### Gefundene Wissenselemente")
-                
-                for item_id, item in st.session_state.matching_items.items():
-                    title = item.get('Title', 'Unknown Title')
-                    content = ' '.join(item.get('Content', []))
+            
+                    if st.session_state.show_form:
+                        with st.form(key='add_knowledge_form'):
+                            title = st.text_input("Titel", value=f"Hinweis zu folgender Frage: {user_query}")
+                            content = st.text_area("Inhalt")
+                            category = "User-Hinweis"
+                            selected_german_tags = st.multiselect(
+                                "Anwendbarkeit: Auf welche Personalkategorie ist das neue Wissen anwendbar? Bitte auswählen, mehrfache Auswahl ist erlaubt.",
+                                list(set(tags_mapping.values())),
+                                default=[
+                                    "Staatspersonal",
+                                    "Lehrperson VS",
+                                    "Lehrperson Sek II"
+                                ]
+                            )
+                            submit_button = st.form_submit_button(label='Hinzufügen')
+            
+                            if submit_button and title and content:
+                                # Convert the selected German tags to their corresponding English tags
+                                selected_english_tags = []
+                                for selected_german_tag in selected_german_tags:
+                                    selected_english_tags.extend(reverse_tags_mapping[selected_german_tag])
+                                add_to_knowledge_base(title, content, category, selected_english_tags)
+                                st.success("Neues Wissen erfolgreich hinzugefügt!")
+            
+                    if 'delete_form' not in st.session_state:
+                        st.session_state.delete_form = False
+                with col2:
+                    if st.button("Wissenselement löschen"):
+                        st.session_state.delete_form = not st.session_state.delete_form
+                        
+                    if st.session_state.delete_form:
+                        with st.form(key='delete_knowledge_form'):
+                            # Just use the key directly instead of creating a tuple
+                            entry_id_to_delete = st.selectbox(
+                                "Wählen Sie das Wissenselement zum Löschen aus:", 
+                                list(knowledge_base.keys()),
+                                format_func=lambda x: f"{x}: {knowledge_base[x]['Title']}"
+                            )
+                            delete_button = st.form_submit_button(label='Löschen')
                     
-                    col_select, col_content = st.columns([1, 4])
-                    with col_select:
-                        if st.checkbox("", key=f"item_{item_id}", value=item_id in st.session_state.selected_item_ids):
-                            if item_id not in st.session_state.selected_item_ids:
-                                st.session_state.selected_item_ids.append(item_id)
-                        elif item_id in st.session_state.selected_item_ids:
-                            st.session_state.selected_item_ids.remove(item_id)
+                            if delete_button and entry_id_to_delete:
+                                delete_from_knowledge_base(entry_id_to_delete)
                     
-                    with col_content:
-                        st.write(create_tooltip_html(title, content), unsafe_allow_html=True)
-                    st.markdown("---")
-                
-                if st.session_state.selected_item_ids and st.button("Ausgewählte Wissenselemente hinzufügen"):
-                    existing_ids = [item_id for item_id, _ in st.session_state.top_knowledge_items]
-                    for item_id in st.session_state.selected_item_ids:
-                        if item_id not in existing_ids:
-                            st.session_state.top_knowledge_items.append((item_id, 1.0))
-                    st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")
-
+            st.write("")
+            st.write("")
+     
 
         # AI Model section
         if st.session_state.analyzed_articles:
