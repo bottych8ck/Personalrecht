@@ -419,72 +419,72 @@ with st.expander("🔍 Zusätzliche Stichwortsuche", expanded=False):
             st.markdown("---")
 
         with st.expander("🔍 Zusätzliche Stichwortsuche", expanded=False):
-    st.write(create_tooltip_css(), unsafe_allow_html=True)
-    
-    keyword = st.text_input("Stichwort eingeben und Enter drücken:", key="keyword_search")
-    
-    if keyword and keyword != st.session_state.current_keyword:
-        st.session_state.current_keyword = keyword
-        st.session_state.matching_articles, st.session_state.matching_items = keyword_search(keyword, law_data, knowledge_base)
-        st.session_state.selected_article_uids = []
-        st.session_state.selected_item_ids = []
-    
-    st.markdown("Auswählen, welche Artikel oder Wissenselemente für die Antwort zusätzlich berücksichtigt werden sollen:")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("#### Gefundene Gesetzesartikel")
-        
-        for uid, article in st.session_state.matching_articles.items():
-            title = article.get('Title', 'Unknown Title')
-            law_name = article.get('Name', 'Unbekanntes Gesetz')
-            content = '<br>'.join(article.get('Inhalt', []))
+            st.write(create_tooltip_css(), unsafe_allow_html=True)
             
-            col_select, col_content = st.columns([1, 4])
-            with col_select:
-                if st.checkbox("", key=f"article_{uid}", value=uid in st.session_state.selected_article_uids):
-                    if uid not in st.session_state.selected_article_uids:
-                        st.session_state.selected_article_uids.append(uid)
-                elif uid in st.session_state.selected_article_uids:
-                    st.session_state.selected_article_uids.remove(uid)
+            keyword = st.text_input("Stichwort eingeben und Enter drücken:", key="keyword_search")
             
-            with col_content:
-                st.write(create_tooltip_html(f"{title} - {law_name}", content), unsafe_allow_html=True)
-            st.markdown("---")
-        
-        if st.session_state.selected_article_uids and st.button("Ausgewählte Artikel hinzufügen"):
-            existing_uids = [uid for uid, _ in st.session_state.top_articles]
-            for uid in st.session_state.selected_article_uids:
-                if uid not in existing_uids:
-                    st.session_state.top_articles.append((uid, 1.0))
-            st.success("Ausgewählte Artikel wurden zu den relevanten Artikeln hinzugefügt")
-
-    with col2:
-        st.markdown("#### Gefundene Wissenselemente")
-        
-        for item_id, item in st.session_state.matching_items.items():
-            title = item.get('Title', 'Unknown Title')
-            content = ' '.join(item.get('Content', []))
+            if keyword and keyword != st.session_state.current_keyword:
+                st.session_state.current_keyword = keyword
+                st.session_state.matching_articles, st.session_state.matching_items = keyword_search(keyword, law_data, knowledge_base)
+                st.session_state.selected_article_uids = []
+                st.session_state.selected_item_ids = []
             
-            col_select, col_content = st.columns([1, 4])
-            with col_select:
-                if st.checkbox("", key=f"item_{item_id}", value=item_id in st.session_state.selected_item_ids):
-                    if item_id not in st.session_state.selected_item_ids:
-                        st.session_state.selected_item_ids.append(item_id)
-                elif item_id in st.session_state.selected_item_ids:
-                    st.session_state.selected_item_ids.remove(item_id)
+            st.markdown("Auswählen, welche Artikel oder Wissenselemente für die Antwort zusätzlich berücksichtigt werden sollen:")
             
-            with col_content:
-                st.write(create_tooltip_html(title, content), unsafe_allow_html=True)
-            st.markdown("---")
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("#### Gefundene Gesetzesartikel")
+                
+                for uid, article in st.session_state.matching_articles.items():
+                    title = article.get('Title', 'Unknown Title')
+                    law_name = article.get('Name', 'Unbekanntes Gesetz')
+                    content = '<br>'.join(article.get('Inhalt', []))
+                    
+                    col_select, col_content = st.columns([1, 4])
+                    with col_select:
+                        if st.checkbox("", key=f"article_{uid}", value=uid in st.session_state.selected_article_uids):
+                            if uid not in st.session_state.selected_article_uids:
+                                st.session_state.selected_article_uids.append(uid)
+                        elif uid in st.session_state.selected_article_uids:
+                            st.session_state.selected_article_uids.remove(uid)
+                    
+                    with col_content:
+                        st.write(create_tooltip_html(f"{title} - {law_name}", content), unsafe_allow_html=True)
+                    st.markdown("---")
+                
+                if st.session_state.selected_article_uids and st.button("Ausgewählte Artikel hinzufügen"):
+                    existing_uids = [uid for uid, _ in st.session_state.top_articles]
+                    for uid in st.session_state.selected_article_uids:
+                        if uid not in existing_uids:
+                            st.session_state.top_articles.append((uid, 1.0))
+                    st.success("Ausgewählte Artikel wurden zu den relevanten Artikeln hinzugefügt")
         
-        if st.session_state.selected_item_ids and st.button("Ausgewählte Wissenselemente hinzufügen"):
-            existing_ids = [item_id for item_id, _ in st.session_state.top_knowledge_items]
-            for item_id in st.session_state.selected_item_ids:
-                if item_id not in existing_ids:
-                    st.session_state.top_knowledge_items.append((item_id, 1.0))
-            st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")
+            with col2:
+                st.markdown("#### Gefundene Wissenselemente")
+                
+                for item_id, item in st.session_state.matching_items.items():
+                    title = item.get('Title', 'Unknown Title')
+                    content = ' '.join(item.get('Content', []))
+                    
+                    col_select, col_content = st.columns([1, 4])
+                    with col_select:
+                        if st.checkbox("", key=f"item_{item_id}", value=item_id in st.session_state.selected_item_ids):
+                            if item_id not in st.session_state.selected_item_ids:
+                                st.session_state.selected_item_ids.append(item_id)
+                        elif item_id in st.session_state.selected_item_ids:
+                            st.session_state.selected_item_ids.remove(item_id)
+                    
+                    with col_content:
+                        st.write(create_tooltip_html(title, content), unsafe_allow_html=True)
+                    st.markdown("---")
+                
+                if st.session_state.selected_item_ids and st.button("Ausgewählte Wissenselemente hinzufügen"):
+                    existing_ids = [item_id for item_id, _ in st.session_state.top_knowledge_items]
+                    for item_id in st.session_state.selected_item_ids:
+                        if item_id not in existing_ids:
+                            st.session_state.top_knowledge_items.append((item_id, 1.0))
+                    st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")
 
 
         # AI Model section
