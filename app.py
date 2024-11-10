@@ -80,7 +80,7 @@ def load_data():
     with open('knowledge_base.json', 'r') as f:
         knowledge_base = json.load(f)
     with open('knowledge_base.json', 'r') as file:
-    knowledge_base = json.load(file)
+        knowledge_base = json.load(file)
     with open('knowledge_base_embeddings.json', 'r') as file:
         knowledge_base_embeddings = json.load(file)    
     return law_data, summary_embedding_data, knowledge_base, knowledge_base_embeddings
