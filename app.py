@@ -219,9 +219,8 @@ def create_tooltip_css():
     </style>
     """
 
-
 def main():
-    # First initialize session state variables at the start of main()
+    # Initialize session state variables if they do not exist
     if 'current_keyword' not in st.session_state:
         st.session_state.current_keyword = ""
     if 'matching_articles' not in st.session_state:
@@ -232,6 +231,20 @@ def main():
         st.session_state.selected_article_uids = []
     if 'selected_item_ids' not in st.session_state:
         st.session_state.selected_item_ids = []
+    if 'top_articles' not in st.session_state:
+        st.session_state.top_articles = []
+    if 'top_knowledge_items' not in st.session_state:
+        st.session_state.top_knowledge_items = []
+    if 'analyzed_articles' not in st.session_state:
+        st.session_state.analyzed_articles = None
+    if 'query_text' not in st.session_state:
+        st.session_state.query_text = ""
+    if 'top_chapters' not in st.session_state:
+        st.session_state.top_chapters = []
+    if 'last_answer' not in st.session_state:
+        st.session_state.last_answer = ""
+    if 'last_model' not in st.session_state:
+        st.session_state.last_model = ""
 
 # Then update the search section
 with st.expander("🔍 Zusätzliche Stichwortsuche", expanded=False):
