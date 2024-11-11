@@ -297,62 +297,9 @@ def create_tooltip_css():
     .select-button {
         margin-left: 10px;
     }
-
-    .article-container {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin: 5px 0;
-    }
-
-    .article-id {
-        white-space: nowrap;
-    }
-
-    .article-preview {
-        color: #666;
-    }
-
-    .slider-container {
-        display: flex;
-        gap: 20px;
-        height: 500px;
-        overflow-y: auto;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        padding: 10px;
-    }
-
-    .chapter-list {
-        flex: 3;
-        border-right: 1px solid #ddd;
-        overflow-y: auto;
-    }
-
-    .article-list {
-        flex: 7;
-        overflow-y: auto;
-    }
-
-    .chapter-button {
-        width: 100%;
-        text-align: left;
-        padding: 8px;
-        margin: 2px 0;
-        border: none;
-        background: none;
-        cursor: pointer;
-    }
-
-    .chapter-button:hover {
-        background-color: #f0f0f0;
-    }
-
-    .chapter-button.selected {
-        background-color: #e6e6e6;
-    }
     </style>
     """
+
 def main():
     # Initialize session state variables if they do not exist
     if 'current_keyword' not in st.session_state:
@@ -474,21 +421,13 @@ def main():
         # Always show results if they exist in session state
 
         if st.session_state.top_chapters:
-        
             st.markdown("---")
-            st.subheader("Relevante Kapitel und Artikel")
-            
-            # Create container with fixed height and scrolling
-            container = st.container()
-            with container:
+            with st.expander("📚 Relevante Kapitel und Artikel", expanded=True):
                 col1, col2 = st.columns([3, 7])
                 
                 with col1:
                     st.markdown("### Kapitel")
-                    st.markdown('''
-                        <div style="height: 500px; overflow-y: auto; padding-right: 10px;
-                                  scrollbar-width: thin; scrollbar-color: #888 #f1f1f1;">
-                        ''', unsafe_allow_html=True)
+                    st.markdown('<div style="height: 500px; overflow-y: auto; padding-right: 10px;">', unsafe_allow_html=True)
                     
                     if 'selected_chapter' not in st.session_state:
                         st.session_state.selected_chapter = None
@@ -504,10 +443,7 @@ def main():
                     
                 with col2:
                     st.markdown("### Artikel")
-                    st.markdown('''
-                        <div style="height: 500px; overflow-y: auto; padding-right: 10px;
-                                  scrollbar-width: thin; scrollbar-color: #888 #f1f1f1;">
-                        ''', unsafe_allow_html=True)
+                    st.markdown('<div style="height: 500px; overflow-y: auto; padding-right: 10px;">', unsafe_allow_html=True)
                     
                     if st.session_state.selected_chapter:
                         chapter = st.session_state.selected_chapter
@@ -531,6 +467,8 @@ def main():
                             )
                     
                     st.markdown('</div>', unsafe_allow_html=True)
+        
+
             
             #     # Display the chapter-article slider
             # st.markdown("---")
