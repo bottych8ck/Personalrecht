@@ -297,9 +297,62 @@ def create_tooltip_css():
     .select-button {
         margin-left: 10px;
     }
+
+    .article-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 5px 0;
+    }
+
+    .article-id {
+        white-space: nowrap;
+    }
+
+    .article-preview {
+        color: #666;
+    }
+
+    .slider-container {
+        display: flex;
+        gap: 20px;
+        height: 500px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+    }
+
+    .chapter-list {
+        flex: 3;
+        border-right: 1px solid #ddd;
+        overflow-y: auto;
+    }
+
+    .article-list {
+        flex: 7;
+        overflow-y: auto;
+    }
+
+    .chapter-button {
+        width: 100%;
+        text-align: left;
+        padding: 8px;
+        margin: 2px 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+    }
+
+    .chapter-button:hover {
+        background-color: #f0f0f0;
+    }
+
+    .chapter-button.selected {
+        background-color: #e6e6e6;
+    }
     </style>
     """
-
 def main():
     # Initialize session state variables if they do not exist
     if 'current_keyword' not in st.session_state:
@@ -421,78 +474,101 @@ def main():
         # Always show results if they exist in session state
 
         if st.session_state.top_chapters:
-                # Display the chapter-article slider
-            st.markdown("---")
-            st.subheader("Relevante Kapitel und Artikel")
+                        # Create slider container
+            st.markdown("""
+                <div class="slider-container">
+                    <div class="chapter-list">
+                        <h3>Kapitel</h3>
+                        """, unsafe_allow_html=True)
             
-            # Create two columns
-            col1, col2 = st.columns([3, 7])
+            # Store selected chapter in session state if not exists
+            if 'selected_chapter' not in st.session_state:
+                st.session_state.selected_chapter = None
+                
+            # Display chapters
+            for idx, chapter in enumerate(st.session_state.top_chapters):
+                chapter_title = f"{chapter['law_full_name']} - {chapter['section_title']}"
+                if st.button(f"{idx+1}. {chapter_title}", 
+                            key=f"chapter_{idx}",
+                            help=f"Relevanz: {chapter['similarity']:.2f}",
+                            kwargs={"class": "chapter-button" + (" selected" if chapter == st.session_state.selected_chapter else "")}):
+                    st.session_state.selected_chapter = chapter
             
-            with col1:
-                st.markdown("### Kapitel")
-                # Store selected chapter in session state if not exists
-                if 'selected_chapter' not in st.session_state:
-                    st.session_state.selected_chapter = None
+            st.markdown("</div><div class='article-list'>")
+            
+            if st.session_state.selected_chapter:
+                chapter = st.session_state.selected_chapter
+                law_full_name = chapter['law_full_name']
+                section_title = chapter['section_title']
+                articles_in_section = articles_by_law_and_section.get(law_full_name, {}).get(section_title, [])
+                
+                for article in articles_in_section:
+                    article_id = article['data']['ID']
+                    article_url = article['data'].get('URL', '#')
+                    content = article['data']['content']
                     
-                # Create clickable chapters
-                for idx, chapter in enumerate(st.session_state.top_chapters):
-                    chapter_title = f"{chapter['law_full_name']} - {chapter['section_title']}"
-                    if st.button(f"{idx+1}. {chapter_title}", 
-                                key=f"chapter_{idx}",
-                                help=f"Relevanz: {chapter['similarity']:.2f}"):
-                        st.session_state.selected_chapter = chapter
-                        
-            with col2:
-                st.markdown("### Artikel")
-                if st.session_state.selected_chapter:
-                    chapter = st.session_state.selected_chapter
-                    law_full_name = chapter['law_full_name']
-                    section_title = chapter['section_title']
-                    articles_in_section = articles_by_law_and_section.get(law_full_name, {}).get(section_title, [])
+                    # Get first 10 words
+                    preview = ' '.join(content.split()[:10]) + "..."
                     
-                    for article in articles_in_section:
-                        article_id = article['data']['ID']
-                        article_url = article['data'].get('URL', '#')
-                        content = article['data']['content']
+                    # Display article with inline preview
+                    st.markdown(
+                        f"""<div class="article-container">
+                            <span class="article-id"><a href="{article_url}">{article_id}</a></span>
+                            {create_tooltip_html(f"({preview})", content)}
+                        </div>""", 
+                        unsafe_allow_html=True
+                    )
+            
+            st.markdown("</div></div>", unsafe_allow_html=True)
+
+
+
+
+            
+            #     # Display the chapter-article slider
+            # st.markdown("---")
+            # st.subheader("Relevante Kapitel und Artikel")
+            
+            # # Create two columns
+            # col1, col2 = st.columns([3, 7])
+            
+            # with col1:
+            #     st.markdown("### Kapitel")
+            #     # Store selected chapter in session state if not exists
+            #     if 'selected_chapter' not in st.session_state:
+            #         st.session_state.selected_chapter = None
+                    
+            #     # Create clickable chapters
+            #     for idx, chapter in enumerate(st.session_state.top_chapters):
+            #         chapter_title = f"{chapter['law_full_name']} - {chapter['section_title']}"
+            #         if st.button(f"{idx+1}. {chapter_title}", 
+            #                     key=f"chapter_{idx}",
+            #                     help=f"Relevanz: {chapter['similarity']:.2f}"):
+            #             st.session_state.selected_chapter = chapter
                         
-                        # Get first 10 words
-                        preview = ' '.join(content.split()[:10]) + "..."
+            # with col2:
+            #     st.markdown("### Artikel")
+            #     if st.session_state.selected_chapter:
+            #         chapter = st.session_state.selected_chapter
+            #         law_full_name = chapter['law_full_name']
+            #         section_title = chapter['section_title']
+            #         articles_in_section = articles_by_law_and_section.get(law_full_name, {}).get(section_title, [])
+                    
+            #         for article in articles_in_section:
+            #             article_id = article['data']['ID']
+            #             article_url = article['data'].get('URL', '#')
+            #             content = article['data']['content']
                         
-                        # Display URL and preview with tooltip
-                        st.markdown(f"[{article_id}]({article_url})")
-                        st.markdown(create_tooltip_html(
-                            preview,
-                            content
-                        ), unsafe_allow_html=True)
-                        st.markdown("---")
-        #     with results_container:
-        #         st.subheader("Relevante Kapitel und Artikel:")
-        #         for idx, chapter in enumerate(st.session_state.top_chapters, 1):
-        #             with st.expander(f"{idx}. {chapter['law_full_name']} - {chapter['section_title']} (Relevanz: {chapter['similarity']:.2f})"):
-        #                 law_full_name = chapter['law_full_name']
-        #                 section_title = chapter['section_title']
-        #                 articles_in_section = articles_by_law_and_section.get(law_full_name, {}).get(section_title, [])
+            #             # Get first 10 words
+            #             preview = ' '.join(content.split()[:10]) + "..."
                         
-        #                 for article in articles_in_section:
-        #                     article_id = article['data']['ID']
-        #                     article_url = article['data'].get('URL', '#')
-        #                     content = article['data']['content']
-                            
-        #                     # Create columns for URL and tooltip
-        #                     col1, col2 = st.columns([10, 10])
-                            
-        #                     with col1:
-        #                         # Display the URL link
-        #                         st.markdown(f"[{article_id}]({article_url})")
-                            
-        #                     with col2:
-        #                         # Display tooltip with content
-        #                         st.markdown(create_tooltip_html(
-        #                             "ℹ️",  # Info emoji as hover target
-        #                             content
-        #                         ), unsafe_allow_html=True)
-        # if st.session_state.get('top_chapters'):
-        #     st.markdown("---")
+            #             # Display URL and preview with tooltip
+            #             st.markdown(f"[{article_id}]({article_url})")
+            #             st.markdown(create_tooltip_html(
+            #                 preview,
+            #                 content
+            #             ), unsafe_allow_html=True)
+            #             st.markdown("---")
 
             with st.expander("🔍 Zusätzliche Stichwortsuche", expanded=False):
                 st.write(create_tooltip_css(), unsafe_allow_html=True)
