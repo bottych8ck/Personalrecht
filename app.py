@@ -474,56 +474,63 @@ def main():
         # Always show results if they exist in session state
 
         if st.session_state.top_chapters:
-                        # Create slider container
-            st.markdown("""
-                <div class="slider-container">
-                    <div class="chapter-list">
-                        <h3>Kapitel</h3>
-                        """, unsafe_allow_html=True)
+        
+            st.markdown("---")
+            st.subheader("Relevante Kapitel und Artikel")
             
-            # Store selected chapter in session state if not exists
-            if 'selected_chapter' not in st.session_state:
-                st.session_state.selected_chapter = None
+            # Create container with fixed height and scrolling
+            container = st.container()
+            with container:
+                col1, col2 = st.columns([3, 7])
                 
-            # Display chapters
-            for idx, chapter in enumerate(st.session_state.top_chapters):
-                chapter_title = f"{chapter['law_full_name']} - {chapter['section_title']}"
-                if st.button(f"{idx+1}. {chapter_title}", 
-                            key=f"chapter_{idx}",
-                            help=f"Relevanz: {chapter['similarity']:.2f}",
-                            kwargs={"class": "chapter-button" + (" selected" if chapter == st.session_state.selected_chapter else "")}):
-                    st.session_state.selected_chapter = chapter
-            
-            st.markdown("</div><div class='article-list'>")
-            
-            if st.session_state.selected_chapter:
-                chapter = st.session_state.selected_chapter
-                law_full_name = chapter['law_full_name']
-                section_title = chapter['section_title']
-                articles_in_section = articles_by_law_and_section.get(law_full_name, {}).get(section_title, [])
-                
-                for article in articles_in_section:
-                    article_id = article['data']['ID']
-                    article_url = article['data'].get('URL', '#')
-                    content = article['data']['content']
+                with col1:
+                    st.markdown("### Kapitel")
+                    st.markdown('''
+                        <div style="height: 500px; overflow-y: auto; padding-right: 10px;
+                                  scrollbar-width: thin; scrollbar-color: #888 #f1f1f1;">
+                        ''', unsafe_allow_html=True)
                     
-                    # Get first 10 words
-                    preview = ' '.join(content.split()[:10]) + "..."
+                    if 'selected_chapter' not in st.session_state:
+                        st.session_state.selected_chapter = None
+                        
+                    for idx, chapter in enumerate(st.session_state.top_chapters):
+                        chapter_title = f"{chapter['law_full_name']} - {chapter['section_title']}"
+                        if st.button(f"{idx+1}. {chapter_title}", 
+                                    key=f"chapter_{idx}",
+                                    help=f"Relevanz: {chapter['similarity']:.2f}"):
+                            st.session_state.selected_chapter = chapter
                     
-                    # Display article with inline preview
-                    st.markdown(
-                        f"""<div class="article-container">
-                            <span class="article-id"><a href="{article_url}">{article_id}</a></span>
-                            {create_tooltip_html(f"({preview})", content)}
-                        </div>""", 
-                        unsafe_allow_html=True
-                    )
-            
-            st.markdown("</div></div>", unsafe_allow_html=True)
-
-
-
-
+                    st.markdown('</div>', unsafe_allow_html=True)
+                    
+                with col2:
+                    st.markdown("### Artikel")
+                    st.markdown('''
+                        <div style="height: 500px; overflow-y: auto; padding-right: 10px;
+                                  scrollbar-width: thin; scrollbar-color: #888 #f1f1f1;">
+                        ''', unsafe_allow_html=True)
+                    
+                    if st.session_state.selected_chapter:
+                        chapter = st.session_state.selected_chapter
+                        law_full_name = chapter['law_full_name']
+                        section_title = chapter['section_title']
+                        articles_in_section = articles_by_law_and_section.get(law_full_name, {}).get(section_title, [])
+                        
+                        for article in articles_in_section:
+                            article_id = article['data']['ID']
+                            article_url = article['data'].get('URL', '#')
+                            content = article['data']['content']
+                            
+                            preview = ' '.join(content.split()[:10]) + "..."
+                            
+                            st.markdown(
+                                f'<div style="margin: 5px 0;">'
+                                f'<a href="{article_url}">{article_id}</a> '
+                                f'{create_tooltip_html(f"({preview})", content)}'
+                                f'</div>',
+                                unsafe_allow_html=True
+                            )
+                    
+                    st.markdown('</div>', unsafe_allow_html=True)
             
             #     # Display the chapter-article slider
             # st.markdown("---")
