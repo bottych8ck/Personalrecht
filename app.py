@@ -421,34 +421,78 @@ def main():
         # Always show results if they exist in session state
 
         if st.session_state.top_chapters:
-            with results_container:
-                st.subheader("Relevante Kapitel und Artikel:")
-                for idx, chapter in enumerate(st.session_state.top_chapters, 1):
-                    with st.expander(f"{idx}. {chapter['law_full_name']} - {chapter['section_title']} (Relevanz: {chapter['similarity']:.2f})"):
-                        law_full_name = chapter['law_full_name']
-                        section_title = chapter['section_title']
-                        articles_in_section = articles_by_law_and_section.get(law_full_name, {}).get(section_title, [])
-                        
-                        for article in articles_in_section:
-                            article_id = article['data']['ID']
-                            article_url = article['data'].get('URL', '#')
-                            content = article['data']['content']
-                            
-                            # Create columns for URL and tooltip
-                            col1, col2 = st.columns([10, 10])
-                            
-                            with col1:
-                                # Display the URL link
-                                st.markdown(f"[{article_id}]({article_url})")
-                            
-                            with col2:
-                                # Display tooltip with content
-                                st.markdown(create_tooltip_html(
-                                    "ℹ️",  # Info emoji as hover target
-                                    content
-                                ), unsafe_allow_html=True)
-        if st.session_state.get('top_chapters'):
+                # Display the chapter-article slider
             st.markdown("---")
+            st.subheader("Relevante Kapitel und Artikel")
+            
+            # Create two columns
+            col1, col2 = st.columns([3, 7])
+            
+            with col1:
+                st.markdown("### Kapitel")
+                # Store selected chapter in session state if not exists
+                if 'selected_chapter' not in st.session_state:
+                    st.session_state.selected_chapter = None
+                    
+                # Create clickable chapters
+                for idx, chapter in enumerate(st.session_state.top_chapters):
+                    chapter_title = f"{chapter['law_full_name']} - {chapter['section_title']}"
+                    if st.button(f"{idx+1}. {chapter_title}", 
+                                key=f"chapter_{idx}",
+                                help=f"Relevanz: {chapter['similarity']:.2f}"):
+                        st.session_state.selected_chapter = chapter
+                        
+            with col2:
+                st.markdown("### Artikel")
+                if st.session_state.selected_chapter:
+                    chapter = st.session_state.selected_chapter
+                    law_full_name = chapter['law_full_name']
+                    section_title = chapter['section_title']
+                    articles_in_section = articles_by_law_and_section.get(law_full_name, {}).get(section_title, [])
+                    
+                    for article in articles_in_section:
+                        article_id = article['data']['ID']
+                        article_url = article['data'].get('URL', '#')
+                        content = article['data']['content']
+                        
+                        # Get first 10 words
+                        preview = ' '.join(content.split()[:10]) + "..."
+                        
+                        # Display URL and preview with tooltip
+                        st.markdown(f"[{article_id}]({article_url})")
+                        st.markdown(create_tooltip_html(
+                            preview,
+                            content
+                        ), unsafe_allow_html=True)
+                        st.markdown("---")
+        #     with results_container:
+        #         st.subheader("Relevante Kapitel und Artikel:")
+        #         for idx, chapter in enumerate(st.session_state.top_chapters, 1):
+        #             with st.expander(f"{idx}. {chapter['law_full_name']} - {chapter['section_title']} (Relevanz: {chapter['similarity']:.2f})"):
+        #                 law_full_name = chapter['law_full_name']
+        #                 section_title = chapter['section_title']
+        #                 articles_in_section = articles_by_law_and_section.get(law_full_name, {}).get(section_title, [])
+                        
+        #                 for article in articles_in_section:
+        #                     article_id = article['data']['ID']
+        #                     article_url = article['data'].get('URL', '#')
+        #                     content = article['data']['content']
+                            
+        #                     # Create columns for URL and tooltip
+        #                     col1, col2 = st.columns([10, 10])
+                            
+        #                     with col1:
+        #                         # Display the URL link
+        #                         st.markdown(f"[{article_id}]({article_url})")
+                            
+        #                     with col2:
+        #                         # Display tooltip with content
+        #                         st.markdown(create_tooltip_html(
+        #                             "ℹ️",  # Info emoji as hover target
+        #                             content
+        #                         ), unsafe_allow_html=True)
+        # if st.session_state.get('top_chapters'):
+        #     st.markdown("---")
 
             with st.expander("🔍 Zusätzliche Stichwortsuche", expanded=False):
                 st.write(create_tooltip_css(), unsafe_allow_html=True)
