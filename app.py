@@ -427,7 +427,7 @@ def main():
                 
                 with col1:
                     st.markdown("### Kapitel")
-                    st.markdown('<div style="height: 500px; overflow-y: auto; padding-right: 10px;">', unsafe_allow_html=True)
+                    # st.markdown('<div style="height: 500px; overflow-y: auto; padding-right: 10px;">', unsafe_allow_html=True)
                     
                     if 'selected_chapter' not in st.session_state:
                         st.session_state.selected_chapter = None
@@ -443,7 +443,7 @@ def main():
                     
                 with col2:
                     st.markdown("### Artikel")
-                    st.markdown('<div style="height: 500px; overflow-y: auto; padding-right: 10px;">', unsafe_allow_html=True)
+                    # st.markdown('<div style="height: 500px; overflow-y: auto; padding-right: 10px;">', unsafe_allow_html=True)
                     
                     if st.session_state.selected_chapter:
                         chapter = st.session_state.selected_chapter
