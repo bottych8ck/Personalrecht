@@ -267,7 +267,7 @@ def generate_ai_response(client, prompt, model=None):
             response = client.chat.completions.create(
                 model="gpt-4-turbo-preview",
                 messages=[
-                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschine im Migrationsrecht. Du beantwortest alle Fragen auf Deutsch. Du beantwortest nur Fragen zum Migrationsrecht. Du erhälst eine Frage und allenfalls passende Gesetzesbestimmungen sowie allenfalls zusätzliche Wissenselemente dazu. Du analysierst in einem ersten Schritt, ob passenden Bestimmungen bestehen. Falls ja, wendest Du diese Bestimmungen auf die Frage an."},
+                    {"role": "system", "content": "Du bist eine Gesetzessubsumtionsmaschine im Migrationsrecht. Du beantwortest alle Fragen auf Deutsch und nur Fragen zum Migrationsrecht."},
                     {"role": "user", "content": prompt}
                 ]
             )
@@ -275,7 +275,7 @@ def generate_ai_response(client, prompt, model=None):
         else:  # Groq client
             response = client.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschine im Migrationsrecht. Du beantwortest alle Fragen auf Deutsch. Du beantwortest nur Fragen zum Migrationsrecht. Du erhälst eine Frage und allenfalls passende Gesetzesbestimmungen sowie allenfalls zusätzliche Wissenselemente dazu. Du analysierst in einem ersten Schritt, ob passenden Bestimmungen bestehen. Falls ja, wendest Du diese Bestimmungen auf die Frage an."},
+                    {"role": "system", "content": "Du bist eine Gesetzessubsumtionsmaschine im Migrationsrecht. Du beantwortest alle Fragen auf Deutsch und nur Fragen zum Migrationsrecht."},
                     {"role": "user", "content": prompt}
                 ],
                 model="llama-3.1-70b-versatile"
