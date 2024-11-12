@@ -423,7 +423,7 @@ def main():
         if st.session_state.top_chapters:
             st.markdown("---")
             with st.expander("📚 Relevante Kapitel und Artikel", expanded=True):
-                col1, col2 = st.columns([3, 7])
+                col1, col2 = st.columns([5, 5])
                 
                 with col1:
                     st.markdown("### Kapitel")
