@@ -694,8 +694,8 @@ if st.session_state.top_articles:
     #                 st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
     #                 st.markdown(st.session_state['last_answer'])
 
-        except Exception as e:
-            st.error(f"Fehler: {str(e)}")
+    except Exception as e:
+        st.error(f"Fehler: {str(e)}")
 
 if __name__ == "__main__":
     main()
