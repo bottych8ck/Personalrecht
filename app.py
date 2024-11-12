@@ -241,7 +241,7 @@ Verwende nur die bereitgestellten Informationen, um die Frage zu beantworten. FÃ
     
     # Knowledge items
     knowledge_items_text = "<KnowledgeItems>\n"
-    for item_id in st.session_state.top_knowledge_items:
+    for item_id, _ in st.session_state.top_knowledge_items:
         item = knowledge_base[item_id]
         knowledge_items_text += f"<Item>\nTitel: {item['Title']}\nInhalt: {' '.join(item['Content'])}\n</Item>\n"
     knowledge_items_text += "</KnowledgeItems>"
@@ -385,8 +385,7 @@ def main():
         st.session_state.last_model = ""
     if 'show_form' not in st.session_state:
         st.session_state.show_form = ""
-    if 'top_articles' not in st.session_state:
-        st.session_state.top_articles = None
+
     if 'show_prompt_editor' not in st.session_state:
         st.session_state.show_prompt_editor = False
 
