@@ -204,13 +204,33 @@ def generate_prompt(user_query, top_articles, knowledge_base):
     # User question
     user_question = f"<UserQuestion>\n{user_query}\n</UserQuestion>"
     
-    # Instructions for the AI model
+    # Instructions for the AI model with added explanations
     instructions = """
 <Instructions>
 Du bist eine Gesetzessubsumtionsmaschine im Migrationsrecht. Du beantwortest alle Fragen auf Deutsch und nur Fragen zum Migrationsrecht.
-Analysiere die folgende Frage und die bereitgestellten Gesetzesartikel und Wissenselemente.
-Erstelle eine rechtliche Analyse, indem du die relevanten Gesetze auf die Frage anwendest.
+
+Die folgenden Artikel wurden basierend auf semantischen Such- und Stichwortmethoden ausgewählt. Sie sind in der Sektion <RelevantArticles> bereitgestellt. Jeder Artikel ist innerhalb von <Article> Tags enthalten und besteht aus einem Titel und Inhalt.
+
+Zusätzliche Wissenselemente sind in der Sektion <KnowledgeItems> bereitgestellt. Jedes Wissenselement ist innerhalb von <Item> Tags enthalten und besteht ebenfalls aus einem Titel und Inhalt.
+
+Bitte analysiere die gestellte Frage, nutze die bereitgestellten Artikel und Wissenselemente, und erstelle eine rechtliche Analyse. Wende die relevanten Gesetze auf die Frage an und erkläre die Anwendung ausführlich.
+
 Wenn keine passenden Bestimmungen vorliegen, gib an, dass keine relevanten Gesetze gefunden wurden.
+
+Beachte die Struktur der Daten:
+- <UserQuestion>: Die Frage des Nutzers.
+- <Instructions>: Deine Anweisungen.
+- <RelevantArticles>: Enthält mehrere <Article> Elemente.
+  - <Article>:
+    - Titel: Titel des Artikels.
+    - Inhalt: Inhalt des Artikels.
+- <KnowledgeItems>: Enthält mehrere <Item> Elemente.
+  - <Item>:
+    - Titel: Titel des Wissenselements.
+    - Inhalt: Inhalt des Wissenselements.
+
+Verwende nur die bereitgestellten Informationen, um die Frage zu beantworten. Füge keine zusätzlichen Informationen hinzu.
+
 </Instructions>
 """
     # Relevant articles
@@ -229,6 +249,7 @@ Wenn keine passenden Bestimmungen vorliegen, gib an, dass keine relevanten Geset
     # Combine all parts
     prompt = f"{user_question}\n{instructions}\n{articles_text}\n{knowledge_items_text}"
     return prompt
+
 
 # def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
 #     articles_text = "\n".join([f"{article['heading']}: {article['data']['content']}" for article in top_articles])
