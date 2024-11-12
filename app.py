@@ -662,38 +662,36 @@ def main():
                                 st.session_state['last_model'] = model
                                 
                 with col2:
-                    show_prompt_editor = st.checkbox("Prompt anzeigen und bearbeiten", value=False)
-                        if show_prompt_editor:
-                            if st.button("Prompt anzeigen und bearbeiten"):
-                                st.session_state.show_prompt_editor = True
+                    if st.button("Prompt anzeigen und bearbeiten"):
+                        st.session_state.show_prompt_editor = True
+                        
+                    # Display the prompt editor if the state is True
+                    if st.session_state.show_prompt_editor:
+                        edited_prompt = st.text_area(
+                            "Prompt bearbeiten:",
+                            value=current_prompt,
+                            height=300
+                        )
+                        
+                        if st.button("Antwort mit bearbeitetem Prompt generieren"):
+                            with st.spinner('Generiere Antwort...'):
+                                # Optional: Simulate a delay to see the spinner
+                                # time.sleep(1)
+                                client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
+                                response, model = generate_ai_response(client, edited_prompt)
                                 
-                            # Display the prompt editor if the state is True
-                            if st.session_state.show_prompt_editor:
-                                edited_prompt = st.text_area(
-                                    "Prompt bearbeiten:",
-                                    value=current_prompt,
-                                    height=300
-                                )
+                                if response:
+                                    st.session_state['last_answer'] = response
+                                    st.session_state['last_model'] = model
+                        
+                        # Button to close the prompt editor
+                        if st.button("Prompt Editor schließen"):
+                            st.session_state.show_prompt_editor = False
                                 
-                                if st.button("Antwort mit bearbeitetem Prompt generieren"):
-                                    with st.spinner('Generiere Antwort...'):
-                                        # Optional: Simulate a delay to see the spinner
-                                        # time.sleep(1)
-                                        client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
-                                        response, model = generate_ai_response(client, edited_prompt)
-                                        
-                                        if response:
-                                            st.session_state['last_answer'] = response
-                                            st.session_state['last_model'] = model
-                                
-                                # Button to close the prompt editor
-                                if st.button("Prompt Editor schließen"):
-                                    st.session_state.show_prompt_editor = False
-                                        
-                        if 'last_answer' in st.session_state and st.session_state['last_answer']:
-                            st.success(f"Antwort erfolgreich generiert mit {st.session_state['last_model']}")
-                            st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
-                            st.markdown(st.session_state['last_answer'])    
+                if 'last_answer' in st.session_state and st.session_state['last_answer']:
+                    st.success(f"Antwort erfolgreich generiert mit {st.session_state['last_model']}")
+                    st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
+                    st.markdown(st.session_state['last_answer'])    
                 #         edited_prompt = st.text_area(
                 #             "Prompt bearbeiten:",
                 #             value=current_prompt,
