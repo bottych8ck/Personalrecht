@@ -251,16 +251,6 @@ Verwende nur die bereitgestellten Informationen, um die Frage zu beantworten. F√
     return prompt
 
 
-# def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
-#     articles_text = "\n".join([f"{article['heading']}: {article['data']['content']}" for article in top_articles])
-#     knowledge_items_text = "\n".join([
-#         f"{st.session_state['knowledge_base'][item_id]['Title']}: {' '.join(st.session_state['knowledge_base'][item_id]['Content'])}"
-#         for item_id in st.session_state.top_knowledge_items
-#     ])
-
-#     return f"Frage des Nutzers: {user_query}\n\nRelevante Artikel:\n{articles_text}\n\nZus√§tzliche Informationen:\n{knowledge_items_text}"
-
-
 def generate_ai_response(client, prompt, model=None):
     try:
         if isinstance(client, openai.OpenAI):
@@ -676,7 +666,7 @@ def main():
                     st.session_state['knowledge_base']
                 )
                 
-                col1, col2 = st.columns(2)
+                col1, spacer, col2 = st.columns([1, 0.05, 1])
                 
                 with col1:
                     if st.button("Antwort Generieren"):
@@ -719,25 +709,7 @@ def main():
                     st.success(f"Antwort erfolgreich generiert mit {st.session_state['last_model']}")
                     st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
                     st.markdown(st.session_state['last_answer'])    
-                #         edited_prompt = st.text_area(
-                #             "Prompt bearbeiten:",
-                #             value=current_prompt,
-                #             height=300
-                #         )
-                        
-                #         if st.button("Antwort mit bearbeitetem Prompt generieren"):
-                #             with st.spinner('Generiere Antwort...'):
-                #                 client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
-                #                 response, model = generate_ai_response(client, edited_prompt)
-                                
-                #                 if response:
-                #                     st.session_state['last_answer'] = response
-                #                     st.session_state['last_model'] = model
-                                    
-                # if 'last_answer' in st.session_state and st.session_state['last_answer']:
-                #     st.success(f"Antwort erfolgreich generiert mit {st.session_state['last_model']}")
-                #     st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
-                #     st.markdown(st.session_state['last_answer'])
+
                       
  
     except Exception as e:
