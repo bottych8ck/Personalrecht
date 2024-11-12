@@ -199,19 +199,45 @@ def collect_articles_with_references(articles_to_evaluate, law_data):
 
     return all_articles
 
+
+def generate_prompt(user_query, top_articles, knowledge_base):
+    # User question
+    user_question = f"<UserQuestion>\n{user_query}\n</UserQuestion>"
+    
+    # Instructions for the AI model
+    instructions = """
+<Instructions>
+Du bist eine Gesetzessubsumtionsmaschine im Migrationsrecht. Du beantwortest alle Fragen auf Deutsch und nur Fragen zum Migrationsrecht.
+Analysiere die folgende Frage und die bereitgestellten Gesetzesartikel und Wissenselemente.
+Erstelle eine rechtliche Analyse, indem du die relevanten Gesetze auf die Frage anwendest.
+Wenn keine passenden Bestimmungen vorliegen, gib an, dass keine relevanten Gesetze gefunden wurden.
+</Instructions>
+"""
+    # Relevant articles
+    articles_text = "<RelevantArticles>\n"
+    for article in top_articles:
+        articles_text += f"<Article>\nTitel: {article['heading']}\nInhalt: {article['data']['content']}\n</Article>\n"
+    articles_text += "</RelevantArticles>"
+    
+    # Knowledge items
+    knowledge_items_text = "<KnowledgeItems>\n"
+    for item_id in st.session_state.top_knowledge_items:
+        item = knowledge_base[item_id]
+        knowledge_items_text += f"<Item>\nTitel: {item['Title']}\nInhalt: {' '.join(item['Content'])}\n</Item>\n"
+    knowledge_items_text += "</KnowledgeItems>"
+    
+    # Combine all parts
+    prompt = f"{user_question}\n{instructions}\n{articles_text}\n{knowledge_items_text}"
+    return prompt
+
 # def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
-#     # You can implement a prompt generation function based on your requirements
-#     # Here we just concatenate some information as an example
-#     return f"Frage des Nutzers: {user_query}\n\nRelevante Artikel:\n{top_articles}\n\nZusätzliche Informationen:\n{top_knowledge_items}"
+#     articles_text = "\n".join([f"{article['heading']}: {article['data']['content']}" for article in top_articles])
+#     knowledge_items_text = "\n".join([
+#         f"{st.session_state['knowledge_base'][item_id]['Title']}: {' '.join(st.session_state['knowledge_base'][item_id]['Content'])}"
+#         for item_id in st.session_state.top_knowledge_items
+#     ])
 
-def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
-    articles_text = "\n".join([f"{article['heading']}: {article['data']['content']}" for article in top_articles])
-    knowledge_items_text = "\n".join([
-        f"{st.session_state['knowledge_base'][item_id]['Title']}: {' '.join(st.session_state['knowledge_base'][item_id]['Content'])}"
-        for item_id in st.session_state.top_knowledge_items
-    ])
-
-    return f"Frage des Nutzers: {user_query}\n\nRelevante Artikel:\n{articles_text}\n\nZusätzliche Informationen:\n{knowledge_items_text}"
+#     return f"Frage des Nutzers: {user_query}\n\nRelevante Artikel:\n{articles_text}\n\nZusätzliche Informationen:\n{knowledge_items_text}"
 
 
 def generate_ai_response(client, prompt, model=None):
@@ -220,7 +246,7 @@ def generate_ai_response(client, prompt, model=None):
             response = client.chat.completions.create(
                 model="gpt-4-turbo-preview",
                 messages=[
-                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschine im Migrationsrecht. Du beantwortest alle Fragen auf Deutsch. Du beantwortest nur Fragen zum Migrationsrecht. Du erhälst eine Frage und allenfalls passende Gesetzesbestimmungen sowie allenfalls zusätzliche Wissenselemente dazu. Du analysierst in einem ersten Schritt, ob passenden Bestimmungen bestehen. Falls ja, wendest Du diese Bestimmungen auf die Frage an."},
                     {"role": "user", "content": prompt}
                 ]
             )
@@ -228,7 +254,7 @@ def generate_ai_response(client, prompt, model=None):
         else:  # Groq client
             response = client.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
+                    {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschine im Migrationsrecht. Du beantwortest alle Fragen auf Deutsch. Du beantwortest nur Fragen zum Migrationsrecht. Du erhälst eine Frage und allenfalls passende Gesetzesbestimmungen sowie allenfalls zusätzliche Wissenselemente dazu. Du analysierst in einem ersten Schritt, ob passenden Bestimmungen bestehen. Falls ja, wendest Du diese Bestimmungen auf die Frage an."},
                     {"role": "user", "content": prompt}
                 ],
                 model="llama-3.1-70b-versatile"
