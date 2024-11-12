@@ -624,7 +624,7 @@ def main():
         #             st.session_state.top_articles,  # Use the combined articles
         #             law_data, 
         #             st.session_state.top_knowledge_items  # Include the knowledge items
-                )
+                # )
 
   # AI Model section
         if st.session_state.top_articles:
