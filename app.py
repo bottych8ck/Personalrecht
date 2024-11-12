@@ -199,10 +199,20 @@ def collect_articles_with_references(articles_to_evaluate, law_data):
 
     return all_articles
 
+# def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
+#     # You can implement a prompt generation function based on your requirements
+#     # Here we just concatenate some information as an example
+#     return f"Frage des Nutzers: {user_query}\n\nRelevante Artikel:\n{top_articles}\n\nZusätzliche Informationen:\n{top_knowledge_items}"
+
 def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
-    # You can implement a prompt generation function based on your requirements
-    # Here we just concatenate some information as an example
-    return f"Frage des Nutzers: {user_query}\n\nRelevante Artikel:\n{top_articles}\n\nZusätzliche Informationen:\n{top_knowledge_items}"
+    articles_text = "\n".join([f"{article['heading']}: {article['data']['content']}" for article in top_articles])
+    knowledge_items_text = "\n".join([
+        f"{st.session_state['knowledge_base'][item_id]['Title']}: {' '.join(st.session_state['knowledge_base'][item_id]['Content'])}"
+        for item_id in st.session_state.top_knowledge_items
+    ])
+
+    return f"Frage des Nutzers: {user_query}\n\nRelevante Artikel:\n{articles_text}\n\nZusätzliche Informationen:\n{knowledge_items_text}"
+
 
 def generate_ai_response(client, prompt, model=None):
     try:
@@ -417,6 +427,10 @@ def main():
                     all_articles.extend(articles_with_refs)
                 
                 st.session_state.analyzed_articles = all_articles
+                if st.session_state.analyzed_articles:
+                    # Add analyzed articles to top_articles
+                    st.session_state.top_articles.extend(st.session_state.analyzed_articles)
+
 
         # Always show results if they exist in session state
 
@@ -467,53 +481,7 @@ def main():
                             )
                     
                     st.markdown('</div>', unsafe_allow_html=True)
-        
-
-            
-            #     # Display the chapter-article slider
-            # st.markdown("---")
-            # st.subheader("Relevante Kapitel und Artikel")
-            
-            # # Create two columns
-            # col1, col2 = st.columns([3, 7])
-            
-            # with col1:
-            #     st.markdown("### Kapitel")
-            #     # Store selected chapter in session state if not exists
-            #     if 'selected_chapter' not in st.session_state:
-            #         st.session_state.selected_chapter = None
-                    
-            #     # Create clickable chapters
-            #     for idx, chapter in enumerate(st.session_state.top_chapters):
-            #         chapter_title = f"{chapter['law_full_name']} - {chapter['section_title']}"
-            #         if st.button(f"{idx+1}. {chapter_title}", 
-            #                     key=f"chapter_{idx}",
-            #                     help=f"Relevanz: {chapter['similarity']:.2f}"):
-            #             st.session_state.selected_chapter = chapter
-                        
-            # with col2:
-            #     st.markdown("### Artikel")
-            #     if st.session_state.selected_chapter:
-            #         chapter = st.session_state.selected_chapter
-            #         law_full_name = chapter['law_full_name']
-            #         section_title = chapter['section_title']
-            #         articles_in_section = articles_by_law_and_section.get(law_full_name, {}).get(section_title, [])
-                    
-            #         for article in articles_in_section:
-            #             article_id = article['data']['ID']
-            #             article_url = article['data'].get('URL', '#')
-            #             content = article['data']['content']
-                        
-            #             # Get first 10 words
-            #             preview = ' '.join(content.split()[:10]) + "..."
-                        
-            #             # Display URL and preview with tooltip
-            #             st.markdown(f"[{article_id}]({article_url})")
-            #             st.markdown(create_tooltip_html(
-            #                 preview,
-            #                 content
-            #             ), unsafe_allow_html=True)
-            #             st.markdown("---")
+         
 
             with st.expander("🔍 Zusätzliche Stichwortsuche", expanded=False):
                 st.write(create_tooltip_css(), unsafe_allow_html=True)
@@ -549,13 +517,25 @@ def main():
                         with col_content:
                             st.write(create_tooltip_html(f"{title} - {law_name}", content), unsafe_allow_html=True)
                         st.markdown("---")
-                    
                     if st.session_state.selected_article_uids and st.button("Ausgewählte Artikel hinzufügen"):
-                        existing_uids = [uid for uid, _ in st.session_state.top_articles]
                         for uid in st.session_state.selected_article_uids:
-                            if uid not in existing_uids:
-                                st.session_state.top_articles.append((uid, 1.0))
+                            # Find the article data using the UID
+                            for law_name, articles in law_data.items():
+                                for article_title, article_data in articles.items():
+                                    if article_data['ID'] == uid:
+                                        st.session_state.top_articles.append({
+                                            'heading': article_title,
+                                            'data': article_data
+                                        })
+                                        break
                         st.success("Ausgewählte Artikel wurden zu den relevanten Artikeln hinzugefügt")
+                    
+                    # if st.session_state.selected_article_uids and st.button("Ausgewählte Artikel hinzufügen"):
+                    #     existing_uids = [uid for uid, _ in st.session_state.top_articles]
+                    #     for uid in st.session_state.selected_article_uids:
+                    #         if uid not in existing_uids:
+                    #             st.session_state.top_articles.append((uid, 1.0))
+                    #     st.success("Ausgewählte Artikel wurden zu den relevanten Artikeln hinzugefügt")
             
                 with col2:
                     st.markdown("#### Gefundene Wissenselemente")
@@ -637,13 +617,21 @@ def main():
                     key='ai_provider'
                 )
                 
+                
                 current_prompt = generate_prompt(
                     st.session_state.query_text, 
                     None,
-                    st.session_state.analyzed_articles, 
+                    st.session_state.top_articles,  # Use the combined articles
                     law_data, 
-                    None
+                    st.session_state.top_knowledge_items  # Include the knowledge items
                 )
+                # current_prompt = generate_prompt(
+                #     st.session_state.query_text, 
+                #     None,
+                #     st.session_state.analyzed_articles, 
+                #     law_data, 
+                #     None
+                # )
                 
                 if st.button("Antwort generieren"):
                     with st.spinner('Generiere Antwort...'):
