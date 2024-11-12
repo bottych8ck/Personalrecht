@@ -580,13 +580,7 @@ def main():
                                         break
                         st.success("Ausgewählte Artikel wurden zu den relevanten Artikeln hinzugefügt")
                     
-                    # if st.session_state.selected_article_uids and st.button("Ausgewählte Artikel hinzufügen"):
-                    #     existing_uids = [uid for uid, _ in st.session_state.top_articles]
-                    #     for uid in st.session_state.selected_article_uids:
-                    #         if uid not in existing_uids:
-                    #             st.session_state.top_articles.append((uid, 1.0))
-                    #     st.success("Ausgewählte Artikel wurden zu den relevanten Artikeln hinzugefügt")
-            
+
                 with col2:
                     st.markdown("#### Gefundene Wissenselemente")
                     
@@ -656,25 +650,7 @@ def main():
             st.write("")
      
 
-        # # AI Model section
-        # if st.session_state.analyzed_articles:
-        #     st.markdown("---")
-        #     with st.expander("🤖 Mit Sprachmodell beantworten", expanded=False):
-        #         ai_provider = st.radio(
-        #             "Wählen Sie ein Sprachmodell:",
-        #             ("Groq Llama 3.1 (Gratis)", "OpenAI GPT-4"),
-        #             horizontal=True,
-        #             key='ai_provider'
-        #         )
-                
-                
-        #         current_prompt = generate_prompt(
-        #             st.session_state.query_text, 
-        #             None,
-        #             st.session_state.top_articles,  # Use the combined articles
-        #             law_data, 
-        #             st.session_state.top_knowledge_items  # Include the knowledge items
-                # )
+
 
   # AI Model section
         if st.session_state.top_articles:
@@ -687,12 +663,17 @@ def main():
                     key='ai_provider'
                 )
                 
+                # current_prompt = generate_prompt(
+                #     st.session_state.query_text, 
+                #     None,
+                #     st.session_state.top_articles,  # Use the combined articles
+                #     law_data, 
+                #     st.session_state.top_knowledge_items  # Include the knowledge items
+                # )
                 current_prompt = generate_prompt(
-                    st.session_state.query_text, 
-                    None,
-                    st.session_state.top_articles,  # Use the combined articles
-                    law_data, 
-                    st.session_state.top_knowledge_items  # Include the knowledge items
+                    st.session_state.query_text,
+                    st.session_state.top_articles,
+                    st.session_state['knowledge_base']
                 )
                 
                 col1, col2 = st.columns(2)
