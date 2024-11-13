@@ -666,7 +666,7 @@ def main():
                     st.session_state['knowledge_base']
                 )
                 
-                col1, spacer, col2 = st.columns([1, 0.01, 1])
+                col1, spacer, col2 = st.columns([1, 0.001, 1])
                 
                 with col1:
                     if st.button("Antwort Generieren"):
