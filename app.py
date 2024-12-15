@@ -14,26 +14,6 @@ from streamlit.components.v1 import html
 
 
 
-# Mapping for relevance criteria
-relevance_mapping = {
-    "Staatspersonal": "Die Frage bezieht sich auf Staatspersonal.",
-    "Lehrperson VS": "Die Frage bezieht sich auf Lehrpersonen an der Volksschule.",
-    "Lehrperson SEK II": "auf Lehrpersonen auf der Sekundarstufe II."
-}
-tags_mapping = {
-    "directly applicable: Staatspersonal": "Staatspersonal",
-    "indirectly applicable: Staatspersonal": "Staatspersonal",
-    "directly applicable: Lehrperson VS": "Lehrperson VS",
-    "indirectly applicable: Lehrperson VS": "Lehrperson VS",
-    "directly applicable: Lehrperson Sek II": "Lehrperson Sek II",
-    "indirectly applicable: Lehrperson Sek II": "Lehrperson Sek II"
-}
-
-reverse_tags_mapping = {
-    "Staatspersonal": ["directly applicable: Staatspersonal", "indirectly applicable: Staatspersonal"],
-    "Lehrperson VS": ["directly applicable: Lehrperson VS", "indirectly applicable: Lehrperson VS"],
-    "Lehrperson Sek II": ["directly applicable: Lehrperson Sek II", "indirectly applicable: Lehrperson Sek II"]
-}
 
 # Load the data
 with open('article_embeddings.json', 'r') as file:
@@ -231,27 +211,6 @@ def get_embeddings(text):
     res = openai_client.embeddings.create(input=[text], model="text-embedding-ada-002")
     return res.data[0].embedding
 
-def is_relevant_article(section_data, relevance):
-    normalized_relevance = relevance.lower().replace("sek ii", "SEK II")
-    
-    # Try to get "Tags" first (for knowledge_base), fallback to "tags" (for law_data) if not found
-    tags = section_data.get("Tags", section_data.get("tags", []))
-    normalized_tags = [tag.lower().replace("sek ii", "SEK II") for tag in tags]
-    
-    relevance_criteria = normalized_relevance  # Direct use of normalized_relevance ensures we're checking against the correct criteria
-    
-    # Check if any of the normalized tags match the normalized relevance criteria
-    is_relevant = any(relevance_criteria in tag for tag in normalized_tags)
-    
-    return is_relevant
-
-def get_relevant_articles(law_data, relevance):
-    relevant_articles = {}
-    for section, section_data in law_data.items():
-        if is_relevant_article(section_data, relevance):
-            relevant_articles[section] = section_data
-    return relevant_articles
-
 def calculate_similarities(query_vector, article_embeddings):
     query_vector = np.array(query_vector).reshape(1, -1)
     similarities = {}
@@ -276,10 +235,6 @@ def get_article_content(uid, law_data):
     law_name = article_info.get("Name", "Unbekanntes Gesetz")
     law_url = article_info.get("URL", "")
 
-    # Check if "Im § erwähnter Artikel des EOG" exists and append its content to all_paragraphs
-    mentioned_articles = article_info.get("Im § erwähnter Artikel des EOG", [])
-    if mentioned_articles:
-        all_paragraphs += ["Im § erwähnter Artikel des EOG:"] + mentioned_articles
 
     return (title, all_paragraphs, law_name, law_url)
 
@@ -307,30 +262,11 @@ def generate_html_with_js(text):
     </div>
     """
 
-# def generate_html_with_js(text):
-#     escaped_text = text.replace('"', '&quot;').replace('\n', '<br>')
-#     return f"""
-#     <div>
-#         <textarea id="text_area" style="position: absolute; left: -9999px;">{text}</textarea>
-#         <button onclick="copyToClipboard()" style="padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc; background: white; cursor: pointer;">
-#             In die Zwischenablage kopieren
-#         </button>
-#         <script>
-#             function copyToClipboard() {{
-#                 var copyText = document.getElementById('text_area');
-#                 copyText.select();
-#                 document.execCommand('copy');
-#                 alert('Text wurde in die Zwischenablage kopiert!');
-#             }}
-#         </script>
-#     </div>
-#     """
 
 
-def generate_prompt(user_query, relevance, top_articles, law_data, top_knowledge_items):
+def generate_prompt(user_query, top_articles, law_data, top_knowledge_items):
     prompt = f"Beantworte folgende Frage: \"{user_query}\"\n\n"
     prompt += "Beantworte die Frage nur gestützt auf einen oder mehrere der folgenden §. Prüfe zuerst, ob der § überhaupt auf die Frage anwendbar ist. Wenn er nicht anwendbar ist, vergiss den §.\n"
-    prompt += f"{relevance_mapping.get(relevance, 'Die Frage ist allgemein.')} \n\n"
     article_number = 1
     
     for uid, _ in top_articles:
@@ -389,25 +325,19 @@ def main_app():
 
     user_query = st.text_area("Hier Ihre Frage eingeben:", height=200, key="user_query_text_area")
 
-    relevance_options = ["Staatspersonal", "Lehrperson VS", "Lehrperson Sek II"]
-    relevance = st.selectbox("Wählen Sie aus, ob sich die Frage auf Staatspersonal, Lehrpersonen der Volksschule oder Lehrpersonen der Berufsfach- und Mittelschulen bezieht:", relevance_options)
-
     
     if st.button("Bearbeiten"):
-        st.session_state['relevance'] = relevance
         st.session_state['last_question'] = user_query
         st.session_state['last_answer'] = None  # Clear previous answer
         st.session_state.generating_answer = False
         query_vector = get_embeddings(user_query)
         similarities = calculate_similarities(query_vector, article_embeddings)
         sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
-        filtered_articles = [(title, score) for title, score in sorted_articles if is_relevant_article(law_data[title], relevance)]
-        st.session_state.top_articles = filtered_articles[:10]
+        st.session_state.top_articles = sorted_articles[:10]
         knowledge_similarities = calculate_similarities(query_vector, knowledge_base_embeddings)
         st.session_state.top_knowledge_items = [
             (item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True)
-            if is_relevant_article(knowledge_base[item_id], relevance)
-        ][:1]
+
 
         st.session_state['last_question'] = user_query
         st.session_state.submitted = True
@@ -582,7 +512,6 @@ def main_app():
             # Generate fresh prompt
             current_prompt = generate_prompt(
                 user_query, 
-                relevance, 
                 st.session_state.top_articles, 
                 law_data, 
                 st.session_state.top_knowledge_items
@@ -611,22 +540,7 @@ def main_app():
                     html(generate_html_with_js(st.session_state['last_answer']))
 
           
-            # show_prompt = st.checkbox("Prompt anzeigen und bearbeiten", value=False)
-            # if show_prompt:
-            #     edited_prompt = st.text_area(
-            #         "**Prompt bearbeiten:**", 
-            #         value=current_prompt,
-            #         height=300
-            #     )
-                
-            #     if st.button("Mit bearbeitetem Prompt neu generieren"):
-            #         with st.spinner('Generiere neue Antwort...'):
-            #             client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
-            #             response, model = generate_ai_response(client, edited_prompt)
-                        
-            #             if response:
-            #                 st.session_state['last_answer'] = response
-            #                 st.session_state['last_model'] = model
+
 
 if __name__ == "__main__":
     main_app()
