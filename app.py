@@ -11,6 +11,7 @@ import base64
 import requests
 from groq import Groq
 from streamlit.components.v1 import html
+import google.generativeai as genai
 
 
 
@@ -36,11 +37,14 @@ openai_client = openai.OpenAI(api_key=openai_api_key)
 groq_api_key = os.getenv('GROQ_API_KEY')
 groq_client = Groq(api_key=groq_api_key)
 
+st.set_page_config(page_title="Abfrage des Bundesmigrationsrechts", layout="wide")
+genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+
 def generate_ai_response(client, prompt, model=None):
     try:
         if isinstance(client, openai.OpenAI):
             response = client.chat.completions.create(
-                model="gpt-4-turbo-preview",
+                model="GPT-4o:",
                 messages=[
                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
                     {"role": "user", "content": prompt}
@@ -208,12 +212,13 @@ def delete_from_knowledge_base(entry_id):
         st.error(f"Entry {entry_id} not found.")
 
 def get_embeddings(text):
-    res = openai_client.embeddings.create(input=[text], model="text-embedding-ada-002")
-    return res.data[0].embedding
+    result = genai.embed_content(model="models/text-embedding-004", content=text, output_dimensionality=768)
+    embedding = result["embedding"]
+    return np.array(embedding)
 
-def calculate_similarities(query_vector, article_embeddings):
-    query_vector = np.array(query_vector).reshape(1, -1)
-    similarities = {}
+# Function to compute cosine similarity
+def cosine_similarity(a, b):
+    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
     
     for title, article_vector in article_embeddings.items():
         try:
