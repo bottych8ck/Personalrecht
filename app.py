@@ -24,7 +24,7 @@ with open('law_data.json', 'r') as file:
 with open('Rechtssprechung-Embeddings.json', 'r') as file:
     Rechtssprechung_Embeddings = json.load(file)
 
-with open('Rechtssprechung_Base.json', 'r') as file:
+with open('Rechtssprechung-Base.json', 'r') as file:
     Rechtssprechung_Base = json.load(file)
 
 load_dotenv()  # This line loads the variables from .env
