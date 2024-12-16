@@ -40,6 +40,36 @@ groq_client = Groq(api_key=groq_api_key)
 
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
 
+def get_embeddings(text):
+    """Generate embeddings for a given text using Gemini API"""
+    try:
+        result = genai.embed_content(
+            model="models/embedding-001",  # or whatever embedding model you prefer
+            content=text,
+            task_type="retrieval_document",
+            title="text embedding"
+        )
+        return result['embedding']
+    except Exception as e:
+        st.error(f"Error generating embeddings: {e}")
+        return None
+
+def calculate_similarities(query_vector, embeddings_dict):
+    """Calculate cosine similarities between query and stored embeddings"""
+    similarities = {}
+    query_vector = np.array(query_vector).reshape(1, -1)
+    
+    for uid, data in embeddings_dict.items():
+        if isinstance(data, dict) and 'embedding' in data:
+            doc_vector = np.array(data['embedding']).reshape(1, -1)
+        else:
+            doc_vector = np.array(data).reshape(1, -1)
+        
+        similarity = cosine_similarity(query_vector, doc_vector)[0][0]
+        similarities[uid] = similarity
+    
+    return similarities
+
 def generate_ai_response(client, prompt, model=None):
     try:
         if isinstance(client, openai.OpenAI):
