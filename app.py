@@ -13,6 +13,8 @@ from groq import Groq
 from streamlit.components.v1 import html
 import google.generativeai as genai
 
+# Set page config ONCE at the very top
+st.set_page_config(page_title="Abfrage des Bundesmigrationsrechts", layout="wide")
 
 # Load the data
 with open('article_embeddings.json', 'r') as file:
@@ -36,7 +38,6 @@ openai_client = openai.OpenAI(api_key=openai_api_key)
 groq_api_key = os.getenv('GROQ_API_KEY')
 groq_client = Groq(api_key=groq_api_key)
 
-st.set_page_config(page_title="Abfrage des Bundesmigrationsrechts", layout="wide")
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
 
 def generate_ai_response(client, prompt, model=None):
@@ -167,7 +168,6 @@ def update_file_in_github(file_path, content, commit_message="Update file"):
     return response.json()
 
 def main_app():
-    st.set_page_config(page_title="Abfrage des Bundesmigrationsrechts", layout="wide")
     st.image(logo_path, width=400)
     st.subheader("Abfrage des Thurgauer Personalrechts")
 
