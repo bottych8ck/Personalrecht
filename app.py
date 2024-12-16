@@ -44,10 +44,9 @@ def get_embeddings(text):
     """Generate embeddings for a given text using Gemini API"""
     try:
         result = genai.embed_content(
-            model="models/embedding-001",  # or whatever embedding model you prefer
+            model="models/text-embedding-004",  # Using the 1536-dimension model
             content=text,
-            task_type="retrieval_document",
-            title="text embedding"
+            output_dimensionality=1536  # Explicitly set dimensionality
         )
         return result['embedding']
     except Exception as e:
