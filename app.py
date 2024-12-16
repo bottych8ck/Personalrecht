@@ -167,13 +167,249 @@ def update_file_in_github(file_path, content, commit_message="Update file"):
     return response.json()
 
 def main_app():
+    st.set_page_config(page_title="Abfrage des Bundesmigrationsrechts", layout="wide")
     st.image(logo_path, width=400)
     st.subheader("Abfrage des Thurgauer Personalrechts")
-    
+
+    # Initialize session state
+    if 'last_question' not in st.session_state:
+        st.session_state['last_question'] = ""
+    if 'last_answer' not in st.session_state:
+        st.session_state['last_answer'] = None
+    if 'last_answer_gpt4o' not in st.session_state:
+        st.session_state['last_answer_gpt4o'] = None
+    if 'top_articles' not in st.session_state:
+        st.session_state['top_articles'] = []
+    if 'top_knowledge_items' not in st.session_state:
+        st.session_state['top_knowledge_items'] = []
+    if 'generated_prompt' not in st.session_state:
+        st.session_state['generated_prompt'] = ""
+    if 'submitted' not in st.session_state:
+        st.session_state['submitted'] = False
+    if 'show_form' not in st.session_state:
+        st.session_state['show_form'] = False
+    if 'delete_form' not in st.session_state:
+        st.session_state['delete_form'] = False
+    if 'generating_answer' not in st.session_state:
+        st.session_state.generating_answer = False
+    if 'start_generating_answer' not in st.session_state:
+        st.session_state.start_generating_answer = False
+    if 'last_model' not in st.session_state:
+        st.session_state.last_model = False
+
     user_query = st.text_area("Hier Ihre Frage eingeben:", height=200, key="user_query_text_area")
-    
+
+    # On pressing "Bearbeiten"
     if st.button("Bearbeiten"):
         st.session_state['last_question'] = user_query
+        st.session_state['last_answer'] = None
+        st.session_state.generating_answer = False
+
+        # Get embeddings for the query and find relevant articles
+        query_vector = get_embeddings(user_query)
+        similarities = calculate_similarities(query_vector, article_embeddings)
+        sorted_articles = sorted(similarities.items(), key=lambda x: x[1], reverse=True)
+        st.session_state.top_articles = sorted_articles[:10]
+
+        # Find relevant Rechtssprechung items
+        knowledge_similarities = calculate_similarities(query_vector, Rechtssprechung_Embeddings)
+        st.session_state.top_knowledge_items = [
+            (item_id, score) for item_id, score in sorted(knowledge_similarities.items(), key=lambda x: x[1], reverse=True)
+        ]
+
+        st.session_state.submitted = True
+
+    if st.session_state.get('submitted'):
+        with st.expander("Am besten auf die Anfrage passende Bestimmungen und Wissenselemente", expanded=True):
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("#### Bestimmungen")
+                for uid, score in st.session_state.top_articles:
+                    article_info = law_data.get(str(uid), None)
+                    if article_info:
+                        title, all_paragraphs, law_name, law_url = get_article_content(str(uid), law_data)
+                        law_name_display = law_name if law_name else "Unbekanntes Gesetz"
+                        if law_url:
+                            law_name_display = f"<a href='{law_url}' target='_blank'>{law_name_display}</a>"
+
+                        title_clean = title.strip('*')
+                        st.markdown(f"**{title_clean} - {law_name_display}**", unsafe_allow_html=True)
+
+                        if all_paragraphs:
+                            for paragraph in all_paragraphs:
+                                st.write(paragraph)
+                        else:
+                            st.write("Kein Inhalt verfügbar.")
+
+            with col2:
+                st.markdown("#### Wissenselemente")
+                for item_id, _ in st.session_state.top_knowledge_items:
+                    item = Rechtssprechung_Base.get(item_id, {})
+                    title = item.get("Title", "Unbekannt")
+                    content = ' '.join(item.get("Content", []))
+                    st.markdown(f"**{title}**")
+                    st.write(content)
+
+    if st.session_state.get('submitted'):
+        st.markdown("---")
+        with st.expander("🔍 Zusätzliche Stichwortsuche", expanded=False):
+            st.write(create_tooltip_css(), unsafe_allow_html=True)
+            keyword = st.text_input("Stichwort eingeben und Enter drücken:")
+            st.markdown("Auswählen, welche Artikel oder Wissenselemente für die Antwort zusätzlich berücksichtigt werden sollen:")
+            if keyword:
+                matching_articles, matching_items = keyword_search(keyword, law_data, Rechtssprechung_Base)
+
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    st.markdown("#### Gefundene Gesetzesartikel")
+                    selected_article_uids = []
+
+                    for uid, article in matching_articles.items():
+                        title = article.get('Title', 'Unknown Title')
+                        law_name = article.get('Name', 'Unbekanntes Gesetz')
+                        content = '<br>'.join(article.get('Inhalt', []))
+
+                        col_select, col_content = st.columns([1, 4])
+                        with col_select:
+                            if st.checkbox("", key=f"select_article_{uid}"):
+                                selected_article_uids.append(uid)
+                        with col_content:
+                            st.write(
+                                create_tooltip_html(
+                                    f"{title} - {law_name}",
+                                    content
+                                ),
+                                unsafe_allow_html=True
+                            )
+                        st.markdown("---")
+
+                    if selected_article_uids and st.button("Ausgewählte Artikel hinzufügen"):
+                        existing_uids = [uid for uid, _ in st.session_state.top_articles]
+                        for uid in selected_article_uids:
+                            if uid not in existing_uids:
+                                st.session_state.top_articles.append((uid, 1.0))
+                        st.success("Ausgewählte Artikel wurden zu den relevanten Artikeln hinzugefügt")
+
+                with col2:
+                    st.markdown("#### Gefundene Wissenselemente")
+                    selected_item_ids = []
+
+                    for item_id, item in matching_items.items():
+                        title = item.get('Title', 'Unknown Title')
+                        content = ' '.join(item.get('Content', []))
+
+                        col_select, col_content = st.columns([1, 4])
+                        with col_select:
+                            if st.checkbox("", key=f"select_item_{item_id}"):
+                                selected_item_ids.append(item_id)
+                        with col_content:
+                            st.write(
+                                create_tooltip_html(
+                                    title,
+                                    content
+                                ),
+                                unsafe_allow_html=True
+                            )
+                        st.markdown("---")
+
+                    if selected_item_ids and st.button("Ausgewählte Wissenselemente hinzufügen"):
+                        existing_ids = [item_id for item_id, _ in st.session_state.top_knowledge_items]
+                        for item_id in selected_item_ids:
+                            if item_id not in existing_ids:
+                                st.session_state.top_knowledge_items.append((item_id, 1.0))
+                        st.success("Ausgewählte Wissenselemente wurden zu den relevanten Wissenselementen hinzugefügt")
+
+
+        with st.expander("Neues Wissen hinzufügen", expanded=False):
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Neues Wissenselement hinzufügen"):
+                    st.session_state.show_form = not st.session_state.show_form
+
+                if st.session_state.show_form:
+                    with st.form(key='add_knowledge_form'):
+                        title = st.text_input("Titel", value=f"Hinweis zu folgender Frage: {st.session_state['last_question']}")
+                        content = st.text_area("Inhalt")
+                        category = "User-Hinweis"
+                        selected_german_tags = st.multiselect(
+                            "Anwendbarkeit: Auf welche Personalkategorie ist das neue Wissen anwendbar? Bitte auswählen, mehrfache Auswahl ist erlaubt.",
+                            list(set(tags_mapping.values())),
+                            default=[
+                                "Staatspersonal",
+                                "Lehrperson VS",
+                                "Lehrperson Sek II"
+                            ]
+                        )
+                        submit_button = st.form_submit_button(label='Hinzufügen')
+
+                        if submit_button and title and content:
+                            # Convert the selected German tags to their corresponding English tags
+                            selected_english_tags = []
+                            for selected_german_tag in selected_german_tags:
+                                selected_english_tags.extend(reverse_tags_mapping[selected_german_tag])
+                            # Adjust this function as needed if it's meant to update Rechtssprechung_Base
+                            add_to_knowledge_base(title, content, category, selected_english_tags)
+                            st.success("Neues Wissen erfolgreich hinzugefügt!")
+
+                if 'delete_form' not in st.session_state:
+                    st.session_state.delete_form = False
+
+            with col2:
+                if st.button("Wissenselement löschen"):
+                    st.session_state.delete_form = not st.session_state.delete_form
+
+                if st.session_state.delete_form:
+                    with st.form(key='delete_knowledge_form'):
+                        entry_id_to_delete = st.selectbox(
+                            "Wählen Sie das Wissenselement zum Löschen aus:", 
+                            list(Rechtssprechung_Base.keys()),
+                            format_func=lambda x: f"{x}: {Rechtssprechung_Base[x]['Title']}"
+                        )
+                        delete_button = st.form_submit_button(label='Löschen')
+
+                        if delete_button and entry_id_to_delete:
+                            # Adjust this function as needed if it's meant to delete from Rechtssprechung_Base
+                            delete_from_knowledge_base(entry_id_to_delete)
+
+        st.write("")
+        st.write("")
+
+        # genAI-Teil
+        with st.expander("🤖 Mit Sprachmodell beantworten", expanded=True):
+            ai_provider = st.radio(
+                "Wählen Sie ein Sprachmodell:",
+                ("Groq Llama 3.1 (Gratis)", "OpenAI GPT-4"),
+                horizontal=True,
+                key='ai_provider'
+            )
+
+            # Generate fresh prompt
+            current_prompt = generate_prompt(
+                st.session_state['last_question'], 
+                st.session_state.top_articles, 
+                law_data, 
+                st.session_state.top_knowledge_items
+            )
+
+            if st.button("Antwort generieren"):
+                with st.spinner('Generiere Antwort...'):
+                    client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
+                    response, model = generate_ai_response(client, current_prompt)
+
+                    if response:
+                        st.session_state['last_answer'] = response
+                        st.session_state['last_model'] = model
+
+            # Display answer
+            answer_container = st.container()
+            with answer_container:
+                if 'last_answer' in st.session_state and st.session_state['last_answer']:
+                    st.success(f"Antwort erfolgreich generiert mit {st.session_state['last_model']}")
+                    st.subheader(f"Antwort SubSumary ({st.session_state['last_model']}):")
+                    st.markdown(st.session_state['last_answer'])
+                    html(generate_html_with_js(st.session_state['last_answer']))
+
     
 if __name__ == "__main__":
     main_app()
