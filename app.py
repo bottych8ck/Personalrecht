@@ -21,7 +21,7 @@ with open('article_embeddings.json', 'r') as file:
 with open('law_data.json', 'r') as file:
     law_data = json.load(file)
 
-with open('Rechtssprechung_Embeddings.json', 'r') as file:
+with open('Rechtssprechung-Embeddings.json', 'r') as file:
     Rechtssprechung_Embeddings = json.load(file)
 
 with open('Rechtssprechung_Base.json', 'r') as file:
