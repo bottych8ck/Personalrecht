@@ -21,11 +21,11 @@ with open('article_embeddings.json', 'r') as file:
 with open('law_data.json', 'r') as file:
     law_data = json.load(file)
 
-with open('Rechtsprechung_Embeddings.json', 'r') as file:
-    Rechtsprechung_Embeddings = json.load(file)
+with open('Rechtssprechung_Embeddings.json', 'r') as file:
+    Rechtssprechung_Embeddings = json.load(file)
 
-with open('Rechtsprechung_Base.json', 'r') as file:
-    Rechtsprechung_Base = json.load(file)
+with open('Rechtssprechung_Base.json', 'r') as file:
+    Rechtssprechung_Base = json.load(file)
 
 load_dotenv()  # This line loads the variables from .env
 logo_path = 'subsumary_Logo_1farbig_schwarz.png'
@@ -116,7 +116,7 @@ def create_tooltip_html(title, content):
     </div>
     """
 
-def keyword_search(keyword, law_data, Rechtsprechung_Base):
+def keyword_search(keyword, law_data, Rechtssprechung_Base):
     keyword = keyword.lower()
     
     matching_articles = {}
@@ -129,7 +129,7 @@ def keyword_search(keyword, law_data, Rechtsprechung_Base):
             matching_articles[uid] = article
             
     matching_items = {}
-    for item_id, item in Rechtsprechung_Base.items():
+    for item_id, item in Rechtssprechung_Base.items():
         if keyword in item.get('Title', '').lower():
             matching_items[item_id] = item
             continue
