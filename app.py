@@ -73,7 +73,7 @@ def generate_ai_response(client, prompt, model=None):
     try:
         if isinstance(client, openai.OpenAI):
             response = client.chat.completions.create(
-                model="gpt-4o:",
+                model="gpt-4o",
                 messages=[
                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
                     {"role": "user", "content": prompt}
