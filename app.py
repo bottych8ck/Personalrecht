@@ -44,9 +44,9 @@ def get_embeddings(text):
     """Generate embeddings for a given text using Gemini API"""
     try:
         result = genai.embed_content(
-            model="models/text-embedding-004",  # Using the 1536-dimension model
+            model="models/text-embedding-004",
             content=text,
-            output_dimensionality=1536  # Explicitly set dimensionality
+            output_dimensionality=768  # Match the dimension used in processor
         )
         return result['embedding']
     except Exception as e:
@@ -195,6 +195,17 @@ def update_file_in_github(file_path, content, commit_message="Update file"):
     response = requests.put(url, headers=headers, json=data)
     response.raise_for_status()
     return response.json()
+
+def get_article_content(uid, law_data):
+    """Extract article content from law data"""
+    article = law_data.get(uid, {})
+    
+    title = article.get('Title', 'Unknown Title')
+    paragraphs = article.get('Inhalt', [])
+    law_name = article.get('Name', ['Unknown Law'])[0] if article.get('Name') else 'Unknown Law'
+    law_url = article.get('URL', None)
+    
+    return title, paragraphs, law_name, law_url
 
 def main_app():
     st.image(logo_path, width=400)
