@@ -392,7 +392,7 @@ def main_app():
 
                         col_select, col_content = st.columns([1, 4])
                         with col_select:
-                            if st.checkbox("", key=f"select_article_{uid}"):
+                            if st.checkbox("Auswählen", key=f"select_article_{uid}", label_visibility="collapsed"):
                                 selected_article_uids.append(uid)
                         with col_content:
                             st.write(
@@ -421,7 +421,7 @@ def main_app():
 
                         col_select, col_content = st.columns([1, 4])
                         with col_select:
-                            if st.checkbox("", key=f"select_item_{item_id}"):
+                            if st.checkbox("Auswählen", key=f"select_item_{item_id}", label_visibility="collapsed"):
                                 selected_item_ids.append(item_id)
                         with col_content:
                             st.write(
