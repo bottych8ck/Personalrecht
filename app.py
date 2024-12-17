@@ -497,12 +497,22 @@ def main_app():
 
         # genAI-Teil
         with st.expander("🤖 Mit Sprachmodell beantworten", expanded=True):
+            # Reset answer when model changes
+            if 'previous_model' not in st.session_state:
+                st.session_state.previous_model = None
+            
             ai_provider = st.radio(
                 "Wählen Sie ein Sprachmodell:",
                 ("Groq Llama 3.1 (Gratis)", "OpenAI gpt-4o"),
                 horizontal=True,
                 key='ai_provider'
             )
+            
+            # Clear previous answer if model changed
+            if st.session_state.previous_model != ai_provider:
+                st.session_state.last_answer = None
+                st.session_state.last_model = None
+                st.session_state.previous_model = ai_provider
 
             # Generate fresh prompt
             current_prompt = generate_prompt(
@@ -514,7 +524,7 @@ def main_app():
 
             if st.button("Antwort generieren"):
                 with st.spinner('Generiere Antwort...'):
-                    client = openai_client if ai_provider == "OpenAI GPT-4" else groq_client
+                    client = openai_client if "OpenAI" in ai_provider else groq_client
                     response, model = generate_ai_response(client, current_prompt)
 
                     if response:
