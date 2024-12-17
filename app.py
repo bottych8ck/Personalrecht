@@ -73,7 +73,7 @@ def generate_ai_response(client, prompt, model=None):
     try:
         if isinstance(client, openai.OpenAI):
             response = client.chat.completions.create(
-                model="GPT-4o:",
+                model="gpt-4o:",
                 messages=[
                     {"role": "system", "content": "Du bist eine Gesetzessumptionsmaschiene. Du beantwortest alle Fragen auf Deutsch."},
                     {"role": "user", "content": prompt}
@@ -499,7 +499,7 @@ def main_app():
         with st.expander("🤖 Mit Sprachmodell beantworten", expanded=True):
             ai_provider = st.radio(
                 "Wählen Sie ein Sprachmodell:",
-                ("Groq Llama 3.1 (Gratis)", "OpenAI GPT-4"),
+                ("Groq Llama 3.1 (Gratis)", "OpenAI gpt-4o"),
                 horizontal=True,
                 key='ai_provider'
             )
