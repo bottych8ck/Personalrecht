@@ -200,7 +200,8 @@ def get_article_content(uid, law_data):
     """Extract article content from law data"""
     article = law_data.get(uid, {})
     
-    title = article.get('Title', 'Unknown Title')
+    # Use the article ID as title since it contains the article name
+    title = uid  # e.g., "1 - Volksschule"
     paragraphs = article.get('Inhalt', [])
     law_name = article.get('Name', ['Unknown Law'])[0] if article.get('Name') else 'Unknown Law'
     law_url = article.get('URL', None)
@@ -285,10 +286,34 @@ def main_app():
                 st.markdown("#### Wissenselemente")
                 for item_id, _ in st.session_state.top_knowledge_items:
                     item = Rechtssprechung_Base.get(item_id, {})
-                    title = item.get("Title", "Unbekannt")
-                    content = ' '.join(item.get("Content", []))
-                    st.markdown(f"**{title}**")
-                    st.write(content)
+                    # Get the name, summary and url from the new structure
+                    name = item.get('name', 'Unbekannt')
+                    source_url = item.get('source_url', '')
+                    
+                    # Create title with link if URL exists
+                    if source_url:
+                        title = f"**Entscheid: <a href='{source_url}' target='_blank'>{name}</a>**"
+                    else:
+                        title = f"**Entscheid: {name}**"
+                    
+                    summary = item.get('summary', {})
+                    
+                    # Display title with link if available
+                    st.markdown(title, unsafe_allow_html=True)
+                    
+                    # Display summary sections if they exist
+                    if summary:
+                        if 'Sachverhalt' in summary:
+                            st.markdown("**Sachverhalt:**")
+                            st.write(summary['Sachverhalt'])
+                        if 'Erwägungen' in summary:
+                            st.markdown("**Erwägungen:**")
+                            st.write(summary['Erwägungen'])
+                        if 'Entscheid' in summary:
+                            st.markdown("**Entscheid:**")
+                            st.write(summary['Entscheid'])
+                    
+                    st.markdown("---")  # Add separator between decisions
 
     if st.session_state.get('submitted'):
         st.markdown("---")
