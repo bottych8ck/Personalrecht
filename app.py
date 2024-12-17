@@ -14,7 +14,7 @@ from streamlit.components.v1 import html
 import google.generativeai as genai
 
 # Set page config ONCE at the very top
-st.set_page_config(page_title="Abfrage des Bundesmigrationsrechts", layout="wide")
+st.set_page_config(page_title="Abfrage des kantonalen Bildungsrechts", layout="wide")
 
 # Load the data
 with open('article_embeddings.json', 'r') as file:
@@ -208,9 +208,35 @@ def get_article_content(uid, law_data):
     
     return title, paragraphs, law_name, law_url
 
+def generate_prompt(question, top_articles, law_data, top_knowledge_items):
+    """Generate a prompt combining the question with relevant articles and decisions"""
+    prompt = f"Frage: {question}\n\nRelevante Gesetzesartikel:\n"
+    
+    # Add relevant articles
+    for uid, _ in top_articles:
+        article = law_data.get(str(uid), {})
+        title = uid
+        content = '\n'.join(article.get('Inhalt', []))
+        law_name = article.get('Name', [''])[0]
+        prompt += f"\n{title} - {law_name}:\n{content}\n"
+    
+    # Add only top 10 relevant decisions
+    prompt += "\nRelevante Entscheide:\n"
+    for item_id, _ in top_knowledge_items[:10]:  # Limit to first 10 decisions
+        item = Rechtssprechung_Base.get(item_id, {})
+        summary = item.get('summary', {})
+        if summary:
+            prompt += f"\nEntscheid {item.get('name', 'Unbekannt')}:\n"
+            prompt += f"Sachverhalt: {summary.get('Sachverhalt', '')}\n"
+            prompt += f"Erwägungen: {summary.get('Erwägungen', '')}\n"
+            prompt += f"Entscheid: {summary.get('Entscheid', '')}\n"
+    
+    prompt += "\nBitte beantworte die Frage basierend auf den oben genannten Gesetzesartikeln und Entscheiden."
+    return prompt
+
 def main_app():
     st.image(logo_path, width=400)
-    st.subheader("Abfrage des Thurgauer Personalrechts")
+    st.subheader("Abfrage des kantonalen Bildungsrechts und bildungsrechtlicher Entscheide")
 
     # Initialize session state
     if 'last_question' not in st.session_state:
@@ -284,24 +310,24 @@ def main_app():
 
             with col2:
                 st.markdown("#### Wissenselemente")
-                for item_id, _ in st.session_state.top_knowledge_items:
+                
+                # Get all decisions
+                decisions = st.session_state.top_knowledge_items
+                
+                # Show first 10 by default
+                for item_id, _ in decisions[:10]:
                     item = Rechtssprechung_Base.get(item_id, {})
-                    # Get the name, summary and url from the new structure
                     name = item.get('name', 'Unbekannt')
                     source_url = item.get('source_url', '')
                     
-                    # Create title with link if URL exists
                     if source_url:
                         title = f"**Entscheid: <a href='{source_url}' target='_blank'>{name}</a>**"
                     else:
                         title = f"**Entscheid: {name}**"
                     
                     summary = item.get('summary', {})
-                    
-                    # Display title with link if available
                     st.markdown(title, unsafe_allow_html=True)
                     
-                    # Display summary sections if they exist
                     if summary:
                         if 'Sachverhalt' in summary:
                             st.markdown("**Sachverhalt:**")
@@ -313,7 +339,36 @@ def main_app():
                             st.markdown("**Entscheid:**")
                             st.write(summary['Entscheid'])
                     
-                    st.markdown("---")  # Add separator between decisions
+                    st.markdown("---")
+                
+                # Show "Show More" button if there are more than 10 decisions
+                if len(decisions) > 10:
+                    if st.button("Weitere Entscheide anzeigen"):
+                        for item_id, _ in decisions[10:]:
+                            item = Rechtssprechung_Base.get(item_id, {})
+                            name = item.get('name', 'Unbekannt')
+                            source_url = item.get('source_url', '')
+                            
+                            if source_url:
+                                title = f"**Entscheid: <a href='{source_url}' target='_blank'>{name}</a>**"
+                            else:
+                                title = f"**Entscheid: {name}**"
+                            
+                            summary = item.get('summary', {})
+                            st.markdown(title, unsafe_allow_html=True)
+                            
+                            if summary:
+                                if 'Sachverhalt' in summary:
+                                    st.markdown("**Sachverhalt:**")
+                                    st.write(summary['Sachverhalt'])
+                                if 'Erwägungen' in summary:
+                                    st.markdown("**Erwägungen:**")
+                                    st.write(summary['Erwägungen'])
+                                if 'Entscheid' in summary:
+                                    st.markdown("**Entscheid:**")
+                                    st.write(summary['Entscheid'])
+                            
+                            st.markdown("---")
 
     if st.session_state.get('submitted'):
         st.markdown("---")
