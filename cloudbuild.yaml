@@ -25,7 +25,7 @@ steps:
       - '--source'
       - '/workspace/staging'
       - '--region'
-      - 'us-central1'
+      - 'europe-west1'
       - '--allow-unauthenticated'
       - '--platform'
       - 'managed'
