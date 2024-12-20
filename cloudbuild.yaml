@@ -25,12 +25,20 @@ steps:
       - '--source'
       - '/workspace/staging'
       - '--region'
-      - 'europe-west1'  # Specify your desired deployment region
+      - 'us-central1'
       - '--allow-unauthenticated'
       - '--platform'
       - 'managed'
 
+# Add timeout
 timeout: '1600s'
 
 options:
   logging: CLOUD_LOGGING_ONLY
+  dynamic_substitutions: true
+  substitution_option: 'ALLOW_LOOSE'
+  pool:
+    name: 'projects/${PROJECT_ID}/locations/europe-west1/workerPools/default'
+
+images:
+  - 'gcr.io/$PROJECT_ID/bildungsrecht-api' 
