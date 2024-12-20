@@ -44,7 +44,7 @@ def get_embeddings(text):
         return None
 
 def calculate_similarities(query_vector, embeddings_dict):
-    """Calculate cosine similarities between query and stored embeddings"""
+    """Calculate cosine similarities between query and stored embeddings -or tries"""
     similarities = {}
     query_vector = np.array(query_vector).reshape(1, -1)
     
