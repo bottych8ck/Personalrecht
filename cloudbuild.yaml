@@ -34,4 +34,3 @@ timeout: '1600s'
 
 options:
   logging: CLOUD_LOGGING_ONLY
-  region: 'us-west2'  # Specify a region without quota restrictions
