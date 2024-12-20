@@ -2148,5 +2148,441 @@
             "Entscheid": "Der Schülerin wurde der weitere Verbleib in der Bezirksschule gestattet."
         },
         "source_url": "https://entscheidsuche.ch/docs/AG_Gerichte/AG_OG_999_AGVE-2005-123_2005-11-30.pdf"
+    },
+    "216": {
+        "name": "CH_BGE_001_BGE-125-I-173_1999.html",
+        "court": "CH_BGE_",
+        "summary": {},
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_001_BGE-125-I-173_1999.html"
+    },
+    "217": {
+        "name": "CH_BGE_001_BGE-136-I-332_2010-08-31.html",
+        "court": "CH_BGE_",
+        "summary": {},
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_001_BGE-136-I-332_2010-08-31.html"
+    },
+    "218": {
+        "name": "CH_BGE_001_BGE-138-I-162_2012-04-13.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "Der Beschwerdeführer X. leidet an einer hochgradigen zentralen auditiven Wahrnehmungsstörung, die ihm das Folgen des Unterrichts in der Regelschule erschwert. Er beantragt eine interne Sonderschulung in einer externen Institution. Das Amt für Volksschulen und Sport des Kantons Schwyz lehnt den Antrag ab und ordnet eine integrative Sonderschulung mit sonderschulischen Maßnahmen in der Regelschule an.",
+            "Erwägungen": "Die Kantone haben im Bereich der Sonderschulung einen erheblichen Gestaltungsspielraum, müssen aber ein angemessenes, erfahrungsgemäß ausreichendes Bildungsangebot an öffentlichen Schulen gewährleisten. Der Anspruch auf Schulung umfasst nicht die optimale oder geeignetste Schulung eines Kindes. Es besteht ein grundsätzlicher Vorrang der integrierten gegenüber der separierten Sonderschulung, solange die integrierte Schulung mindestens gleichwertig ist. Die Vorinstanz hat willkürfrei festgestellt, dass die integrierte Sonderschulung mit den vorgesehenen flankierenden Maßnahmen der separierten Schulung mindestens gleichwertig ist. Dabei hat sie berücksichtigt, dass eine optimierte Schulung für jeden Schüler wünschenswert, aber im Hinblick auf die staatlichen Leistungsvermögen und die Rechtsgleichheit nicht für alle Kinder realisierbar ist.",
+            "Entscheid": "Die Beschwerde wird abgewiesen, soweit darauf eingetreten wird."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_001_BGE-138-I-162_2012-04-13.html"
+    },
+    "219": {
+        "name": "CH_BGE_001_BGE-140-I-153_2014.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "Ein Verein, der Sonderschulen betreibt, verrechnet die Transportkosten für den Schulbesuch mit der Sozialversicherung (bis 2007) bzw. dem Kanton St. Gallen (ab 2008). Die Eidgenössische Steuerverwaltung erachtete die Vergütung als steuerbar, was vor Gericht angefochten wurde.",
+            "Erwägungen": "Das Bundesgericht stützte sich auf bildungs- und sozialversicherungsrechtliche Überlegungen und kam zu folgendem Schluss:\n\n- Aufgrund des verfassungsrechtlichen Anspruchs auf unentgeltlichen Grundschulunterricht und der Pflicht zum Schulbesuch besteht ein Rechtsverhältnis zwischen Schulträger und Schulpflichtigen, in dem die Beförderungspflicht eine Nebenleistung darstellt.\n\n- Diese Leistungen sind unentgeltlich und schließen einen Leistungsaustausch mit den Schulpflichtigen aus.\n\n- Die Vergütung der Transportkosten durch die Sozialversicherung bzw. den Kanton ist daher mehrwertsteuerlich als Subvention einzustufen und nicht als Leistungsaustausch zu betrachten.",
+            "Entscheid": "Die Beschwerden des Vereins gegen die Nachbelastungen wurden gutgeheissen. Die Vergütung der Transportkosten ist nicht steuerbar, da es sich mehrwertsteuerlich um Subventionen handelt."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_001_BGE-140-I-153_2014.html"
+    },
+    "220": {
+        "name": "CH_BGE_001_BGE-141-I-9_2014-12-04.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "Ein behinderter Grundschüler (Beschwerdeführer 1) erhält für seinen Unterricht in der Regelschule eine Vollzeitassistenz, die gesetzlich nicht vorgesehen ist. Die Schulbehörde genehmigt die Finanzierung von 18 Wochenstunden, während die Eltern die restlichen Kosten tragen.",
+            "Erwägungen": "**Diskriminierungsverbot und Ansprüche behinderter Schüler**\n- Es besteht ein Verbot der Benachteiligung aufgrund einer Behinderung, jedoch kein Anspruch auf absolute Gleichstellung.\n- Behinderte Schüler haben einen Anspruch auf geeignete Sonderschulung.\n\n**Grundschulunterricht und Finanzierung**\n- Der Grundschulunterricht muss ausreichend und unentgeltlich sein.\n- Auch Leistungen, die nicht gesetzlich vorgesehen sind, können unentgeltlich sein, wenn sie dem Wohl des Schülers dienen.\n- Es besteht keine Pflicht der Eltern, die Kosten für den Grundschulunterricht zu tragen.\n\n**Integrative Schulung**\n- Die integrative Schulung wird gegenüber der separativen Sonderschulung bevorzugt.\n- Die kantonalen Regelungen müssen dem Kindeswohl Rechnung tragen.\n- Ausschließliche numerische Kriterien für die Entscheidung über die Zuweisung zur Sonderschule sind nicht ausreichend.\n\n**Fall des Beschwerdeführers**\n- Die Integration des Beschwerdeführers 1 in die Regelschule mit Vollzeitassistenz entspricht dem Kindeswohl und ist personell und organisatorisch möglich.\n- Die Kosten für die Assistenz sind niedriger als die Kosten für eine Sonderschulung.\n- Die kantonalen Regelungen, die eine Begrenzung der Assistenzstunden vorsehen, widersprechen dem Kindeswohl und den bundesrechtlichen Vorgaben.",
+            "Entscheid": "Das Bundesgericht hebt den angefochtenen Entscheid auf und ordnet an, dass die Vollzeitassistenz für den Beschwerdeführer 1 im Schuljahr 2012/13 unentgeltlich gewährt wird."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_001_BGE-141-I-9_2014-12-04.html"
+    },
+    "221": {
+        "name": "CH_BGE_001_BGE-142-I-49_2015-12-11.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "Eine muslimische Schülerin wollte an einer öffentlichen Schule ein Kopftuch tragen, was durch die Schulordnung verboten war. Das Verwaltungsgericht hob das Kopftuchverbot auf, der Schulrat legte dagegen Beschwerde ein.",
+            "Erwägungen": "Die Glaubens- und Gewissensfreiheit schützt das Bekenntnis zur Religion und die Ausübung religiöser Handlungen, solange dadurch nicht die Rechte Dritter oder wichtige öffentliche Interessen beeinträchtigt werden. Im konkreten Fall stellt das Kopftuchverbot einen Eingriff in die Glaubens- und Gewissensfreiheit der Schülerin dar. Die von der Schule angeführten öffentlichen Interessen (Schulordnung, Neutralität, Integrationsfunktion) rechtfertigen diesen Eingriff jedoch nicht, da das Tragen des Kopftuchs weder den Schulunterricht beeinträchtigt noch zu Missionierung oder Druck auf andere Schülerinnen führt.",
+            "Entscheid": "Das Kopftuchverbot für die Schülerin wurde als unverhältnismäßig und damit als unzulässig erachtet."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_001_BGE-142-I-49_2015-12-11.html"
+    },
+    "222": {
+        "name": "CH_BGE_001_BGE-143-I-361_2017-05-03.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "Im Kanton Graubünden wurde die kantonale Volksinitiative \"Nur eine Fremdsprache in der Primarschule\" eingereicht, die vorsah, dass Primarschüler aus italienisch- und rätoromanischsprachigen Regionen nur in Deutsch und Schüler aus deutschsprachigen Regionen nur in Englisch obligatorisch unterrichtet werden. Der Grosse Rat des Kantons erklärte die Initiative für ungültig, weil sie in offensichtlichem Widerspruch zum übergeordneten Recht stehe. Das Verwaltungsgericht hob diese Entscheidung auf und erklärte die Initiative für gültig.",
+            "Erwägungen": "Das Bundesgericht prüfte die Gültigkeit der Initiative im Hinblick auf einen offensichtlichen Widerspruch zum übergeordneten Recht, insbesondere zum Rechtsgleichheitsgebot, zum Diskriminierungsverbot, zum Anspruch auf einen ausreichenden Grundschulunterricht, zu Harmonisierungsbestrebungen im Schulwesen und zum Grundsatz der Gleichwertigkeit der Landes- und Amtssprachen im Kanton Graubünden. Es kam zu folgendem Ergebnis:\n\n* **Rechtsgleichheitsgebot und Diskriminierungsverbot:** Die Initiative verstößt nicht offensichtlich gegen diese Grundsätze, da sie eine gleichwertige Sprachausbildung für alle Schüler bis zum Ende der obligatorischen Schulzeit ermöglicht.\n\n* **Anspruch auf ausreichenden Grundschulunterricht:** Die Initiative widerspricht nicht offensichtlich diesem Anspruch, da Englisch und eine zweite Landessprache auch an der Oberstufe unterrichtet werden können.\n\n* **Harmonisierungsbestrebungen im Schulwesen:** Der Kanton Graubünden ist nicht verpflichtet, sich an die Sprachenstrategie der EDK zu halten, da er dem HarmoS-Konkordat nicht beigetreten ist.\n\n* **Zielvorgaben im Bereich des Schulwesens:** Die Initiative vereitelt nicht die Zielvorgaben von Art. 15 Abs. 3 SpG und Art. 21 SpG i.V.m. Art. 70 Abs. 4 und 5 BV, da sie eine gleichwertige Sprachausbildung für alle Schüler bis zum Ende der obligatorischen Schulzeit ermöglicht.\n\n* **Gleichwertigkeit der Landes- und Amtssprachen:** Die Initiative verletzt nicht offensichtlich den Grundsatz der Gleichwertigkeit, da sie die Sprachausbildung in einer zweiten Kantonssprache an der Oberstufe ermöglicht.",
+            "Entscheid": "Das Bundesgericht wies die Beschwerde gegen die Ungültigkeitserklärung der Fremdspracheninitiative ab."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_001_BGE-143-I-361_2017-05-03.html"
+    },
+    "223": {
+        "name": "CH_BGE_001_BGE-144-I-1_2017-12-07.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "Der Große Rat des Kantons Thurgau verabschiedete eine Änderung des Gesetzes über die Volksschule (§ 39 Abs. 1 und 2 VG /TG), die die Erhebung von Beiträgen für Exkursionen, Lager und Sprachkurse vorsah. Die Beschwerdeführer fochten die Verfassungsmäßigkeit dieser Bestimmung an.",
+            "Erwägungen": "**Verfassungsrechtliche Vorgaben**\n- Art. 19 BV garantiert den Anspruch auf unentgeltlichen Grundschulunterricht.\n- Dieser Anspruch umfasst alle notwendigen und dem Unterrichtszweck dienenden Mittel.\n- Einschränkungen müssen mit dem verfassungsrechtlich garantierten Minimalgehalt vereinbar sein.\n\n**§ 39 Abs. 1 VG /TG**\n- Beiträge für Exkursionen und Lager können nur erhoben werden, wenn eine Pflicht zur Teilnahme besteht.\n- Zulässige Kosten beschränken sich auf die Verpflegung, da die Unterkunft zu Hause bereitgestellt wird.\n- § 39 Abs. 1 VG /TG widerspricht diesen Vorgaben, da auch Kosten für Unterkunft und Transport erhoben werden können.\n\n**§ 39 Abs. 2 VG /TG**\n- Sprachkurse können verpflichtend sein, wenn sie für ein ausreichendes Bildungsangebot notwendig sind.\n- Kostenbeteiligungen für Sprachkurse und Dolmetscherdienste sind unzulässig, da sie die Chancengleichheit verletzen.\n- Die Bestimmung ist auch in Bezug auf Dolmetscherdienste unklar und muss daher insgesamt aufgehoben werden.",
+            "Entscheid": "Die Beschwerde ist begründet. § 39 Abs. 1 und 2 VG /TG widersprechen den verfassungsrechtlichen Vorgaben und werden aufgehoben."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_001_BGE-144-I-1_2017-12-07.html"
+    },
+    "224": {
+        "name": "CH_BGE_001_BGE-145-I-142_2018-10-29.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "A.X., eine junge Frau mit einer Behinderung, beantragte die Verlängerung ihres Aufenthalts in einem Förderzentrum für junge Menschen mit Behinderungen über ihr 18. Lebensjahr hinaus bis zu ihrem 20. Geburtstag. Das Departement für Bildung, Kultur und Sport lehnte ihren Antrag mit der Begründung ab, dass die Volljährigkeit ein zulässiges Kriterium sei, um solche Maßnahmen zu verweigern.",
+            "Erwägungen": "Das Bundesgericht kam zum Ergebnis, dass das Erreichen der Volljährigkeit kein zulässiges Kriterium für die Verweigerung solcher Maßnahmen ist, da das Recht auf Sonderschulung bis zum Alter von 20 Jahren in der interkantonalen Vereinbarung über die Sonderpädagogik und im Recht des Kantons Genf ausdrücklich vorgesehen ist. Eine Unterbringung in einer Einrichtung für Erwachsene ist jedoch nicht ausgeschlossen, wenn sich das Ende der Periode nähert, während der ein Anspruch auf Sonderschulmaßnahmen besteht und die betroffene Person in Zukunft so oder so in einer solchen Einrichtung untergebracht werden wird. Diese Unterbringung muss mit den Interessen der behinderten Person in Einklang stehen und die Sonderschulmaßnahmen müssen weiterhin gewährleistet sein.",
+            "Entscheid": "Das Bundesgericht hob die Entscheidung des Departements auf und verwies den Fall zur Neuentscheidung an die Vorinstanz. Die Vorinstanz wurde angewiesen, weitere Informationen über die individuellen Bedürfnisse der betroffenen Person und die Verfügbarkeit geeigneter Sonderschulmaßnahmen in einer Einrichtung für Erwachsene einzuholen."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_001_BGE-145-I-142_2018-10-29.html"
+    },
+    "225": {
+        "name": "CH_BGE_001_BGE-146-I-20_2019-08-22.html",
+        "court": "CH_BGE_",
+        "summary": {},
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_001_BGE-146-I-20_2019-08-22.html"
+    },
+    "226": {
+        "name": "CH_BGE_001_BGE-149-I-282_2023-07-31.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "Der Kanton Thurgau führte eine vorschulische Sprachförderung ein, die zum Besuch eines Angebots verpflichtet und abhängig vom Einkommen der Erziehungsberechtigten mit Kosten verbunden ist.",
+            "Erwägungen": "Das Bundesgericht stellte fest, dass die Verpflichtung zum Besuch der vorschulischen Sprachförderung eine Ausweitung der Schulpflicht darstellt, da sie sich potenziell auf alle Kinder einer Alterskohorte bezieht. Gemäß Art. 19 BV ist der Grundschulunterricht unentgeltlich, was auch zusätzliche Sprachförderung einschließt, die zur Gewährleistung der Chancengleichheit erforderlich ist. Die Kostenbeteiligung der Erziehungsberechtigten und die Übertragung der Transportkosten verstoßen daher gegen den Grundsatz der Unentgeltlichkeit.",
+            "Entscheid": "Das Bundesgericht erklärte § 41c Abs. 2 und 3 des Gesetzes über die Volksschule des Kantons Thurgau für verfassungswidrig und hob sie auf."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_001_BGE-149-I-282_2023-07-31.html"
+    },
+    "227": {
+        "name": "CH_BGE_001_BGE-91-I-480_1965.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "Die Ecole française, eine Privatschule in Zürich, beantragte die Zulassung von Schweizerkindern ohne zeitliche Beschränkung. Der Regierungsrat genehmigte den Antrag teilweise und erlaubte den Schulbesuch für maximal drei Jahre. Die Ecole française und Eltern von Schülern fochten die zeitliche Beschränkung an.",
+            "Erwägungen": "**I. Rechtliche Zulässigkeit der Beschwerde**\n- Staatsrechtliche Beschwerden gegen Beschränkungen von Polizeierlaubnissen sind zulässig.\n\n**II. Sprachenfreiheit**\n- Die Sprachenfreiheit ist ein ungeschriebenes Grundrecht, das unter dem Vorbehalt des Art. 116 BV steht, der die Erhaltung der vier Sprachgebiete der Schweiz gewährleistet.\n- Kantone können die Unterrichtssprache auch für Privatschulen festlegen, wobei sie den Grundsatz der Verhältnismässigkeit beachten müssen.\n- Die angefochtene Regelung, die den Besuch der Ecole française auf maximal drei Jahre beschränkt, greift zwar in die Sprachenfreiheit ein, ist aber verhältnismässig und dient dem öffentlichen Interesse an der sprachlichen Homogenität.\n\n**III. Einschränkung der Bewilligung nach § 272 Abs. 2 UnterrichtsG**\n- § 272 Abs. 2 UnterrichtsG ermächtigt den Erziehungsrat, die Bewilligung für Privatschulen zu beschränken oder zu entziehen, wenn die Voraussetzungen für die Erteilung entfallen sind.\n- Die Auslegung des Verwaltungsgerichts, wonach auch nachträglich eingetretene Mängel zur Einschränkung der Bewilligung führen können, ist vertretbar.\n- Die Einschränkung der Bewilligung für die Ecole française war sachlich begründet, da sie der Ungleichbehandlung von ausländischen und schweizerischen Schülern entgegenwirkte und dem Gebot der Verhältnismässigkeit entsprach.",
+            "Entscheid": "Die Beschwerde wurde abgewiesen, soweit darauf eingetreten wurde. Die Einschränkung der Bewilligung für die Ecole française wurde als verfassungsgemäß bestätigt."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_001_BGE-91-I-480_1965.html"
+    },
+    "228": {
+        "name": "CH_BGE_002_BGE-101-Ia-172_1975.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "Der Lehrer Froidevaux wurde wegen Aufforderung zur Verletzung militärischer Dienstpflichten zweimal strafrechtlich verurteilt. Anschließend entzog der Regierungsrat des Kantons Aargau ihm die Wahlfähigkeit als Lehrer.",
+            "Erwägungen": "Das Bundesgericht prüfte die Rechtmäßigkeit der Entziehung der Wahlfähigkeit unter folgenden Aspekten:\n\n**Verhältnis von Strafrecht und Verwaltungsmassnahmen:**\n\n- Eine strafrechtliche Verurteilung kann eine verwaltungsinternen Verwarnung ersetzen.\n- Die Entziehung der Wahlfähigkeit ist eine Widerruf eines Verwaltungsaktes, der bei Wegfall einer wesentlichen Bedingung zulässig ist.\n\n**Prüfungskompetenz des Bundesgerichts:**\n\n- Das Bundesgericht überprüft disziplinarische Maßnahmen gegen kantonale Beamte nur auf Überschreitung des Ermessens.\n- Im vorliegenden Fall lag keine solche Überschreitung vor, da die kantonalen Behörden den Lehrer im öffentlichen Interesse für untragbar halten durften.\n\n**Verhältnismäßigkeit der Maßnahme:**\n\n- Die Entziehung der Wahlfähigkeit war trotz der positiven Beurteilung des Lehrers durch einige Kollegen angemessen, da sein Verhalten Vertrauensverlust bei Eltern und Schülern verursachte.\n- Die disziplinarische Maßnahme war nicht endgültig, sondern nach drei Jahren bei Wegfall der Bedenken wieder aufhebbar.\n\n**Strafrechtliche Schranken der Meinungsäusserungsfreiheit:**\n\n- Beamte unterliegen besonderen Treuepflichten gegenüber dem Staat.\n- Die strafrechtlichen Verurteilungen erfolgten nicht aufgrund der politischen Überzeugungen des Lehrers, sondern aufgrund der wiederholten Verletzung der Rechtsordnung.\n- Politische und Glaubensansichten entbinden nicht von der Einhaltung der vom Strafrecht gesetzten Grenzen der Meinungsäusserungsfreiheit.",
+            "Entscheid": "Die Beschwerde des Lehrers wurde abgewiesen. Die Entziehung der Wahlfähigkeit wurde als verhältnismäßig und rechtmäßig erachtet."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_002_BGE-101-Ia-172_1975.html"
+    },
+    "229": {
+        "name": "CH_BGE_002_BGE-103-Ia-394_1977.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "Der Beschwerdeführer rügt die Einführung eines Numerus-clausus für den Zugang zum Lehrerseminar Liestal, da sie seiner Ansicht nach gegen das Recht auf Bildung und Mittelschulbildung sowie gegen den Grundsatz der Rechtsgleichheit verstößt.",
+            "Erwägungen": "**Recht auf Bildung und Mittelschulbildung:**\n\n- Das Bundesgericht lehnt die Existenz eines ungeschriebenen verfassungsrechtlichen Rechts auf Bildung ab.\n- Auch das vom Beschwerdeführer angeführte kantonale Recht (Verfassung des Kantons Basel-Landschaft) begründet kein durchsetzbares Recht auf Mittelschulbildung.\n\n**Rechtsgleichheit:**\n\n- Die Einführung eines Numerus-clausus ist mit der Rechtsgleichheit vereinbar, wenn sie sachlich vertretbar und die Zulassung nach Eignung erfolgt.\n- Die begrenzten Aufnahmekapazitäten des Lehrerseminars und die Notwendigkeit, die Ausbildung nach dem Lehrerbedarf auszurichten, werden als sachliche Gründe für die Einführung des Numerus-clausus anerkannt.\n\n**Berufswahlfreiheit:**\n\n- Die Handels- und Gewerbefreiheit gewährleistet nur die Berufswahlfreiheit in privatwirtschaftlichen Berufen.\n- Wer eine Ausbildung für einen öffentlichen Beruf anstrebt (hier: Primarlehrer), kann sich nicht auf diese Freiheit berufen.\n\n**Gesetzesdelegation:**\n\n- Der Grundsatz der Gewaltentrennung und die verfassungsrechtlichen Anforderungen an die Gesetzesdelegation gelten auch in der Leistungsverwaltung.\n- Die gesetzlichen Grundlagen für die Einführung des Numerus-clausus (§ 8 Abs. 3 Maturitätsschulgesetz) genügen diesen Anforderungen nicht, da sie Art und Zweck der Maßnahme nicht ausreichend bestimmen. Daher ist die Delegationsermächtigung für die Einführung des Numerus-clausus verfassungswidrig.",
+            "Entscheid": "Die staatsrechtliche Beschwerde wird teilweise gutgeheißen: Der Regierungsratsbeschluss zur Einführung eines Numerus-clausus für das Lehrerseminar Liestal wird aufgehoben, da die gesetzlichen Grundlagen für die Delegation der Gesetzgebungsbefugnis an die Exekutive verfassungswidrig sind."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_002_BGE-103-Ia-394_1977.html"
+    },
+    "230": {
+        "name": "CH_BGE_002_BGE-98-Ia-129_1972.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "Christiane X., Schülerin der Kunstgewerbeschule Biel, wurde disziplinarisch entlassen, weil ihr vorgeworfen wurde, die Schulordnung zu verletzen und einen negativen Einfluss auf ihre Mitschüler zu haben. Bevor die Entscheidung getroffen wurde, hatte sie jedoch keine Gelegenheit, zu den Vorwürfen Stellung zu nehmen.",
+            "Erwägungen": "Das Bundesgericht entschied, dass Christiane X. nach Art. 4 BV Anspruch auf rechtliches Gehör hatte. Dieser Anspruch umfasst das Recht, vor der Entscheidung der zuständigen Behörde zu den Vorwürfen Stellung zu nehmen. Im vorliegenden Fall wurde ihr diese Möglichkeit weder vor der Lehrerkonferenz, die ihren Ausschluss beantragte, noch vor der Aufsichtskommission, die über den Antrag entschied, eingeräumt. Auch eine Besprechung mit dem Direktor und dem Vizedirektor der Schule reichte nicht aus, da diese nicht als eine Art Instruktionsdelegation der Aufsichtskommission gehandelt hatten. Da der Anspruch auf rechtliches Gehör verletzt wurde, hob das Bundesgericht den Ausschlussbeschluss auf.",
+            "Entscheid": "Die staatsrechtliche Beschwerde war erfolgreich. Der Beschluss der Aufsichtskommission vom 9. November 1971 wurde aufgehoben."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_002_BGE-98-Ia-129_1972.html"
+    },
+    "231": {
+        "name": "CH_BGE_004_BGE-125-II-530_1999.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "Kindergartenlehrkräfte klagten wegen Lohndiskriminierung aufgrund eines niedrigeren Gehalts als Primarlehrkräfte. Sie forderten Lohnnachzahlungen und eine Erhöhung ihrer Besoldungsklasse.",
+            "Erwägungen": "**Diskriminierung:**\n- Indirekte geschlechtsbedingte Diskriminierung lag vor, da der Beruf der Kindergärtnerin mehrheitlich von Frauen ausgeübt wurde und eine signifikante Lohnlücke zu den geschlechtsneutral betrachteten Primarlehrkräften bestand.\n\n** Berücksichtigung der Arbeitszeit:**\n- Die Berücksichtigung der Arbeitszeit bei der Lohnfestlegung wurde als zulässig erachtet, da die durchschnittliche Arbeitszeit der Kindergärtnerinnen um 13 % niedriger war als die der Primarlehrkräfte.\n\n**Arbeitsbewertung:**\n- Die qualitative Arbeitsbewertung der Funktion Kindergärtnerin wurde als angemessen befunden und führte zu einer Einstufung in die Lohnklasse 18. Es wurden jedoch Abweichungen bei der Bewertung einzelner Kriterien gegenüber der Arbeitsgruppe und dem gerichtlichen Gutachten festgestellt, die jedoch nicht als diskriminierend eingestuft wurden.\n\n** Quantifizierung der Diskriminierung:**\n- Die Angabe des Diskriminierungsausmaßes in Prozent wurde als zulässig erachtet, da es für die Durchsetzung individueller Leistungsbegehren hilfreich sei.",
+            "Entscheid": "Das Verwaltungsgericht erklärte einen Teil des Besoldungsunterschieds als diskriminierend und verpflichtete die Stadt Zürich zu entsprechenden Lohnnachzahlungen."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_004_BGE-125-II-530_1999.html"
+    },
+    "232": {
+        "name": "CH_BGE_005_BGE-144-III-481_2018-09-21.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "Scheidung der Eheleute A. und B. mit gemeinsamen Kindern. Nach der Trennung wurde die Obhut über drei Kinder dem Vater und über ein Kind der Mutter übertragen. Die Mutter wurde zu Unterhaltsbeiträgen für den Vater und die Ehefrau verpflichtet. Die Kinderbetreuung wurde entsprechend der alternierenden Obhut zwischen den Eltern aufgeteilt, wobei beide Eltern für die Krankenkassenprämien aufkommen mussten. Der Vater wurde zu nachehelichem Unterhalt verpflichtet und die Küchenmaschine Kenwood der Mutter zugesprochen. Der Vater legte Berufung gegen den Kindesunterhalt und die Herausgabe der Küchenmaschine ein und verlangte von der Mutter höhere Unterhaltsbeiträge sowie gleiche Tragung der ausserordentlichen Kinderkosten.",
+            "Erwägungen": "Das Bundesgericht führt aus, dass für die Bestimmung der Erwerbsfähigkeit bei bestehender Betreuungspflicht die sog. 10/16-Regel aus dem früheren Unterhaltsrecht nicht auf den neuen Betreuungsunterhalt übertragbar sei. Als allgemeine Richtlinie für den Betreuungsunterhalt wird festgelegt, dass in einer ersten Phase das Kontinuitätsprinzip gilt. Danach wird die Zumutbarkeit einer Erwerbstätigkeit nach der obligatorischen Beschulung des Kindes schrittweise ausgeweitet. Ab der obligatorischen Schulpflicht ist eine Erwerbsquote von 50%, ab dem Eintritt in die Sekundarstufe I eine Quote von 80% und ab Vollendung des 16. Lebensjahres ein Vollzeiterwerb zumutbar. Das Gericht stellt fest, dass die 10/16-Regel auch im Bereich des (nach-)ehelichen Unterhalts aufgegeben wird. Als Themen des nachehelichen Unterhalts verbleiben Nachteile aus der Kinderbetreuung, die nicht durch den Betreuungsunterhalt abgedeckt sind, wie etwa Unterschiede zwischen dem familienrechtlichen Existenzminimum und dem gebührenden Unterhalt sowie der Vorsorgeunterhalt.",
+            "Entscheid": "Das Bundesgericht weist die Beschwerde des Vaters ab. Die ursprüngliche 10/16-Regel ist weder auf den Betreuungsunterhalt noch auf den (nach-)ehelichen Unterhalt übertragbar. Die Zumutbarkeit einer Erwerbstätigkeit bei Betreuungspflichten wird durch eine neue Richtlinie geregelt. Die Küchenmaschine Kenwood verbleibt bei der Mutter."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_005_BGE-144-III-481_2018-09-21.html"
+    },
+    "233": {
+        "name": "CH_BGE_005_BGE-147-III-308_2021-02-02.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "Die Ehefrau streitet die ihr im Scheidungsurteil auferlegte Pflicht an, eine Erwerbstätigkeit aufzunehmen. Sie beruft sich auf die sogenannte \"45er-Regel\", wonach die Aufnahme einer Erwerbstätigkeit nach dem 45. Lebensjahr in der Regel nicht zumutbar sei.",
+            "Erwägungen": "Das Bundesgericht gibt die \"45er-Regel\" auf. Stattdessen sollen die Umstände des Einzelfalls geprüft werden, wobei dem Alter zwar eine Rolle zukommt, es aber als solches kein entscheidendes Kriterium darstellt. Grundsätzlich besteht eine Obliegenheit zur Aufnahme einer Erwerbstätigkeit, sobald mit der Scheidung (bzw. bereits mit der Trennung) die tatsächliche Möglichkeit hierzu gegeben ist. Dabei ist die Eigenversorgung im Vordergrund, und es sind angemessene Übergangsfristen zu gewähren, insbesondere wenn sie der Herstellung einer höheren Eigenversorgungskapazität dienen.\n\nIm vorliegenden Fall wurde der Ehefrau die Aufnahme einer Erwerbstätigkeit zugemutet, unter anderem im Pflegebereich, wo gemäß den Feststellungen im angefochtenen Entscheid ein Mangel an Arbeitskräften herrscht. Die Beschwerden der Ehefrau gegen diese Zumutung wurden zurückgewiesen.",
+            "Entscheid": "Das Bundesgericht hebt das obergerichtliche Urteil auf und weist die Sache zur Beweisergänzung und neuen Entscheidung an das Obergericht zurück."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_005_BGE-147-III-308_2021-02-02.html"
+    },
+    "234": {
+        "name": "CH_BGE_007_BGE-105-V-58_1979.html",
+        "court": "CH_BGE_",
+        "summary": {},
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_007_BGE-105-V-58_1979.html"
+    },
+    "235": {
+        "name": "CH_BGE_007_BGE-120-V-423_1994.html",
+        "court": "CH_BGE_",
+        "summary": {
+            "Sachverhalt": "Ein Schüler mit mehreren Geburtsgebrechen besucht seit 1990 eine private Schule und erhält dort Sonderschulunterricht. Die Invalidenversicherung weigert sich, Beiträge für die Schuljahre 1990/91 und 1991/92 zu übernehmen, da die Schule nicht als Sonderschule im Einzelfall zugelassen war.",
+            "Erwägungen": "* **Rechtsweg:** Die Zulassung privater Schulen als Sonderschulen im Einzelfall ist nicht im Rahmen des Invalidenversicherungsverfahrens zu prüfen, sondern fällt in die Zuständigkeit des Bundesamtes für Sozialversicherung oder der kantonalen Amtsstellen (Erw. 1). \n* **Voraussetzungen für die Zulassung:** Nach der Sonderschulzulassungsverordnung (SZV) müssen Schulen, die invaliden Minderjährigen Sonderschulunterricht erteilen, über qualifiziertes Personal verfügen (Art. 3 SZV). Dabei muss es sich um staatlich anerkannte Ausbildungen handeln, und es genügt nicht, wenn nur Kurse besucht wurden (Erw. 3b). \n* **Prüfung der Voraussetzungen im konkreten Fall:** Die Lehrkräfte, die den Schüler in den streitigen Schuljahren unterrichtet haben, erfüllten die Anforderungen nicht (Erw. 4c). Sie verfügten nicht über die erforderliche heilpädagogische Ausbildung und standen auch nicht unter der Aufsicht einer ausgebildeten Fachperson.",
+            "Entscheid": "Die Verwaltungsgerichtsbeschwerde wird abgewiesen. Die private Schule wird erst ab dem Schuljahr 1992/93 als Sonderschule im Einzelfall zugelassen, da der Unterricht ab diesem Zeitpunkt von einem ausgebildeten Heilpädagogen geleitet wurde (Erw. 4d)."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/CH_BGE/CH_BGE_007_BGE-120-V-423_1994.html"
+    },
+    "236": {
+        "name": "AG_OG_999_AGVE-2017-79_2017-11-08.pdf",
+        "court": "AG_OG_",
+        "summary": {
+            "Sachverhalt": "Der Beschwerdegegner stand vor dem Wechsel von der Primar- zur Oberstufe und beantragte die Zuweisung an die Oberstufe in C. anstatt in seine Wohnortsgemeinde A., die er aktuell besuchte. Die Primarschule in U. konnte er aufgrund der Nähe zur Gemeinde A. mit Genehmigung der Schulpflege A. besuchen. Die Gemeinde A. betreibt alle Oberstufentypen, während Kinder aus U. die Oberstufe in C. besuchen. Die Schulpflege A. lehnte den Antrag auf Zuweisung nach C. ab, da der Schulweg nach A. zumutbar sei. Der Beschwerdegegner legte Beschwerde ein und stützte sich auf psychische Belastungen aufgrund häuslicher Gewalt, die es ihm erschweren würden, den Schulwechsel in eine neue Klasse zu bewältigen.",
+            "Erwägungen": "Das Verwaltungsgericht prüfte die Beschwerde und stützte sich maßgeblich auf die Beurteilung des Schulpsychologischen Dienstes (SPD). Dieser kam zu dem Schluss, dass der Beschwerdegegner stark unter der häuslichen Gewalt der Eltern gelitten habe, was zu einer nicht geringen Beeinträchtigung seiner psychischen Verfassung und einem Loyalitätskonflikt geführt habe. Für seine weitere Entwicklung sei es wichtig, dass er den Schulwechsel zusammen mit seinen jetzigen Schulkollegen machen könne. Der Beschwerdegegner könne sich in C. entfalten, wo auch seine schulischen Leistungen durch die Stabilität des bekannten Umfelds gefördert würden. Das Gericht betonte, dass schulpsychologische Beurteilungen auf besonderen Fachkenntnissen beruhen und eine Richtigkeitsvermutung genießen. Es gebe keine Zweifel an der Korrektheit der Beurteilung des SPD, und die Argumente der Beschwerdeführerin (kürzerer Schulweg, kleinere Schule in A.) könnten diese nicht in Frage stellen. Das öffentliche Interesse an einer ordnungsgemäßen Schulplanung sei im konkreten Fall dem privaten Interesse des Beschwerdegegners untergeordnet, sodass die Zuweisung nach C. bestätigt wurde.",
+            "Entscheid": "Das Gericht wies die Beschwerde ab und bestätigte die Zuweisung des Beschwerdegegners an die Sekundarschule in C. Dies bindet auch die Gemeinde A. finanziell, sodass sie das Schulgeld an die Gemeinde C. tragen muss."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/AG_Gerichte/AG_OG_999_AGVE-2017-79_2017-11-08.pdf"
+    },
+    "237": {
+        "name": "AG_OG_999_RRB-2017-000209_2017-03-09.pdf",
+        "court": "AG_OG_",
+        "summary": {
+            "Sachverhalt": "Die Apotheken-Notfalldienstpflicht wird durch Berufsverbände festgelegt. Eine Apotheke (Beschwerdeführerin) wendet sich gegen ihre Zuteilung zu einem Notfalldienstkreis und die damit verbundene Pflicht, Notfalldienst in Zusammenarbeit mit einer bestimmten Notfallapotheke zu leisten.",
+            "Erwägungen": "**Kompetenz zur Verfügungserteilung:** Berufsverbände haben die Kompetenz, über die Leistung von Notfalldienst durch ihre Mitglieder zu entscheiden und Verfügungen zu erlassen, die auch Ersatzabgaben für die Nichtleistung von Dienst festlegen können.\n\n**Gerichtliche Zuständigkeit:** Beschwerden gegen solche Verfügungen gehen an den Regierungsrat, nicht an das Departement Gesundheit und Soziales.\n\n**Sachliche Begründung der Notfalldienstkreise:** Die Kreiseinteilung muss objektive, insbesondere geografische Gesichtspunkte berücksichtigen. Apotheken können keinen Anspruch auf die Fortsetzung ihrer bisherigen Praxis geltend machen.\n\n**Gleichbehandlung:** Die Beschwerdeführerin kann sich nicht auf eine Verletzung des Gleichbehandlungsgrundsatzes berufen, da es sachliche Unterschiede zwischen den Notfallapotheken gibt.\n\n**Überregionale Notfalldienstorganisation:** Der Berufsverband hat das Ermessen, den Notfalldienst an überregionale Organisationen wie zentrale 24-Stunden-Apotheken zu übertragen. In diesem Fall entfällt die primäre Pflicht der Apotheker zur persönlichen Dienstleistung.\n\n**Vertrauensschutz:** Aus der langjährigen Praxis der Beschwerdeführerin ergibt sich kein Anspruch auf die Fortsetzung dieser Praxis, da die Rechtslage durch die Gesetzesrevision grundlegend geändert wurde.",
+            "Entscheid": "Die Beschwerde der Apotheke wird abgewiesen. Ihre Zuteilung zum Notfalldienstkreis Baden wird aufrechterhalten und ihr Antrag auf Anschluss an eine andere Notfallapotheke wird abgelehnt."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/AG_Gerichte/AG_OG_999_RRB-2017-000209_2017-03-09.pdf"
+    },
+    "238": {
+        "name": "AG_OG_999_RRB-2021-000023_2021-01-13.pdf",
+        "court": "AG_OG_",
+        "summary": {},
+        "source_url": "https://entscheidsuche.ch/docs/AG_Gerichte/AG_OG_999_RRB-2021-000023_2021-01-13.pdf"
+    },
+    "239": {
+        "name": "AG_OG_999_RRB-2023-000445_2023-04-26.pdf",
+        "court": "AG_OG_",
+        "summary": {
+            "Sachverhalt": "A._____, geboren 2019, besucht seit 2021 den Kindergarten Q._____ und erhält 2021 eine Mehrfachbehinderungsdiagnose. Er wird zunächst in die 1. Klasse der Primarschule zugewiesen, in der er jedoch überfordert ist und den Unterricht stört. Dem Gutachten eines Schulpsychologischen Dienstes zufolge liegt eine erhebliche soziale Beeinträchtigung vor, und eine Sonderschulung wird empfohlen.",
+            "Erwägungen": "Der Regierungsrat stützt sich in seiner Entscheidung auf die Einschätzungen von Lehrkräften, die A._____ als überfordert und störend beschreiben, sowie auf zwei schulpsychologische Gutachten und ein ärztliches Attest, die eine Behinderung gemäß der Verordnung über Sonderschulen bestätigen. Die Voraussetzungen für eine Zuweisung in die Sonderschule sind demnach erfüllt, und eine Beschulung in der Sonderschule Z. wird als geeignet erachtet, A._____ die nötige individuelle Förderung zu bieten.",
+            "Entscheid": "Der Regierungsrat hebt den Entscheid des Schulrats des Bezirks R._____ auf und weist A._____ per 8. Mai 2023 der 2. Klasse der Sonderschule Z. zu. Der Beschwerde wird vollumfänglich stattgegeben, und der Gemeinde Q._____ werden die Verfahrenskosten auferlegt. Im Verfahren vor dem Regierungsrat werden keine Kosten erhoben, und A._____ und der Schulrat des Bezirks R._____ haben ihre Parteikosten selbst zu tragen."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/AG_Gerichte/AG_OG_999_RRB-2023-000445_2023-04-26.pdf"
+    },
+    "240": {
+        "name": "AI_XX_001_Verwaltungs--und-Ger_2009.pdf",
+        "court": "AI_XX_",
+        "summary": {
+            "Sachverhalt": "Der Kanton Appenzell I.Rh. hat diverse Gesetzesvorschriften zum Thema Raumplanung, Bauwesen und Naturschutz erlassen.",
+            "Erwägungen": [
+                "Das Urteil des Bundesgerichts zur Vereinbarkeit von Sonnenanlagen an Gebäuden in Bau- und Landwirtschaftszonen mit dem RPG.",
+                "Die Abweisung des Baugesuchs für eine Gartenanlage mit Biotop und Stützmauer in der Landwirtschaftszone aufgrund der fehlenden Standortgebundenheit.",
+                "Die Zulässigkeit des Abbruchs und spiegelverkehrten Wiederaufbaus einer Liegenschaft in der Landwirtschaftszone unter bestimmten Voraussetzungen.",
+                "Die Strafbarkeit der Entsorgung von Abfall durch Liegenlassen von Bauschutt im Wald und dessen Einbau in einen Waldweg.",
+                "Die fehlende Selbstbewirtschaftereigenschaft einer Stiftung als Hinderungsgrund für die Bewilligung des Erwerbs eines landwirtschaftlichen Grundstücks.",
+                "Die Bundesrechtswidrigkeit von Art. 30 Abs. 4 BauG, wonach das Genehmigungsverfahren für Zonenpläne erst nach Abschluss des Rechtsmittelverfahrens stattfindet.",
+                "Der Ausschluss von Verwaltungsräten von der Kurzarbeitsentschädigung gemäß Art. 31 Abs. 3 lit. c AVIG unabhängig von ihrem Aufgabenbereich."
+            ],
+            "Entscheid": "Ergebnis oder Entscheidung des Gerichts."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/AI_Bericht/AI_XX_001_Verwaltungs--und-Ger_2009.pdf"
+    },
+    "241": {
+        "name": "AI_XX_001_Verwaltungs--und-Ger_2013.pdf",
+        "court": "AI_XX_",
+        "summary": {
+            "Sachverhalt": "Error during summary generation",
+            "Erwägungen": "500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting",
+            "Entscheid": "N/A"
+        },
+        "source_url": "https://entscheidsuche.ch/docs/AI_Bericht/AI_XX_001_Verwaltungs--und-Ger_2013.pdf"
+    },
+    "242": {
+        "name": "AI_XX_001_Verwaltungs--und-Ger_2016.pdf",
+        "court": "AI_XX_",
+        "summary": {
+            "Sachverhalt": "Error during summary generation",
+            "Erwägungen": "500 An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting",
+            "Entscheid": "N/A"
+        },
+        "source_url": "https://entscheidsuche.ch/docs/AI_Bericht/AI_XX_001_Verwaltungs--und-Ger_2016.pdf"
+    },
+    "243": {
+        "name": "AR_OG_003_OG-O3V-20-16_2021-06-17.pdf",
+        "court": "AR_OG_",
+        "summary": {},
+        "source_url": "https://entscheidsuche.ch/docs/AR_Gerichte/AR_OG_003_OG-O3V-20-16_2021-06-17.pdf"
+    },
+    "244": {
+        "name": "BE_VB_001_110-2017-46_2017-11-30.pdf",
+        "court": "BE_VB_",
+        "summary": {},
+        "source_url": "https://entscheidsuche.ch/docs/BE_BVD/BE_VB_001_110-2017-46_2017-11-30.pdf"
+    },
+    "245": {
+        "name": "BE_VG_001_100-2012-381_2013-12-17.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "Der Beschwerdeführer wurde nach nicht bestandener Nachholprüfung im zweiten Studienjahr vom Studium ausgeschlossen. Er erhob dagegen Beschwerde und berief sich auf eine falsche Auskunft der Universität sowie einen Verstoß gegen Treu und Glauben.",
+            "Erwägungen": "Die Prüfungsprotokolle und die Erläuterungen der Examinatoren belegen den transparenten und nachvollziehbaren Prüfungsablauf. Die Bestehensgrenze war rechtsfehlerfrei festgelegt. Der Beschwerdeführer hat keinen Anspruch auf eine weitere Wiederholung der Prüfung, da er die erste bereits aus nicht gerechtfertigten Gründen versäumte. Der Ausschluss vom Studium ist daher rechtmäßig. Allerdings ist die falsche Auskunft der Universität zu berücksichtigen.",
+            "Entscheid": "Die Beschwerde wird teilweise gutgeheißen: Der Ausschluss vom Studium wird bestätigt, aber die Kostenentscheidung wird ergänzt. Der Beschwerdeführer erhält für das verwaltungsgerichtliche Verfahren Prozesskostenhilfe und Beiordnung eines Anwalts als amtlicher Anwalt."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2012-381_2013-12-17.pdf"
+    },
+    "246": {
+        "name": "BE_VG_001_100-2013-251_2014-06-24.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "Der Student A________ scheiterte zweimal bei der Leistungskontrolle für die Veranstaltung Sportpädagogik und wurde daher vom Studiengang Sportwissenschaft an der Universität Bern ausgeschlossen.",
+            "Erwägungen": "Das Verwaltungsgericht stellte fest, dass die Assistentin bei der Erstellung und Korrektur der Leistungskontrolle mitgewirkt hatte, die Bewertungskriterien jedoch vom verantwortlichen Dozenten vorgegeben worden waren. Der verantwortliche Dozent hatte die Korrektur der Assistentin überprüft und war zu dem Schluss gekommen, dass sie den Beurteilungsraster korrekt angewendet hatte. Das Gericht sah daher keinen unzulässigen Einfluss der Assistentin auf die Notengebung und bestätigte den Ausschluss des Studenten.",
+            "Entscheid": "Die Beschwerde des Studenten wurde abgewiesen. Das Gesuch um unentgeltliche Rechtspflege wurde ebenfalls abgewiesen, da die Eltern des Studenten verpflichtet waren, die Prozesskosten zu übernehmen."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2013-251_2014-06-24.pdf"
+    },
+    "247": {
+        "name": "BE_VG_001_100-2014-126_2014-09-08.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "Wegen wiederholten unentschuldigten Fernbleibens und Zuspätkommens zum Unterricht erhielt der Beschwerdeführer (A.) von der Berufsfachschule (Beschwerdegegnerin) einen schriftlichen Verweis und musste eine Bearbeitungsgebühr von 50 CHF entrichten.",
+            "Erwägungen": "**Zuständigkeit des Gerichts**\nDas Verwaltungsgericht ist für die Beurteilung der Beschwerde zuständig, da die Berufsfachschule Aufgaben nach dem Berufsbildungsgesetz wahrnimmt, das der Rechtsaufsicht des Kantons unterliegt.\n\n**Rechtmäßigkeit des Verweises**\nDer Verweis stützt sich auf eine gültige Rechtsgrundlage (Berufsbildungsgesetz, Verordnung über die Berufsbildung).\nDie Schulleitung ist für die Erteilung des Verweises zuständig.\nAuch wer freiwillig an der Schule teilnimmt, hat die Schulordnung einzuhalten.\nDie wiederholte Unpünktlichkeit des Beschwerdeführers stellt einen Verstoß gegen die Schulordnung dar, da sie als unentschuldigte Abwesenheit gilt.\n\n**Rechtmäßigkeit der Bearbeitungsgebühr**\nDie Erhebung der Bearbeitungsgebühr ist rechtmäßig, da sie in der Schulordnung vorgesehen ist.\n\n**Aussichtslosigkeit der Beschwerde**\nDie Beschwerde ist von vornherein aussichtslos, da der angefochtene Entscheid rechtlich einwandfrei ist und die Einwände des Beschwerdeführers nicht stichhaltig sind.\n\n**Antrag auf unentgeltliche Rechtspflege**\nDer Antrag auf unentgeltliche Rechtspflege wird wegen Aussichtslosigkeit der Beschwerde abgelehnt.\n\n**Antrag auf Parteientschädigung**\nDer Beschwerdeführer hat keinen Anspruch auf Parteientschädigung, da er mit seiner Beschwerde unterliegt.",
+            "Entscheid": "Die Beschwerde wird abgewiesen. Der Beschwerdeführer trägt die Verfahrenskosten und erhält keine Parteientschädigung."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2014-126_2014-09-08.pdf"
+    },
+    "248": {
+        "name": "BE_VG_001_100-2014-187_2014-08-15.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "A.________ wurde mit Verfügung vom 5. April 2013 vom Unterricht des 10. Schuljahrs ausgeschlossen. Die Schulkommission versäumte es, in der Rechtsmittelbelehrung die Beschwerdeinstanz anzugeben. A.________ und sein Vater reichten eine Beschwerde beim Schulinspektorat ein, die abgewiesen wurde. Auch die Erziehungsdirektion trat auf die Beschwerde nicht ein.",
+            "Erwägungen": "Das Verwaltungsgericht entschied, dass die Beschwerde teilweise unzulässig sei, da A.________ nicht darlegte, worin sein Rechtsschutzinteresse an einer ergänzten Rechtsmittelbelehrung bestehe. Er strebe offensichtlich nicht danach, den Unterricht wieder aufzunehmen. Außerdem sei die Begründung der Beschwerde nicht rechtsgenügend, da sie nicht auf die Entscheidbegründung der Erziehungsdirektion eingehe. Das Gericht sah auch keinen Anlass, von der bisherigen Parteibezeichnung abzuweichen, wonach A.________ als Beschwerdeführer, gesetzlich vertreten durch seinen Vater, bezeichnet wurde. Schließlich wies das Gericht das Gesuch um unentgeltliche Rechtspflege wegen Aussichtslosigkeit ab.",
+            "Entscheid": "Die Beschwerde wurde abgewiesen, soweit darauf eingetreten wurde. Das Gesuch um unentgeltliche Rechtspflege wurde abgewiesen. Die Kosten des Verfahrens wurden den Beschwerdeführern auferlegt."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2014-187_2014-08-15.pdf"
+    },
+    "249": {
+        "name": "BE_VG_001_100-2015-335_2016-04-22.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "Der Beschwerdeführer, Schüler des Gymnasiums Biel-Seeland, verstieß mehrfach gegen Schulregeln, unter anderem durch Alkoholmissbrauch und Missachtung von Anweisungen. Daraufhin wurde ihm die Wegweisung von der Schule angedroht.",
+            "Erwägungen": "Die Androhung der Wegweisung ist rechtmäßig, da das Verhalten des Beschwerdeführers eine schwere Störung des Schulbetriebs darstellt. Eine Verwarnung oder ein temporärer Ausschluss vom Sport-Kultur-Studium sind nicht ausreichend, um eine Verhaltensänderung herbeizuführen. Die Maßnahme ist auch verhältnismäßig, da die Belastung für den Beschwerdeführer zumutbar ist und die auf dem Spiel stehenden öffentlichen und privaten Interessen an der Aufrechterhaltung des geordneten Schulbetriebs seine Interessen überwiegen. Der Grundsatz der Rechtsgleichheit ist nicht verletzt, da sich die Situation des Beschwerdeführers von der anderer Schüler, die ebenfalls Alkohol konsumiert haben, durch die Beschaffung der Getränke unterscheidet.",
+            "Entscheid": "Die Beschwerde wird abgewiesen und die Androhung der Wegweisung bestätigt. Die Verfahrenskosten werden dem Beschwerdeführer zu vier Fünfteln auferlegt, die restlichen Kosten werden nicht erhoben. Der Kanton Bern hat dem Beschwerdeführer einen Fünftel der Parteikosten zu erstatten."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2015-335_2016-04-22.pdf"
+    },
+    "250": {
+        "name": "BE_VG_001_100-2016-130_2017-03-01.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "Der Beschwerdeführer hatte die Prüfung zur Maturität zweimal wiederholt und war beide Male durchgefallen. Er war der Meinung, dass die Noten in den Fächern Deutsch, Philosophie und Maturaarbeit sowie die Erfahrungsnote in Geschichte fehlerhaft waren.",
+            "Erwägungen": "Das Gericht hielt die folgenden Punkte fest:\n\n- Die Maturitätsnote im Fach Geschichte konnte nicht einfach mit der Erfahrungsnote aus dem vierten Semester ersetzt werden, da diese Note rechtskräftig war und es keine Anhaltspunkte gab, sie anzufechten.\n- Die Noteneinsicht in mündlichen Prüfungen ist nicht Teil der Prüfungsakten und somit kein rechtlich geforderter Bestandteil einer Beschwerde.\n- Die Prüfenden waren verpflichtet, den Prüfungsablauf so zu dokumentieren, dass er im Fall einer Beschwerde nachvollziehbar ist. Die nachträglich verfassten Prüfungsberichte galten für dieses Erfordernis als ausreichend.\n- Der Beschwerdeführer habe seine Einwände gegen den Prüfungsablauf verspätet vorgebracht und sei somit verwirkt.\n- Die schriftliche Prüfung in Deutsch wurde sachlich vertretbar beurteilt und es ergaben sich keine Anhaltspunkte für eine sachfremde Bewertung.\n- Die mündliche Prüfung in Deutsch sowie die Prüfung der Maturaarbeit wurden korrekt bewertet und es ergaben sich keine Anhaltspunkte für eine sachfremde Bewertung.\n- Die Note in Philosophie wurde mit 3,5 bewertet, was nachvollziehbar und sachlich vertretbar war.\n- Die Sachverhaltsfeststellungen in den Prüfungsberichten waren glaubwürdig und es ergaben keine Anhaltspunkte für ein Spannungsverhältnis zwischen dem Beschwerdeführer und dem Philosophie-Lehrer.\n- Die Prüfung wurde mit 4,5 nicht bestanden, da die doppelte Summe der Notenabweichungen von genügenden Noten größer war als die Summe der nicht genügenden Noten.",
+            "Entscheid": "Die Beschwerde wurde abgewiesen."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2016-130_2017-03-01.pdf"
+    },
+    "251": {
+        "name": "BE_VG_001_100-2016-228_2016-07-20.pdf",
+        "court": "BE_VG_",
+        "summary": {},
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2016-228_2016-07-20.pdf"
+    },
+    "252": {
+        "name": "BE_VG_001_100-2017-107_2017-07-04.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "Die Beschwerdeführer C. und D. wohnen bei ihren Eltern in der Gemeinde F., aber besuchen seit dem Kindergartenalter in Bern eine Kindertagesstätte und ab dem Kindergartenalter dort die Schule. Ihre Eltern hatten von der Gemeinde Bern die Bewilligung dazu erhalten, gestützt auf das damalige Gegenseitigkeitsabkommen, welches Ausnahmen vom Grundsatz, dass Kinder an ihrem Aufenthaltsort ihre Schulpflicht zu erfüllen haben, erlaubte, wenn sie im Einzugsgebiet einer Schule während des überwiegenden Teils der Schulwoche von Tageseltern betreut werden oder eine Tagesstätte bzw. ein Tagesheim besuchen. Das Abkommen wurde am 10.6.2014 geändert, wobei u.a. die Möglichkeit eines Schulungsortswechsels bei Betreuung in einer Tagesstätte in einer anderen Vertragsgemeinde entfiel, worauf die Gemeinde E. die Bewilligungen wieder aufhob.",
+            "Erwägungen": "Die Erziehungsdirektion wies die Beschwerde der Eltern ab. Dagegen haben die Eltern Verwaltungsgerichtsbeschwerde erhoben. Das Verwaltungsgericht wies die Beschwerde ab. Die Schule muss grundsätzlich am Wohnort erfolgen. Ein Schulungsortswechsel ist nach der Rechtsprechung grundsätzlich nur in Ausnahmesituationen angezeigt, die hier nicht vorliegen. Ein subjektives Recht auf einen Schulungsortswechsel besteht nicht. Auch der Grundsatz von Treu und Glauben steht der Anpassung der Verfügungen nicht entgegen. Die Interessen an der Beibehaltung der rechtswidrig gewordenen Verfügung überwiegen somit nicht. Die Interessen an der Durchsetzung des objektiven Rechts sind hingegen wichtiger. Daher erweist sich die Beschwerde als unbegründet.",
+            "Entscheid": "Die Beschwerde wird abgewiesen. Die Beschwerdeführer haben ab August 2017 die Schule in G., dem Wohnort, zu besuchen."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2017-107_2017-07-04.pdf"
+    },
+    "253": {
+        "name": "BE_VG_001_100-2017-311_2018-02-26.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "Der Beschwerdeführer, ein Gymnasiast, wurde aufgrund zweier aufeinander folgender ungenügender Zeugnisse nicht promoviert. Er beantragte die Anhebung der mündlichen Note im Fach Französisch und die Promotion in die nächste Klasse.",
+            "Erwägungen": "**Prüfungsbewertung**\nDas Verwaltungsgericht prüfte die Bewertung der mündlichen Leistungen des Beschwerdeführers im Fach Französisch und befand sie nach eingehender Prüfung als nachvollziehbar und sachlich begründet. Es stellte fest, dass die Note 3 nicht durch Absenzen beeinflusst wurde und dass der Beschwerdeführer trotz seiner Bemühungen seine Leistungen nicht ausreichend unter Beweis stellen konnte.\n\n**Nachteilsausgleich**\nDer Beschwerdeführer machte geltend, dass seine gesundheitlichen Einschränkungen nicht angemessen ausgeglichen worden seien. Das Verwaltungsgericht führte aus, dass gewisse krankheitsbedingte Einschränkungen durch Hilfsmittel ausgeglichen werden müssen, um die Nachweisbarkeit vorhandener Befähigungen zu gewährleisten. Es stellte fest, dass die Schule der gesundheitlichen Situation des Beschwerdeführers Rechnung getragen hatte, indem sie Termine für Nachproben festsetzte und einen Zusatztest anbot. Weitere Ausgleichsmassnahmen wurden als nicht erforderlich erachtet, da sie zu einer unzulässigen Besserstellung gegenüber anderen Schülern geführt hätten.",
+            "Entscheid": "Die Beschwerde wurde abgewiesen. Das Verwaltungsgericht befand, dass der angefochtene Entscheid rechtmäßig war und die gesundheitlichen Einschränkungen des Beschwerdeführers angemessen berücksichtigt wurden."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2017-311_2018-02-26.pdf"
+    },
+    "254": {
+        "name": "BE_VG_001_100-2017-73_2018-04-19.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "Eine Lehrerin wurde im Rahmen ihrer Tätigkeit im Kindergarten disziplinarisch mit einem schriftlichen Verweis sanktioniert, weil drei Kinder das Areal verlassen hatten, während sie im Innenraum arbeitete und eine andere Gruppe beaufsichtigte.",
+            "Erwägungen": "**Dienstpflichtverletzung:**\n\n- Die Argumentation der Schulleitung, der Vorfall sei auf die laufende Beratung der Lehrerin zurückzuführen, wurde als unzureichend erachtet, da keine konkreten pflichtwidrigen Handlungen benannt wurden.\n\n- Die Vorinstanz warf der Lehrerin vor, ihre Obhutspflicht verletzt zu haben, indem sie die Kinder im Freien unbeaufsichtigt spielen ließ.\n\n**Angemessenheit der Unterrichtsform:**\n\n- Die gewählte Unterrichtsform, eine Gruppe im Freien spielen zu lassen, wurde grundsätzlich nicht beanstandet.\n\n- Die Lehrerin wurde zuvor nicht angewiesen, von bestimmten Unterrichtsformen abzusehen, auch wenn ihr nahegelegt wurde, den Kindern weniger Freiheit zu lassen.\n\n- Die angeblichen Beanstandungen der Klassenlehrerin und Eltern blieben vage, und die angebotenen Unterstützungsmaßnahmen der Schulleitung waren nicht mit konkreten Anordnungen zur Unterrichtsgestaltung verbunden.\n\n**Schlussfolgerung:**\n\n- Die Unterrichtsgestaltung der Lehrerin wurde zwar als nicht optimal angesehen, erfüllte aber nicht den Tatbestand einer Dienstpflichtverletzung, die eine disziplinarische Maßnahme rechtfertigen würde.",
+            "Entscheid": "Die Beschwerde der Lehrerin wurde gutgeheißen. Der disziplinarische Verweis wurde aufgehoben."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2017-73_2018-04-19.pdf"
+    },
+    "255": {
+        "name": "BE_VG_001_100-2018-106_2018-11-08.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "Die Beschwerdeführerin, eine Gesamtschulleiterin, erhielt während der Kündigungsfrist einen schriftlichen Verweis. Nach Beendigung des Arbeitsverhältnisses erhob sie Beschwerde gegen den Verweis, die von der Bildungsdirektion als gegenstandslos abgeschrieben wurde.",
+            "Erwägungen": "Das Verwaltungsgericht hält die Abschreibung für unzulässig, da:\n\n- Disziplinarmassnahmen auch nach Beendigung des Anstellungsverhältnisses aufrechterhalten werden können, wenn ein öffentliches Interesse an der Disziplinierung besteht.\n- Die Beschwerdeführerin als Mitglied des Schuldienstes bleibt im öffentlichen Interesse.\n- Der Verweis kann negative Auswirkungen auf ihr berufliches Fortkommen haben und somit ein schutzwürdiges Interesse begründet.\n- Die Vorinstanz war nicht vorbefasst, da sie sich lediglich mit den Kostenfolgen beschäftigt hat.\n- Die Gemeinde muss die Parteikosten der Beschwerdeführerin tragen.",
+            "Entscheid": "Das Verwaltungsgericht hebt die Abschreibungsentscheidung auf und weist die Sache zur Fortsetzung des Verfahrens an die Bildungsdirektion zurück."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2018-106_2018-11-08.pdf"
+    },
+    "256": {
+        "name": "BE_VG_001_100-2018-342_2019-06-03.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "Die Beschwerdeführerin erhielt vom Verein Gymnasium B________ einen schriftlichen Verweis aufgrund von Alkoholkonsum während eines Schneesportlagers und musste das Lager vorzeitig verlassen. Gegen den Verweis erhob sie Beschwerde bei der Erziehungsdirektion des Kantons Bern (ERZ). Diese trat auf die Beschwerde nicht ein, da sie sich für unzuständig hielt, und verwies sie nicht an die zuständige Stelle.",
+            "Erwägungen": "Das Verwaltungsgericht stellte nach Prüfung der Sach- und Rechtslage fest, dass das Gymnasium B________ im Rahmen der Führung des ersten gymnasialen Ausbildungsjahrs keine öffentliche Aufgabe erfüllt und die strittige Disziplinarsache somit zivilrechtlicher Natur ist. Dementsprechend verneinte es die Zuständigkeit der Verwaltungsjustizbehörden und bejahte diejenige der Zivilgerichte. Die Zuständigkeitsabgrenzung zwischen Verwaltungs- und Zivilrechtspflege wurde anhand der Rechtsgrundlagen für das Schulwesen, insbesondere des Mittelschulgesetzes, vorgenommen. Dabei wurde festgestellt, dass der Verein Gymnasium B________ zwar eine Bewilligung zur Führung einer Privatschule hat, diese aber nicht mit einer Aufgabenübertragung durch den Staat verbunden ist. Dies führt dazu, dass das Rechtsverhältnis zwischen dem Verein und den Schülerinnen und Schülern privatrechtlich ist.",
+            "Entscheid": "Das Verwaltungsgericht kassierte den Nichteintretensentscheid der ERZ wegen offensichtlicher Unzuständigkeit und leitete die Akten zum Entscheid über die Zuständigkeit an das Obergericht weiter. Auf die Beschwerde wurde nicht eingetreten, soweit damit aufsichtsrechtliche Maßnahmen beantragt wurden. Die Kosten des Verfahrens wurden der Beschwerdeführerin auferlegt."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2018-342_2019-06-03.pdf"
+    },
+    "257": {
+        "name": "BE_VG_001_100-2018-343_2019-12-09.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "Beschwerdeführer (wissenschaftlicher Mitarbeiter an der Berner Fachhochschule) erhielt aufgrund eines Konflikts mit seinem Vorgesetzten die Kündigung. Der Konflikt weitete sich auf die gesamte Abteilung aus und führte zu zwei Lagern, weshalb eine externe Fachperson mit einer Mediation und Abteilungsentwicklung beauftragt wurde.",
+            "Erwägungen": "Die Kündigung durch die Schule wird als sachlich begründet erachtet. Es besteht ein triftiger Grund, da das Vertrauensverhältnis zwischen Beschwerdeführer und Vorgesetztem zerrüttet ist. Der Beschwerdeführer trägt eine erhebliche Mitschuld am Konflikt, unter anderem durch unzureichende Leistungen, Nichtbeachtung von Weisungen, Störung des Arbeitsklimas und fehlenden Willen zur vertrauensvollen Zusammenarbeit. Der Konflikt ist nicht überwiegend auf das Verhalten des Vorgesetzten zurückzuführen. Eine weitere Zusammenarbeit ist nicht möglich. Die Kündigung ist verhältnismässig, da die Schule Schutzmassnahmen ergriffen hat (z. B. Gesprächsangebot, Vorschlag für internen Stellenwechsel) und der Beschwerdeführer aufgrund seines Beamtenverhältnisses nicht stellenlos wird. Die Kürzung des Parteikostenersatzes im vorinstanzlichen Verfahren ist nicht zu beanstanden.",
+            "Entscheid": "Beschwerde wird abgewiesen, soweit darauf einzutreten ist. Beschwerdeführer trägt die Verfahrenskosten."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2018-343_2019-12-09.pdf"
+    },
+    "258": {
+        "name": "BE_VG_001_100-2019-258_2019-09-20.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "Die Beschwerdeführerin A.________ wurde nach dem Ergebnis einer Kontrollprüfung dem Realschulniveau für das Fach Mathematik zugewiesen. Sie beantragte eine Zuweisung zum Sekundarschulniveau. Die Erziehungsdirektion (ERZ) ordnete vorläufig an, dass A.________ im Fach Mathematik das Realschulniveau besucht.",
+            "Erwägungen": "**Zulässigkeit der Beschwerde:**\n\n* Die Beschwerde ist selbständig anfechtbar, da ein nicht wieder gutzumachender Nachteil droht (verpasster Unterricht auf Sekundarschulniveau).\n\n**Prüfung der vorsorglichen Maßnahme:**\n\n* Ziel des Übertrittsverfahrens ist eine Zuweisung zum passenden Schultyp bzw. Niveau.\n* Die Zuweisung zum Realschulniveau wurde durch die Kontrollprüfung gestützt.\n* Das Interesse an einer vorläufigen Zuweisung zum Sekundarschulniveau wird durch das Interesse an einer optimalen Förderung und dem öffentlichen Interesse an einer bedarfsgerechten Ausrichtung des Unterrichts aufgewogen.\n* Die Beschwerdeführerin hat derzeit keinen Anspruch auf eine vorläufige Zuweisung zum Sekundarschulniveau, da sie im Fach Mathematik nach Aktenlage am besten auf Realschulniveau gefördert ist.\n* Die Möglichkeit eines späteren Schultyp-Wechsels und einer Wiederholung des Schuljahres mildert mögliche Nachteile einer vorläufigen Zuweisung zum Realschulniveau ab.",
+            "Entscheid": "Die Beschwerde wird abgewiesen. Die Anordnung der ERZ, A.________ für die Dauer des Beschwerdeverfahrens im Fach Mathematik das Realschulniveau zu besuchen, hält der Rechtskontrolle stand."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2019-258_2019-09-20.pdf"
+    },
+    "259": {
+        "name": "BE_VG_001_100-2021-334_2021-12-14.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "A., ein Gymnasiast aus dem Kanton Bern, wurde von der Schulkommission für zehn Wochen vom Unterricht ausgeschlossen, weil ihm das Verbreiten von pornografischem Material im Klassenchat vorgeworfen wurde. Die Bildungs- und Kulturdirektion wies sein Gesuch um aufschiebende Wirkung der Beschwerde ab.",
+            "Erwägungen": "Das Verwaltungsgericht entschied, dass der Entzug der aufschiebenden Wirkung die Regel bei disziplinarischen Maßnahmen wie dem befristeten Schulausschluss bilde. Die privaten Interessen des Schülers würden durch das öffentliche Interesse an der Aufrechterhaltung des geordneten Schulbetriebs überwogen. Der Unterrichtsausschluss sei nicht von vornherein unverhältnismäßig, da er dem Schutz der Mitschüler vor unangemessenem Verhalten diene und auch pädagogische Zwecke verfolge. Gehörsverletzungen oder andere wichtige Gründe für die Gewährung der aufschiebenden Wirkung seien nicht erkennbar.",
+            "Entscheid": "Die Beschwerde wurde abgewiesen und die angefochtene Zwischenverfügung bestätigt."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2021-334_2021-12-14.pdf"
+    },
+    "260": {
+        "name": "BE_VG_001_100-2023-233_2023-09-28.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "Der Student A.________ hat im zweiten Studienjahr des Bachelorstudiengangs Humanmedizin die Leistungseinheiten \"PBL-Tutorien\" und \"Fachpraktika\" mangels genügender Anwesenheit nicht bestanden. Damit hat er die Voraussetzungen für den Übertritt in das dritte Studienjahr nicht erfüllt.",
+            "Erwägungen": "Die Vorinstanz (Rekurskommission) hat die vorläufige Zulassung des Studenten zum dritten Studienjahr während des Beschwerdeverfahrens verweigert und damit den Grundsatz aufgestellt, dass der Übertritt in ein nächstes Studienjahr in der Regel erst erfolgen kann, wenn alle ECTS-Punkte des vorhergehenden Jahres erworben wurden.\n\nDie Interessen der Universität, der Öffentlichkeit und der anderen Studierenden an einem ordnungsgemäßen Studienablauf, hohen Studienplatzkosten und der Qualität der Ausbildung überwiegen das Interesse des Studenten an einer vorläufigen Zulassung.\n\nEine Zulassung während des Beschwerdeverfahrens würde einen Präzedenzfall schaffen und zu einem Anstieg von Gesuchen von Studierenden führen, die nicht alle ECTS-Punkte eines Studienjahrs erworben haben. Dies hätte erhebliche organisatorische und finanzielle Auswirkungen und könnte die Qualität der Ausbildung gefährden.",
+            "Entscheid": "Die Beschwerde des Studenten wird abgewiesen. Die angefochtene Zwischenverfügung der Rekurskommission, die die vorläufige Zulassung des Studenten zum dritten Studienjahr verweigert, wird bestätigt."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_100-2023-233_2023-09-28.pdf"
+    },
+    "261": {
+        "name": "BE_VG_001_200-2015-333_2015-09-23.pdf",
+        "court": "BE_VG_",
+        "summary": {
+            "Sachverhalt": "Der 15-jährige Beschwerdeführer leidet seit seiner Geburt an einer Lese- und Schreibschwäche. Er beantragte Hilfsmittel (Dragon Naturally Speaking, Claro Read, Fujitsu ScanSnap und ScanMaus) zur Kompensation der Lese- und Schreibschwierigkeiten, die ihm die Ausübung einer Erwerbstätigkeit erschweren. Die IV-Stelle lehnte den Antrag jedoch ab mit der Begründung, dass diese Hilfsmittel pädagogischer Natur seien und nicht in ihren Zuständigkeitsbereich fielen.",
+            "Erwägungen": "Das Gericht stellte fest, dass sich die IV-Stelle tatsächlich aus dem Bereich der Sonderschulung zurückgezogen hat. Hilfsmittel mit pädagogischem Zweck fallen daher nicht mehr in ihre Zuständigkeit. Die beantragten Hilfsmittel dienten jedoch nicht einem pädagogischen Zweck, sondern sollten den Beschwerdeführer bei der Ausübung seiner Erwerbstätigkeit unterstützen. Somit fallen sie in den Zuständigkeitsbereich der IV-Stelle.",
+            "Entscheid": "Das Gericht wies die Beschwerde der IV-Stelle ab und sprach dem Beschwerdeführer einen Anspruch auf die beantragten Hilfsmittel zu."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/BE_Verwaltungsgericht/BE_VG_001_200-2015-333_2015-09-23.pdf"
     }
 }
