@@ -2118,5 +2118,35 @@
             "Entscheid": "N/A"
         },
         "source_url": "https://entscheidsuche.ch/docs/AG_Gerichte/AG_OG_999_AGVE-2002-157_2002-08-20.pdf"
+    },
+    "213": {
+        "name": "AG_OG_999_AGVE-2003-127_2003-09-25.pdf",
+        "court": "AG_OG_",
+        "summary": {
+            "Sachverhalt": "Eine Schülerin ist erst am Ende ihres achten Schuljahres aus dem Ausland in die Schweiz eingereist und besucht nun einen Integrationskurs. Die Frage ist, ob die Gemeinde die Kosten für diesen Kurs übernehmen muss.",
+            "Erwägungen": "**Rechtliche Grundlagen:**\n\n* § 3 SchulG: Recht auf Besuch öffentlicher Schulen entsprechend Fähigkeiten und Anforderungen\n* § 4 SchulG: Schulpflichtbeginn mit sechs Jahren\n* § 6 SchulG: Erfüllung der Schulpflicht in Schulen der Wohngemeinde\n* § 14 V besondere schulische Bedürfnisse: Anspruch auf Deutsch-Intensivkurs für fremdsprachige Schüler\n* § 16 V besondere schulische Bedürfnisse: Bewilligung von regionalen Integrationskursen mit befristeter Schulzeit\n* § 18 V besondere schulische Bedürfnisse: Entscheidung über Zuweisung durch Schulpflege\n* § 52 SchulG: Pflicht der Gemeinde zur Übernahme von Kosten für auswärtigen Schulbesuch bei wichtigen Gründen\n\n**Anwendbarkeit:**\n\n* Die Schülerin ist schulpflichtig, auch wenn sie aus dem Ausland kommt.\n* Die Schulpflege ist berechtigt, sie in den Integrationskurs einzuweisen, da sie aufgrund ihrer schwachen Sprachkenntnisse nicht sofort in die Regelklasse integriert werden kann.\n* Die Gemeinde ist daher verpflichtet, die Kosten für den Integrationskurs zu übernehmen, da es sich um einen notwendigen und wichtigen Grund für einen auswärtigen Schulbesuch handelt.\n\n**Zusätzliche Erwägungen:**\n\n* Der Anspruch auf Sprachförderung gilt auch für Schweizerkinder aus fremdsprachigen Gebieten.\n* Die Schulpflege hat die Kompetenz, über die Zuweisung zu entscheiden, und die Gemeinde ist an diesen Entscheid gebunden.",
+            "Entscheid": "Die Gemeinde ist verpflichtet, die Kosten für den Besuch des Integrationskurses der Schülerin zu übernehmen."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/AG_Gerichte/AG_OG_999_AGVE-2003-127_2003-09-25.pdf"
+    },
+    "214": {
+        "name": "AG_OG_999_AGVE-2004-124_2003-12-11.pdf",
+        "court": "AG_OG_",
+        "summary": {
+            "Sachverhalt": "Die Schulpflege ordnete an, dass ein fünfjähriger Junge den Kindergarten wiederholen sollte. Der Junge hatte zuvor die Altersklasse gewechselt.",
+            "Erwägungen": "Das Schulgesetz sieht keinen „Remotionsentscheid“ im Kindergarten vor. Der Kindergarten soll die Kinder spielerisch fördern und auf die Schule vorbereiten, ohne den Schulunterricht vorwegzunehmen. Rückstellungen vom Schulbesuch sind eine Ausnahme und erfolgen nach sorgfältiger Abwägung. Die Einschulung erfolgt unabhängig vom vorangegangenen Kindergartenbesuch. Förderungsmassnahmen können während des Kindergartenbesuchs angeordnet werden, die Anordnung einer Wiederholung des Kindergartens jedoch nicht.",
+            "Entscheid": "Der Erziehungsrat entschied, dass eine „Remotion“ im Kindergarten nicht möglich sei. Die Schulpflege habe mit ihrem Beschluss nicht nur einen organisatorischen Entscheid, sondern materiell einen eigentlichen „Remotionsentscheid“ getroffen, der jedoch nicht gesetzlich vorgesehen sei."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/AG_Gerichte/AG_OG_999_AGVE-2004-124_2003-12-11.pdf"
+    },
+    "215": {
+        "name": "AG_OG_999_AGVE-2005-123_2005-11-30.pdf",
+        "court": "AG_OG_",
+        "summary": {
+            "Sachverhalt": "Eine Schülerin wurde von ihren Lehrern nicht für einen prüfungsfreien Übertritt in die Bezirksschule empfohlen. Sie legte Widerspruch ein und wurde vorsorglich aufgenommen. Im Beschwerdeverfahren stellte sich heraus, dass die Lehrer ihre Empfehlung nicht korrekt begründet hatten und die Schülerin die Möglichkeit eines prüfungsfreien Übertritts gar nicht kannte.",
+            "Erwägungen": "Grundsätzlich dürfen nachträgliche Leistungen, die während eines Beschwerdeverfahrens erbracht werden, bei der Entscheidung nicht berücksichtigt werden. Abweichungen von diesem Grundsatz können jedoch ausnahmsweise zulässig sein, beispielsweise wenn der Übertritt nicht ausschließlich auf einer Prüfung beruht und die Schülerin im laufenden Schuljahr gezeigt hat, dass sie den Anforderungen gewachsen ist. Im vorliegenden Fall hatte die Schülerin im zweiten Semester ihrer fünften Klasse ihre Leistungen gesteigert und gute Noten in den Promotionsfächern erzielt. Die Lehrer der Bezirksschule, die sie seit den Sommerferien unterrichteten, beurteilten sie ebenfalls positiv. Daher kam das Gericht zu dem Schluss, dass ein prüfungsfreier Übertritt gerechtfertigt sei.",
+            "Entscheid": "Der Schülerin wurde der weitere Verbleib in der Bezirksschule gestattet."
+        },
+        "source_url": "https://entscheidsuche.ch/docs/AG_Gerichte/AG_OG_999_AGVE-2005-123_2005-11-30.pdf"
     }
 }
