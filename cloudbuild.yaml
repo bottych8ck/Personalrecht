@@ -1,0 +1,40 @@
+steps:
+  # Install dependencies
+  - name: 'python:3.9'
+    entrypoint: pip
+    args: ['install', '-r', 'requirements.txt', '--user']
+
+  # Copy necessary JSON files to a staging directory
+  - name: 'ubuntu'
+    entrypoint: bash
+    args:
+      - '-c'
+      - |
+        mkdir -p /workspace/staging
+        cp bildungsrechtsentscheide/*.json /workspace/staging/
+        cp flaskapp.py /workspace/staging/
+        cp requirements.txt /workspace/staging/
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'bildungsrecht-api'
+      - '--source'
+      - '/workspace/staging'
+      - '--region'
+      - 'europe-west1'
+      - '--allow-unauthenticated'
+      - '--platform'
+      - 'managed'
+
+# Add timeout
+timeout: '1600s'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+images:
+  - 'gcr.io/$PROJECT_ID/bildungsrecht-api' 
