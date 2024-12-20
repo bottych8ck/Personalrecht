@@ -25,16 +25,13 @@ steps:
       - '--source'
       - '/workspace/staging'
       - '--region'
-      - 'us-west2'
+      - 'europe-west1'  # Specify your desired deployment region
       - '--allow-unauthenticated'
       - '--platform'
       - 'managed'
 
-# Add timeout
 timeout: '1600s'
 
 options:
   logging: CLOUD_LOGGING_ONLY
-
-images:
-  - 'gcr.io/$PROJECT_ID/bildungsrecht-api' 
+  region: 'us-west2'  # Specify a region without quota restrictions
